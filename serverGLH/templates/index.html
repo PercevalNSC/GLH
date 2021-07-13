@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="static/css/style.css">
+    <title>Sample Flask server</title>
+</head>
+
+<body>
+    <div>
+        {% if title == "hoge" %}
+        <h1>HOGE Title: {{title}}</h1>
+        {% else %}
+        <h1>Sub Title: {{title}}</h1>
+        {% endif %}
+
+        <h2>Upper title: {{title|upper}}</h2>
+        {%- set title = 's Title' %}
+        <h2>Costom title: {{title}}</h2>
+        {%- set deftitle = 'def Title' %}
+        <h2>Define title: {{deftitle}}</h2>
+        <h1>Framework: {{framework}}</h1>
+    </div>
+    <div>
+        {% for word in okyo %}
+        <p>{{word}}</p>
+        {% endfor %}
+    </div>
+    <div>
+        <form action="/1" method="POST">
+            <input type="text" name="name" placeholder="Enter name">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
