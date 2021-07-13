@@ -60,8 +60,8 @@ map.addControl(
     new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         localGeocoder: coordinatesGeocoder,
-        zoom: 4,
-        placeholder: 'Try: -40, 170',
+        zoom: 10,
+        placeholder: 'Try: 35.65, 139.55',
         mapboxgl: mapboxgl
     })
 );
