@@ -16,8 +16,7 @@ def returnjson():
         test_collection = test_db.glh_clct_1
         corsor = test_collection.find({"activitySegment.simplifiedRawPath": {"$exists": True}},{"activitySegment.simplifiedRawPath": 1})
     listObj = MakingLngLatList(corsor)
-    list = listObj.clctAsSrpList()
-    resultdata = {"dataType": "AcitivitySegment.simplifiedRawPath", "data": list}
+    resultdata = {"dataType": "AcitivitySegment.simplifiedRawPath", "data": listObj.clctAsSrpList()}
     with open("dbload.json", "w") as f :
         json.dump(resultdata, f, indent=2,ensure_ascii=False)
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
