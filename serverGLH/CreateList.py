@@ -1,20 +1,22 @@
 class BaseLngLatList :
+    # parent object of AsSimplifiedRawPath, AsWaypointPath and PvSimplifiedRawPath
+    # And dummy object, it's no operation
     def __init__(self, corsor):
         self.corsor = corsor
         self.segment = ""
         self.v1 = ""
         self.v2 = ""
         self.lnglatlist = []
-    def makingDocumentList(self, document):
-        documentlist = []
-        for item in document[self.segment][self.v1][self.v2] :
-            documentlist.append([item["lngE7"], item["latE7"]])
-        return documentlist
     def makingFieldList(self):
         for document in self.corsor :
             doclist = self.makingDocumentList(document)
             for item in doclist:
                 self.lnglatlist.append(item)
+    def makingDocumentList(self, document):
+        documentlist = []
+        for item in document[self.segment][self.v1][self.v2] :
+            documentlist.append([item["lngE7"], item["latE7"]])
+        return documentlist
 
 class AsSimplifiedRawPath(BaseLngLatList):
     def __init__(self, corsor):
