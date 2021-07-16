@@ -13,10 +13,12 @@ def home():
 def returnjson():
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         test_db = client.glh_db
-        test_collection = test_db.glh_clct_1
+        test_collection = test_db.glh_clct_2
         corsor = test_collection.find({"activitySegment.simplifiedRawPath": {"$exists": True}},{"activitySegment.simplifiedRawPath": 1})
+
     listObj = MakingLngLatList(corsor)
     resultdata = {"dataType": "AcitivitySegment.simplifiedRawPath", "data": listObj.clctAsSrpList()}
+
     with open("dbload.json", "w") as f :
         json.dump(resultdata, f, indent=2,ensure_ascii=False)
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
