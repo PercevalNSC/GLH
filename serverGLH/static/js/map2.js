@@ -17,12 +17,14 @@ function addManyMarkers(map, lnglatlist, color="blue") {
 }
 function asSrpMarker() {
     url = "http://localhost:8000/api/activitySegment.simplifiedRawPath"
-    fetch(url)
+    fetch(url, {
+        mode: 'cors'
+    })
         .then((response) => {
             return response.json();
         })
         .then((myjson) => {
-            var asWpMarkers = addManyMarkers(map, myjson["data"], "blue")
+            var asSrpMarkers = addManyMarkers(map, myjson["data"], "blue")
         })
         .catch((e) => {
             console.log(e);
@@ -30,7 +32,9 @@ function asSrpMarker() {
 }
 function asWpMarker() {
     url = "http://localhost:8000/api/activitySegment.waypointPath"
-    fetch(url)
+    fetch(url, {
+        mode: 'cors'
+    })
         .then((response) => {
             return response.json();
         })
@@ -43,12 +47,14 @@ function asWpMarker() {
 }
 function pvSrpMarker(){
     url = "http://localhost:8000/api/placeVisit.simplifiedRawPath"
-    fetch(url)
+    fetch(url, {
+        mode: 'cors'
+    })
         .then((response) => {
             return response.json();
         })
         .then((myjson) => {
-            var asWpMarkers = addManyMarkers(map, myjson["data"], "yellow")
+            var pvSrpMarkers = addManyMarkers(map, myjson["data"], "yellow")
         })
         .catch((e) => {
             console.log(e);
