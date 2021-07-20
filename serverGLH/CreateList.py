@@ -1,5 +1,5 @@
 class BaseLngLatList :
-    # parent object of AsSimplifiedRawPath, AsWaypointPath and PvSimplifiedRawPath
+    # Parent object of AsSimplifiedRawPath, AsWaypointPath and PvSimplifiedRawPath
     # And dummy object, it's no operation
     def __init__(self, corsor):
         self.corsor = corsor
@@ -37,8 +37,7 @@ class PvSimplifiedRawPath(BaseLngLatList):
         super().__init__(corsor)
         self.segment = "placeVisit"
         self.v1 = "simplifiedRawPath"
-        self.v2 = "points"
-    
+        self.v2 = "points"   
 
 if __name__ == "__main__" :
     from pymongo import MongoClient

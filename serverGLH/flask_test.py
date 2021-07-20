@@ -1,10 +1,11 @@
-from threading import Condition
-from flask import Flask, render_template, request, make_response
+from flask_cors import CORS
+from flask import Flask, render_template, make_response
 from pymongo import MongoClient
 from CreateList import AsSimplifiedRawPath, AsWaypointPath, PvSimplifiedRawPath, BaseLngLatList
 import json
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def home():
