@@ -7,7 +7,7 @@ function addSingleMarker(map, lnglat, color) {
         .addTo(map);
     return marker;
 }
-function addManyMarkers(map, lnglatlist, color="blue") {
+function addManyMarkers(map, lnglatlist, color = "blue") {
     var markerlist = [];
     for (const lnglat of lnglatlist) {
         var marker = addSingleMarker(map, lnglat, color);
@@ -45,7 +45,7 @@ function asWpMarker() {
             console.log(e);
         })
 }
-function pvSrpMarker(){
+function pvSrpMarker() {
     url = "http://localhost:8000/api/placeVisit.simplifiedRawPath"
     fetch(url, {
         mode: 'cors'
@@ -66,12 +66,87 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxM
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11', // マップのスタイル（デザイン）
-    center: [139.5446, 35.6518], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
-    zoom: 13 // 初期に表示する地図のズームレベル
+    center: [-96, 37.8], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
+    zoom: 3 // 初期に表示する地図のズームレベル
 });
+
 
 var neko = 0;
 
-asSrpMarker();
-asWpMarker();
-pvSrpMarker();
+const geojson = {
+    "type": "FeatureCollection",
+    "name": "sample",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+        }
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "field01": "一",
+                "field02": "abcd",
+                "field03": 5
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    139.766778945922852,
+                    35.68198003744061
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "field01": "二",
+                "field02": null,
+                "field03": 7
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    139.762916564941406,
+                    35.674310750817348
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "field01": "三",
+                "field02": "kojsha",
+                "field03": 9
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    139.763603210449219,
+                    35.691391336319306
+                ]
+            }
+        }
+    ]
+}
+
+map.on('load', function () {
+    map.addSource('points', {
+        'type': 'geojson',
+        'data': geojson
+    });
+    map.addLayer({
+        'id': 'point',
+        'source': 'points',
+        'type': 'circle',
+        'paint': {
+            'circle-radius': 10,
+            'circle-color': '#007cbf'
+        }
+    });
+});
+
+//asSrpMarker();
+//asWpMarker();
+//pvSrpMarker();
