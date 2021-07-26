@@ -5,13 +5,7 @@ import json
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return render_template('index2.html')
-
-@app.route('/api/<path>')
-def serveapi(path):
-
+def mongodbRequest(path):
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         test_db = client.glh_db
         test_collection = test_db.glh_clct_2
@@ -24,15 +18,39 @@ def serveapi(path):
     elif path == "placeVisit.simplifiedRawPath" :
         listObj = PvSimplifiedRawPath(corsor)
     else :
-        path = "unexpected query: " + path
         listObj = BaseLngLatList(corsor)
+
     listObj.makingFieldList()
-    resultdata = {"dataType": path, "data": listObj.lnglatlist}
+
+    return listObj
+
+
+@app.route('/')
+def home():
+    return render_template('index2.html')
+
+@app.route('/api/json/<path>')
+def jsonapi(path):
+    listObj = mongodbRequest(path)
+
+    resultdata = listObj.jsonBluster()
 
     #with open("dbload.json", "w") as f :
         #json.dump(resultdata, f, indent=2,ensure_ascii=False)
         
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
+
+@app.route('/api/geojson/<path>')
+def geojsonapi(path):
+    listObj = mongodbRequest(path)
+    
+    resultdata = listObj.geojsonBluster()
+
+    #with open("dbload.json", "w") as f :
+        #json.dump(resultdata, f, indent=2,ensure_ascii=False)
+        
+    return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
+
 
 @app.route('/geocoder')
 def geocoderMap():
