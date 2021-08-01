@@ -75,7 +75,7 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11', // マップのスタイル（デザイン）
     center: [139.56, 35.65], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
-    zoom: 13 // 初期に表示する地図のズームレベル
+    zoom: 13, // 初期に表示する地図のズームレベル
 });
 
 map.addControl(new mapboxgl.FullscreenControl());

@@ -51,12 +51,8 @@ def geojsonapi(path):
         
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
 
-
 @app.route('/geocoder')
 def geocoderMap():
-    title = "Flask app"
-    framework = "Flask"
-    return render_template('geocoder.html', title=title, framework=framework)
-
+    return render_template('geocoder.html', title="Flask app", framework="Flask framework")
 
 app.run(port=8000, debug=True)
