@@ -1,6 +1,6 @@
 from flask import Flask, render_template, make_response
 from pymongo import MongoClient
-from CreateList import AsSimplifiedRawPath, AsWaypointPath, PvSimplifiedRawPath, BaseLngLatList
+import CreateList
 import json
 
 app = Flask(__name__)
@@ -12,42 +12,42 @@ def mongodbRequest(path):
         corsor = test_collection.find({path: {"$exists": True}},{path: 1})
 
     if path == "activitySegment.simplifiedRawPath" :
-        listObj = AsSimplifiedRawPath(corsor)
+        listObj = CreateList.AsSimplifiedRawPath(corsor)
     elif path == "activitySegment.waypointPath" :
-        listObj = AsWaypointPath(corsor)
+        listObj = CreateList.AsWaypointPath(corsor)
     elif path == "placeVisit.simplifiedRawPath" :
-        listObj = PvSimplifiedRawPath(corsor)
+        listObj = CreateList.PvSimplifiedRawPath(corsor)
+    elif path == "placeVisit.location" :
+        listObj = CreateList.PvCoordinate(corsor)
     else :
-        listObj = BaseLngLatList(corsor)
+        listObj = CreateList.BaseLngLatList(corsor)
 
     listObj.makingFieldList()
-
     return listObj
 
+def storejson(data, name = "dbdata.json"):
+    with open(name, "w") as f :
+        json.dump(data, f, indent=2,ensure_ascii=False)
 
 @app.route('/')
 def home():
-    return render_template('index2.html')
+    return render_template('GLH.html')
 
 @app.route('/api/json/<path>')
 def jsonapi(path):
     listObj = mongodbRequest(path)
-
     resultdata = listObj.jsonBluster()
 
-    #with open("dbload.json", "w") as f :
-        #json.dump(resultdata, f, indent=2,ensure_ascii=False)
+    #storejson(resultdata)
         
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
 
 @app.route('/api/geojson/<path>')
 def geojsonapi(path):
     listObj = mongodbRequest(path)
-    
     resultdata = listObj.geojsonBluster()
 
-    #with open("dbload.json", "w") as f :
-        #json.dump(resultdata, f, indent=2,ensure_ascii=False)
+    #storejson(resultdata)
         
     return make_response(json.dumps(resultdata, indent=2, ensure_ascii=False))
 
@@ -56,10 +56,7 @@ def geojsonapi(path):
 def geocoderMap():
     title = "Flask app"
     framework = "Flask"
-    return render_template('index.html', title=title, framework=framework)
+    return render_template('geocoder.html', title=title, framework=framework)
 
-@app.route('/<name>')
-def test(name):
-    return name
 
 app.run(port=8000, debug=True)
