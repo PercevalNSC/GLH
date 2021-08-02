@@ -15,16 +15,17 @@ class CreateGeojson() :
     def makingFeature(self, list):
         features = []
         neko = 0
-        for coordinates in list :
+        for item in list :
+            # item[0],[1]: coordinate, item[2]: timestamp
             feature = {
                 "type": "Feature",
                 "properties": {
                     "description": "neko: " + str(neko),
-                    "timestamp" : 0
+                    "timestamp" : item[2]
                 },
                 "geometry": {
                     "type": "Point",
-                    "coordinates": coordinates
+                    "coordinates": [item[0], item[1]]
                 }
             }
             features.append(feature)
@@ -40,16 +41,22 @@ class BaseLngLatList :
         self.v1 = ""
         self.v2 = ""
         self.lnglatlist = []
-    def makingFieldList(self):
+
+    def makingCollectionList(self):
         for document in self.corsor :
             doclist = self.makingDocumentList(document)
-            for item in doclist:
-                self.lnglatlist.append(item)
+            self.lnglatlist.extend(doclist)
     def makingDocumentList(self, document):
         documentlist = []
         for item in document[self.segment][self.v1][self.v2] :
-            documentlist.append([item["lngE7"], item["latE7"]])
+            documentlist.append([item["lngE7"], item["latE7"], item["timestampMs"]])
         return documentlist
+    def makingDocumentListNotimestamp(self, document):
+        documentlist = []
+        for item in document[self.segment][self.v1][self.v2] :
+            documentlist.append([item["lngE7"], item["latE7"], "NULL"])
+        return documentlist
+
     def jsonBluster(self) :
         path = self.segment + "." + self.v1 + "." + self.v2
         return {"datatype": path, "data": self.lnglatlist}
@@ -71,6 +78,8 @@ class AsWaypointPath(BaseLngLatList):
         self.segment = "activitySegment"
         self.v1 = "waypointPath"
         self.v2 = "waypoints"
+    def makingDocumentList(self, document):
+        return super().makingDocumentListNotimestamp(document)
 
 class PvSimplifiedRawPath(BaseLngLatList):
     def __init__(self, corsor):
@@ -79,15 +88,17 @@ class PvSimplifiedRawPath(BaseLngLatList):
         self.v1 = "simplifiedRawPath"
         self.v2 = "points"   
 
-class PvCoordinate(BaseLngLatList):
+class PvLocation(BaseLngLatList):
     def __init__(self, corsor):
         super().__init__(corsor)
         self.segment = "placeVisit"
         self.v1 = "location"
     def makingDocumentList(self, document):
         documentlist = []
-        item = document[self.segment][self.v1]
-        documentlist.append([item["longitudeE7"], item["latitudeE7"]])
+        location = document[self.segment][self.v1]
+        duration = document[self.segment]["duration"]
+        timestamp = int((duration["startTimestampMs"] + duration["endTimestampMs"])/2)
+        documentlist.append([location["longitudeE7"], location["latitudeE7"], timestamp])
         return documentlist
 
 if __name__ == "__main__" :
@@ -96,8 +107,8 @@ if __name__ == "__main__" :
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         test_db = client.glh_db
         test_collection = test_db.glh_clct_2
-        corsor = test_collection.find({"placeVisit.location": {"$exists": True}},{"placeVisit.location": 1})
+        corsor = test_collection.find({"activitySegment.simplifiedRawPath": {"$exists": True}})
 
-    obj = PvCoordinate(corsor)
-    obj.makingFieldList()
-    print(obj.jsonBluster())
+    obj = AsSimplifiedRawPath(corsor)
+    obj.makingCollectionList()
+    print(obj.geojsonBluster())

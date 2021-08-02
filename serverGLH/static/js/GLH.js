@@ -42,12 +42,11 @@ function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
 
     map.on('click', id, function(e){
         var coordinates = e.features[0].geometry.coordinates.slice();
-        var description = e.features[0].properties.description;
+        var description = "Timestamp:" + e.features[0].properties.timestamp;
         new mapboxgl.Popup()
             .setLngLat(coordinates)
             .setHTML(description)
             .addTo(map);
-
     });
 }
 function asSrpPoint() {
@@ -63,7 +62,7 @@ function pvSrpPoint() {
     dbPoint(url, "pvSrp", "yellow");
 }
 function pvLocationPoint() {
-    url = "http://localhost:8000/api/geojson/placeVisit.simplifiedRawPath"
+    url = "http://localhost:8000/api/geojson/placeVisit.location"
     dbPoint(url, "pvLocation", "white", radius = 6, opacity = 0.5);
 }
 
