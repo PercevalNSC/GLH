@@ -1,37 +1,5 @@
-class CreateGeojson() :
-    def __init__(self,name, list):
-        self.geojson = {
-            "type": "FeatureCollection",
-            "name": name,
-            "crs": {
-                "type": "name",
-                "properties": {
-                    "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-                }
-            },
-            "features": self.makingFeature(list)
-        }
-    
-    def makingFeature(self, list):
-        features = []
-        neko = 0
-        for item in list :
-            # item[0],[1]: coordinate, item[2]: timestamp
-            feature = {
-                "type": "Feature",
-                "properties": {
-                    "description": "neko: " + str(neko),
-                    "timestamp" : item[2]
-                },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [item[0], item[1]]
-                }
-            }
-            features.append(feature)
-            neko += 1
-        return features
-        
+import CreateGeoJSON
+
 class BaseLngLatList :
     # Parent object of AsSimplifiedRawPath, AsWaypointPath and PvSimplifiedRawPath
     # And dummy object, it's no operation
@@ -62,7 +30,7 @@ class BaseLngLatList :
         return {"datatype": path, "data": self.lnglatlist}
     def geojsonBluster(self) :
         path = self.segment + "." + self.v1 + "." + self.v2
-        geojsonObj = CreateGeojson(path, self.lnglatlist)
+        geojsonObj = CreateGeoJSON.PointGeojson(path, self.lnglatlist)
         return geojsonObj.geojson
     
 class AsSimplifiedRawPath(BaseLngLatList):
@@ -101,14 +69,43 @@ class PvLocation(BaseLngLatList):
         documentlist.append([location["longitudeE7"], location["latitudeE7"], timestamp])
         return documentlist
 
+class RoutePath :
+    def __init__(self, corsor):
+        self.corsor = corsor
+        self.clctList = []
+
+    def createRoutePath(self) : 
+        for document in self.corsor :
+            self.clctList.extend(self.docRoutePath(document))
+
+    def docRoutePath(self, document):
+        docList = []
+        if "activitySegment" in document :
+            docList.extend(self.activitySegmentPath(document["activitySegment"]))
+        elif "placeVisit" in document :
+            location = document["placeVisit"]["location"]
+            docList.append([location["longitudeE7"], location["latitudeE7"]])
+        else : 
+            print("undefined Segment")
+        return docList
+
+    def activitySegmentPath(self, segment) :
+        segmentList = []
+        if "simplifiedRawPath" in segment :
+            for point in segment["simplifiedRawPath"]["points"] :
+                segmentList.append([point["lngE7"], point["latE7"]])
+
+        return segmentList
+
 if __name__ == "__main__" :
     from pymongo import MongoClient
 
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         test_db = client.glh_db
         test_collection = test_db.glh_clct_2
-        corsor = test_collection.find({"activitySegment.simplifiedRawPath": {"$exists": True}})
+        corsor = test_collection.find()
 
-    obj = AsSimplifiedRawPath(corsor)
-    obj.makingCollectionList()
-    print(obj.geojsonBluster())
+    obj = RoutePath(corsor)
+    obj.createRoutePath()
+    gj = CreateGeoJSON.LineGeojson("sample", obj.clctList)
+    print(gj.geojson)
