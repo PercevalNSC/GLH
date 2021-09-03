@@ -53,7 +53,8 @@ class PlaceVisit(ParentGLHSegment):
         self.initLocation()
         self.initDuration()
         self.initCenter()
-        self.initOCLs()
+        if "otherCandidateLocations" in self.segmentdict:
+            self.initOCLs()
         if "simplifiedRawPath" in self.segmentdict:
             self.initSimplifiedRawPath()
     def initLocation(self):
@@ -70,7 +71,7 @@ class PlaceVisit(ParentGLHSegment):
         super().convertLatLng(latlngset, latlnglist)
 
 class GLHinit:
-    # debug:: 0:no infomation, 1: only output, 2: input and output
+    # debug| 0:no infomation, 1: only output, 2: input and output
     debug = 0
     def __init__(self, dictionary, debug = 0):
         GLHinit.debug = debug

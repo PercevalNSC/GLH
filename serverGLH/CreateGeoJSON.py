@@ -39,16 +39,14 @@ class PointGeojson(CreateGeojson) :
 
 class LineGeojson(CreateGeojson) :
     def __init__(self, name, list):
-        super().__init__(name, list)
-
-    def makingFeature(self, list):
-        feature = {
-            "type": "Feature",
-            "properties": {
+        self.geojson = {
+            "type": "LineString",
+            "name": name,
+            "crs": {
+                "type": "name",
+                "properties": {
+                    "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                }
             },
-            "geometry": {
-                "type": "LineString",
-                "coordinates": list
-            }
+            "coordinates": list
         }
-        return feature

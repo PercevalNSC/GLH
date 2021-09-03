@@ -40,7 +40,7 @@ function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
         console.log(e);
     });
 
-    map.on('click', id, function(e){
+    map.on('click', id, function (e) {
         var coordinates = e.features[0].geometry.coordinates.slice();
         var description = "Timestamp:" + e.features[0].properties.timestamp;
         new mapboxgl.Popup()
@@ -50,20 +50,49 @@ function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
     });
 }
 function asSrpPoint() {
-    url = "http://localhost:8000/api/geojson/activitySegment.simplifiedRawPath"
+    url = "http://localhost:8000/api/geojson/point/activitySegment.simplifiedRawPath"
     dbPoint(url, "asSrp", "blue");
 }
 function asWpPoint() {
-    url = "http://localhost:8000/api/geojson/activitySegment.waypointPath"
+    url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
     dbPoint(url, "asWp", "pink");
 }
 function pvSrpPoint() {
-    url = "http://localhost:8000/api/geojson/placeVisit.simplifiedRawPath"
+    url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
     dbPoint(url, "pvSrp", "yellow");
 }
 function pvLocationPoint() {
-    url = "http://localhost:8000/api/geojson/placeVisit.location"
+    url = "http://localhost:8000/api/geojson/point/placeVisit.location"
     dbPoint(url, "pvLocation", "white", radius = 6, opacity = 0.5);
+}
+function dbline() {
+    url = "http://localhost:8000/api/geojson/line"
+    id = "routepath"
+    fetch(url, {
+        mode: 'cors'
+    }).then((response) => {
+        return response.json();
+    }).then((geojson) => {
+        map.addSource(id, {
+            'type': 'geojson',
+            'data': geojson
+        });
+        map.addLayer({
+            'id': id,
+            'type': 'line',
+            'source': id,
+            'layout': {
+                'line-join': 'bevel',
+                'line-cap': 'butt'
+            },
+            'paint': {
+                'line-color': '#888',
+                'line-width': 3
+            }
+        });
+    }).catch((e) => {
+        console.log(e);
+    });
 }
 
 //
@@ -82,6 +111,7 @@ map.addControl(new mapboxgl.NavigationControl());
 //map.addControl(new mapboxgl.ScaleControl());
 
 map.on('load', function () {
+    dbline();
     pvLocationPoint();
     asSrpPoint();
     asWpPoint();

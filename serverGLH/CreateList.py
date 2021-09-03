@@ -96,6 +96,11 @@ class RoutePath :
                 segmentList.append([point["lngE7"], point["latE7"]])
 
         return segmentList
+    
+    def geojsonbluster(self):
+        path = "all_route_path"
+        geojsonObj = CreateGeoJSON.LineGeojson(path, self.clctList)
+        return geojsonObj.geojson
 
 if __name__ == "__main__" :
     from pymongo import MongoClient
@@ -107,5 +112,4 @@ if __name__ == "__main__" :
 
     obj = RoutePath(corsor)
     obj.createRoutePath()
-    gj = CreateGeoJSON.LineGeojson("sample", obj.clctList)
-    print(gj.geojson)
+    print(obj.geojsonbluster())
