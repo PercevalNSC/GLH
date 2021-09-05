@@ -30,6 +30,9 @@ def differenceList(segment):
 
 def docDistance(doc):
     return (doc["latE7"]**2 + doc["lngE7"]**2)
+def docDuration(doc):
+    offset = 1000 * 60 # convert to minite
+    return doc["timestampMs"] / offset
 
 
 def queryMongodb(query):
@@ -43,7 +46,7 @@ def createFigures(distlists,timelists):
     createFigure(distlists[1], timelists[1], "PlaceVisit")
     createFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
 
-def createFigure(distlist, timelist, name, xlabel = "distance", ylabel = "time"):
+def createFigure(distlist, timelist, name, xlabel = "distance[]", ylabel = "duration[minite]"):
     savepath = "./images/"
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
@@ -55,7 +58,7 @@ def fullFigure(distlists,timelists):
 
     # full | As
     # full | Pv
-    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance", ylabel = "time")
+    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance[]", ylabel = "duration[minite]")
     fullax.scatter(distlists[0] + distlists[1], timelists[0] + timelists[1], marker=".")
     asax = fig.add_subplot(2, 2, 2, title = "ActivitySegment")
     asax.scatter(distlists[0], timelists[0], marker=".")
@@ -77,11 +80,9 @@ if __name__ == '__main__' :
 
         for doc in differenceList(seg) :
             distlist.append(docDistance(doc))
-            timelist.append(doc["timestampMs"])
+            timelist.append(docDuration(doc))
 
-        # print([docDi
-        # 
-        # stance(doc) for doc in difflist])
+        # print([docDistance(doc) for doc in difflist])
         
         distlists.append(distlist)
         timelists.append(timelist)
