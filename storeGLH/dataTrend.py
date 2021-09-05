@@ -1,4 +1,3 @@
-from platform import dist
 from pymongo import MongoClient
 import matplotlib.pyplot as plt
 
@@ -39,7 +38,19 @@ def queryMongodb(query):
         glh_clct = glh_db.glh_clct_2
         return glh_clct.find(query)
     
-def createFigure(distlists,timelists):
+def createFigures(distlists,timelists):
+    createFigure(distlists[0], timelists[0], "ActivitySegment")
+    createFigure(distlists[1], timelists[1], "PlaceVisit")
+    createFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
+
+def createFigure(distlist, timelist, name, xlabel = "distance", ylabel = "time"):
+    savepath = "./images/"
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    ax.scatter(distlist, timelist, marker=".")
+    fig.savefig(savepath + name + ".png")
+
+def fullFigure(distlists,timelists):
     fig = plt.figure()
 
     # full | As
@@ -53,7 +64,7 @@ def createFigure(distlists,timelists):
     
     fig.tight_layout()
     fig.savefig("difference.png")
- 
+
 if __name__ == '__main__' :
 
     segment = ["activitySegment", "placeVisit"]
@@ -63,15 +74,16 @@ if __name__ == '__main__' :
     for seg in segment:
         distlist = []
         timelist = []
-        difflist = differenceList(seg)
 
-        for doc in difflist :
+        for doc in differenceList(seg) :
             distlist.append(docDistance(doc))
             timelist.append(doc["timestampMs"])
 
-        # print([docDistance(doc) for doc in difflist])
+        # print([docDi
+        # 
+        # stance(doc) for doc in difflist])
         
         distlists.append(distlist)
         timelists.append(timelist)
 
-    createFigure(distlists, timelists)
+    createFigures(distlists, timelists)

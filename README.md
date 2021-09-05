@@ -4,6 +4,31 @@
 - flask
 - MongoDB, pymongo
 
+## Use
+- All script can run in carrent directory only.
+### Store GLH data
+    python storeGLH.py
+
+- Warning: In default, the script includes all GLH data. If you want to include the file, change include path. 
+
+### Plot
+    python dataTrend.py
+
+### start Server
+    python flaskServer.py
+
+### API requests
+- root/api/json/\<Segmentation>
+
+    Json形式でSegmentationで指定したデータを返す
+- root/api/geojson/points/\<Segmentation>
+
+    GeoJson形式のPointの集合としてSegmentationで指定したデータを返す    
+- root/api/geojson/line
+
+    GeoJson形式のPolylineとして、GLHデータを
+- Segmentation 
+
 
 ## storeGLH
 JSONとMongoDBのやり取りの管理

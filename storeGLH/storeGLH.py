@@ -38,6 +38,9 @@ def getjsondata(rootpath):
 
     return filelist
 
+# streamingで集計していけるようにするのが理想
+
+
 if __name__ == '__main__' :
     
     rootpath = "./jsondata/"
