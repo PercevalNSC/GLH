@@ -26,8 +26,12 @@
     GeoJson形式のPointの集合としてSegmentationで指定したデータを返す    
 - root/api/geojson/line
 
-    GeoJson形式のPolylineとして、GLHデータを
+    GeoJson形式のPolylineとして、GLHデータを線にして返す
 - Segmentation 
+    - activitySegment.simplifiedRawPath
+    - activitySegment.waypointPath
+    - placeVisit.simplifiedRawPath
+    - placeVisit.location
 
 
 ## storeGLH
