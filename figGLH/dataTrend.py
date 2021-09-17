@@ -1,25 +1,27 @@
 from pymongo import MongoClient
 import matplotlib.pyplot as plt
-
-
-def listDifference(points):
-    assert len(points) > 0, "points is None"
-    return list(map((lambda x: x - points[0]), points))[1:]
+from geo2 import distance as g2dist 
 
 def pointsDifference(points):
-    result = points
-    indexes = ["latE7", "lngE7", "timestampMs"]
+    result = []
 
-    for index in indexes:
-        diff = result[0][index]
-        for p in result:
-            p[index] = p[index] - diff
-     
-    return result[1:]
+    for index in range(len(points)-1):
+        result.append({"dist": docDistance(points[index], points[index+1]),
+            "duration": docDuration(points[index], points[index+1])})
+        
+    return result
+
+def docDistance(doc1, doc2):
+    coord1 = [doc1["latE7"], doc1["lngE7"]]
+    coord2 = [doc2["latE7"], doc2["lngE7"]]
+    return g2dist(coord1, coord2)
+def docDuration(doc1, doc2):
+    offset = 1000 * 60 # convert to minite]
+    duration = abs(doc2["timestampMs"] - doc1["timestampMs"] )
+    return duration / offset
 
 def differenceList(segment):
     result = []
-
     query = { segment + ".simplifiedRawPath" : {"$exists": True}}
     for doc in queryMongodb(query):
         points = doc[segment]["simplifiedRawPath"]["points"]
@@ -28,12 +30,11 @@ def differenceList(segment):
 
     return result
 
-def docDistance(doc):
-    return (doc["latE7"]**2 + doc["lngE7"]**2)
-def docDuration(doc):
-    offset = 1000 * 60 # convert to minite
-    return doc["timestampMs"] / offset
-
+def elementList(segment, element):
+    result = []
+    for doc in differenceList(segment) :
+        result.append(doc[element])
+    return result
 
 def queryMongodb(query):
     with MongoClient("mongodb://127.0.0.1:27017") as client:
@@ -46,7 +47,7 @@ def createFigures(distlists,timelists):
     createFigure(distlists[1], timelists[1], "PlaceVisit")
     createFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
 
-def createFigure(distlist, timelist, name, xlabel = "distance[]", ylabel = "duration[minite]"):
+def createFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minite]"):
     savepath = "./images/"
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
@@ -58,7 +59,7 @@ def fullFigure(distlists,timelists):
 
     # full | As
     # full | Pv
-    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance[]", ylabel = "duration[minite]")
+    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance[km]", ylabel = "duration[minite]")
     fullax.scatter(distlists[0] + distlists[1], timelists[0] + timelists[1], marker=".")
     asax = fig.add_subplot(2, 2, 2, title = "ActivitySegment")
     asax.scatter(distlists[0], timelists[0], marker=".")
@@ -66,25 +67,20 @@ def fullFigure(distlists,timelists):
     pvax.scatter(distlists[1],timelists[1], marker=".")
     
     fig.tight_layout()
-    fig.savefig("difference.png")
+    fig.savefig("./images/difference.png")
 
+    
 if __name__ == '__main__' :
 
     segment = ["activitySegment", "placeVisit"]
+    element = ["dist", "duration"]
     distlists = []
     timelists = []
 
     for seg in segment:
-        distlist = []
-        timelist = []
 
-        for doc in differenceList(seg) :
-            distlist.append(docDistance(doc))
-            timelist.append(docDuration(doc))
+        distlists.append(elementList(seg, element[0]))
+        timelists.append(elementList(seg, element[1]))
 
-        # print([docDistance(doc) for doc in difflist])
-        
-        distlists.append(distlist)
-        timelists.append(timelist)
-
-    createFigures(distlists, timelists)
+    # createFigures(distlists, timelists)
+    fullFigure(distlists, timelists)
