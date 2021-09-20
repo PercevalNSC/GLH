@@ -3,8 +3,32 @@
 # https://tjkendev.github.io/procon-library/python/geometry/rotating_calipers.html
 
 from math import sqrt
+from geo2 import distance as g2distance
 
+def cross(a, b, c, d):
+    return (b[0]-a[0])*(d[1]-c[1]) - (b[1]-a[1])*(d[0]-c[0])
+# グラハムスキャン
+def convex_hull(ps):
+    qs = []
+    n = len(ps)
+    for p in ps:
+        while len(qs)>1 and cross(qs[-1], qs[-2], qs[-1], p) > 0:
+            qs.pop()
+        qs.append(p)
+    t = len(qs)
+    for i in range(n-2, -1, -1):
+        p = ps[i]
+        while len(qs)>t and cross(qs[-1], qs[-2], qs[-1], p) >= 0:
+            qs.pop()
+        qs.append(p)
+    return qs
+
+def dist(a, b):
+    # return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+    return g2distance(a,b) # kmで計算
+# キャリパー法
 def rotating_calipers(ps):
+    ps.sort()
     qs = convex_hull(ps)
     n = len(qs)
     if n == 2:
@@ -15,40 +39,27 @@ def rotating_calipers(ps):
         if qs[j] < qs[k]: j = k
     res = 0
     si = i; sj = j
+    c = 0
     while i != sj or j != si:
         res = max(res, dist(qs[i], qs[j]))
-        if cross4(qs[i], qs[i-n+1], qs[j], qs[j-n+1]) < 0:
+        if res >= dist(qs[i], qs[j]) :
+            c += 1
+        else :
+            res = dist(qs[i], qs[j])
+        if c == 30 :
+            res = 0
+            print(qs)
+            print("break")
+            break
+        if cross(qs[i], qs[i-n+1], qs[j], qs[j-n+1]) < 0:
             i = (i + 1) % n
         else:
             j = (j + 1) % n
     return res
 
-def dist(a, b):
-    return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-
-def cross4(a, b, c, d):
-    return (b[0]-a[0])*(d[1]-c[1]) - (b[1]-a[1])*(d[0]-c[0])
-def cross3(a, b, c):
-    return (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0])
-
-# ps = [(x, y), ...]: ソートされた座標list
-def convex_hull(ps):
-    qs = []
-    N = len(ps)
-    for p in ps:
-        # 一直線上で高々2点にする場合は ">=" にする
-        while len(qs) > 1 and cross3(qs[-1], qs[-2], p) > 0:
-            qs.pop()
-        qs.append(p)
-    t = len(qs)
-    for i in range(N-2, -1, -1):
-        p = ps[i]
-        while len(qs) > t and cross3(qs[-1], qs[-2], p) > 0:
-            qs.pop()
-        qs.append(p)
-    return qs
-
 if __name__ == "__main__" :
-    points = [[0,0], [2,1], [3,2], [1,4]]
+    points = [[0,0], [1, 0], [2,1], [2, 2], [1,2]]
 
     print(rotating_calipers(points))
+
+    points = [[2,1], [2,2], [1,2], [0,0], [1,0], [1,1]]
