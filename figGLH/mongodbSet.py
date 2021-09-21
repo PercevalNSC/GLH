@@ -8,7 +8,7 @@ class MongoDBSet :
             self.glh_db = client.glh_db
             self.glh_clct = self.glh_db.glh_clct_full
 
-    def queryMongodb(self, query, limit = 1000):
+    def queryMongodb(self, query, limit = 0):
         corsor = self.glh_clct.find(query).limit(limit)
         return corsor
     

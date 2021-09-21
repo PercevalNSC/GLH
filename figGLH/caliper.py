@@ -25,7 +25,7 @@ def convex_hull(ps):
 
 def dist(a, b):
     # return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-    return g2distance(a,b) # kmで計算
+    return g2distance(a,b) * 1000 # mで計算
 # キャリパー法
 def rotating_calipers(ps):
     ps.sort()

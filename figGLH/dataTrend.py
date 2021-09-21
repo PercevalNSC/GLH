@@ -19,7 +19,7 @@ class GLHPoints():
     def docDistance(self, doc1, doc2):
         coord1 = [doc1["latE7"], doc1["lngE7"]]
         coord2 = [doc2["latE7"], doc2["lngE7"]]
-        return g2dist(coord1, coord2)
+        return g2dist(coord1, coord2) * 1000
     def docDuration(self, doc1, doc2):
         duration = abs(doc2["timestampMs"] - doc1["timestampMs"] )
         return msToMinite(duration)
@@ -109,7 +109,7 @@ def createFigures(distlists,timelists):
     logScatterFigure(distlists[1], timelists[1], "PlaceVisit")
     logScatterFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
 
-def scatterFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minute]"):
+def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure()
@@ -118,7 +118,7 @@ def scatterFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "d
     fig.savefig(savepath + name + ".png")
     print("Output: " + name + ".png")
 
-def logScatterFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minute]"):
+def logScatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure()
@@ -145,7 +145,7 @@ def fullFigure(distlists,timelists):
 if __name__ == '__main__' :
 
     segments = ["activitySegment", "placeVisit"]
-    limits= [800, 100]
+    limits= [0, 0]
     elements = ["dist", "duration"]
 
     MongoDBSet().stat()
