@@ -6,9 +6,9 @@ class MongoDBSet :
         mongodb_path = "mongodb://127.0.0.1:27017"
         with MongoClient(mongodb_path) as client:
             self.glh_db = client.glh_db
-            self.glh_clct = self.glh_db.glh_clct_2
+            self.glh_clct = self.glh_db.glh_clct_full
 
-    def queryMongodb(self, query, limit = 0):
+    def queryMongodb(self, query, limit = 1000):
         corsor = self.glh_clct.find(query).limit(limit)
         return corsor
     

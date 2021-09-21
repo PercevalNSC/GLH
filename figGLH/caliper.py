@@ -57,9 +57,20 @@ def rotating_calipers(ps):
             j = (j + 1) % n
     return res
 
+def gravityPointDistance(points):
+    res = 0
+    gravity_point = [0, 0]
+    gravity_point_sum = [0, 0]
+    for length, point in enumerate(points,1):
+        assert len(point) == len(gravity_point), "len(point) is not equal 2"
+        for index in range(len(gravity_point)):
+            gravity_point_sum[index] = (gravity_point_sum[index] + point[index])
+        gravity_point = [ x / (length) for x in gravity_point_sum]
+        res = max(res, dist(gravity_point, point))
+        #print(point, gravity_point, res)
+    return res
+
 if __name__ == "__main__" :
-    points = [[0,0], [1, 0], [2,1], [2, 2], [1,2]]
+    points = [[35.6571999, 139.5420565], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.6571999, 139.5420565]]
 
-    print(rotating_calipers(points))
-
-    points = [[2,1], [2,2], [1,2], [0,0], [1,0], [1,1]]
+    print(gravityPointDistance(points))

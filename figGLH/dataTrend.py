@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from geo2 import distance as g2dist
-from caliper import rotating_calipers as calipers
+from caliper import rotating_calipers, gravityPointDistance
 from mongodbSet import MongoDBSet
 
 
@@ -44,6 +44,10 @@ class GLHCollection():
 
         return result
     
+    def print(self):
+        for doc in self.collection:
+            print(doc)
+    
 class GLHCollectionAs(GLHCollection):
     def __init__(self, collection, segment = "activitySegment"):
         super().__init__(collection, segment)
@@ -63,7 +67,7 @@ class GLHCollectionPv(GLHCollection):
             if points.len() == 2 :
                 dist = g2dist(coordinates[0], coordinates[1])
             else :
-                dist = calipers(coordinates)
+                dist = gravityPointDistance(coordinates)
             
             duration = msToMinite(self.locateDuration(doc))
             region_duration_list[0].append(dist)
@@ -80,41 +84,55 @@ def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
 
-def elementList(segment, element):
+# MongoDBQueryを取得して差分リストを返す
+def elementList(segment, element, limit = 0):
     query = { segment + ".simplifiedRawPath" : {"$exists": True}}
-    collection = GLHCollection(MongoDBSet().queryMongodb(query), segment)
-    element_list = [doc[element] for doc in collection.differenceList()]
-    return element_list
+    corsor = MongoDBSet().queryMongodb(query, limit)
+    collection = GLHCollection(corsor, segment)
+    return  [doc[element] for doc in collection.differenceList()]
 
-def distDurationList(segments, elements):
+def distDurationList(segments, elements, limits):
     dist_duration_list = [[],[]]
-    for segment in segments:
-        dist_duration_list[0].append(elementList(segment, elements[0]))
-        dist_duration_list[1].append(elementList(segment, elements[1]))
+    for index, segment in enumerate(segments):
+        limit = limits[index]
+        dist_duration_list[0].append(elementList(segment, elements[0], limit))
+        dist_duration_list[1].append(elementList(segment, elements[1], limit))
     return dist_duration_list
 
 def pVSRPSpread():
-    query = { "placeVisit" + ".simplifiedRawPath" : {"$exists": True}}
+    query = { "placeVisit.simplifiedRawPath" : {"$exists": True}}
     collection = GLHCollectionPv(MongoDBSet().queryMongodb(query))
     return collection.regionDurationList()
 
 def createFigures(distlists,timelists):
-    createFigure(distlists[0], timelists[0], "ActivitySegment")
-    createFigure(distlists[1], timelists[1], "PlaceVisit")
-    createFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
+    logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
+    logScatterFigure(distlists[1], timelists[1], "PlaceVisit")
+    logScatterFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
 
-def createFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minite]"):
+def scatterFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minute]"):
     savepath = "./images/"
+    n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    ax = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
     ax.scatter(distlist, timelist, marker=".")
+    fig.savefig(savepath + name + ".png")
+    print("Output: " + name + ".png")
+
+def logScatterFigure(distlist, timelist, name, xlabel = "distance[km]", ylabel = "duration[minute]"):
+    savepath = "./images/"
+    n = "[n = " + str(len(distlist)) + "]"
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
+    ax.scatter(distlist, timelist, marker=".")
+    ax.set_xscale('log')
+    ax.set_yscale('log')  # メイン: y軸をlogスケールで描く
     fig.savefig(savepath + name + ".png")
     print("Output: " + name + ".png")
 
 def fullFigure(distlists,timelists):
     fig = plt.figure()
 
-    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance[km]", ylabel = "duration[minite]")
+    fullax = fig.add_subplot(1, 2, 1, title = "Full", xlabel = "distance[km]", ylabel = "duration[minute]")
     fullax.scatter(distlists[0] + distlists[1], timelists[0] + timelists[1], marker=".")
     asax = fig.add_subplot(2, 2, 2, title = "ActivitySegment")
     asax.scatter(distlists[0], timelists[0], marker=".")
@@ -127,11 +145,12 @@ def fullFigure(distlists,timelists):
 if __name__ == '__main__' :
 
     segments = ["activitySegment", "placeVisit"]
+    limits= [800, 100]
     elements = ["dist", "duration"]
 
     MongoDBSet().stat()
 
-    dist_duration_list = distDurationList(segments, elements)
+    dist_duration_list = distDurationList(segments, elements, limits)
 
     createFigures(*dist_duration_list)
     # fullFigure(distlists, timelists)
@@ -139,4 +158,4 @@ if __name__ == '__main__' :
     region_duration_list = pVSRPSpread()
     #print(boundlyList)
 
-    createFigure(*region_duration_list, "placeVisit Spread")
+    logScatterFigure(*region_duration_list, "placeVisit Spread")

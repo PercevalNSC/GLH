@@ -19,7 +19,7 @@ class BaseLngLatList :
         for item in document[self.segment][self.v1][self.v2] :
             documentlist.append([item["lngE7"], item["latE7"], item["timestampMs"]])
         return documentlist
-    def makingDocumentListNotimestamp(self, document):
+    def makingDocumentListNoTimestamp(self, document):
         documentlist = []
         for item in document[self.segment][self.v1][self.v2] :
             documentlist.append([item["lngE7"], item["latE7"], "NULL"])
@@ -47,7 +47,7 @@ class AsWaypointPath(BaseLngLatList):
         self.v1 = "waypointPath"
         self.v2 = "waypoints"
     def makingDocumentList(self, document):
-        return super().makingDocumentListNotimestamp(document)
+        return super().makingDocumentListNoTimestamp(document)
 
 class PvSimplifiedRawPath(BaseLngLatList):
     def __init__(self, corsor):
