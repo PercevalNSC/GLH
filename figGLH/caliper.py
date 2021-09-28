@@ -25,7 +25,7 @@ def convex_hull(ps):
 
 def dist(a, b):
     # return sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-    return g2distance(a,b) * 1000 # mで計算
+    return g2distance(a,b)
 # キャリパー法
 def rotating_calipers(ps):
     ps.sort()
@@ -60,17 +60,27 @@ def rotating_calipers(ps):
 def gravityPointDistance(points):
     res = 0
     gravity_point = [0, 0]
-    gravity_point_sum = [0, 0]
-    for length, point in enumerate(points,1):
+    for point in points:
         assert len(point) == len(gravity_point), "len(point) is not equal 2"
         for index in range(len(gravity_point)):
-            gravity_point_sum[index] = (gravity_point_sum[index] + point[index])
-        gravity_point = [ x / (length) for x in gravity_point_sum]
-        res = max(res, dist(gravity_point, point))
-        #print(point, gravity_point, res)
+            gravity_point[index] = (gravity_point[index] + point[index])
+    gravity_point = [ x / len(points) for x in gravity_point]
+    for point in points :
+        dist = g2distance(point, gravity_point) * 1000
+        # print(dist)
+        res = max(res, dist * 2)
     return res
 
 if __name__ == "__main__" :
     points = [[35.6571999, 139.5420565], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.6582316, 139.5421605], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.658933, 139.5424788], [35.6571999, 139.5420565]]
 
     print(gravityPointDistance(points))
+
+    points = [[35.6575643, 139.5419497],[35.65615972142857, 139.5442210142857]]
+    print(g2distance(*points))
+
+    points = [[35.1, 139.1], [35.1, 138.9], [34.9, 139.1], [34.9, 138.9]]
+
+    print(gravityPointDistance(points))
+
+    print(g2distance([35.1, 139.1], [34.9, 138.9]) * 1000)

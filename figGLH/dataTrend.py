@@ -65,11 +65,13 @@ class GLHCollectionPv(GLHCollection):
 
             coordinates = points.coordinates()
             if points.len() == 2 :
-                dist = g2dist(coordinates[0], coordinates[1])
+                dist = g2dist(coordinates[0], coordinates[1]) * 1000
             else :
                 dist = gravityPointDistance(coordinates)
             
             duration = msToMinite(self.locateDuration(doc))
+            if duration < 8 :
+                print(doc)
             region_duration_list[0].append(dist)
             region_duration_list[1].append(duration)
 
@@ -112,20 +114,22 @@ def createFigures(distlists,timelists):
 def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
-    ax.scatter(distlist, timelist, marker=".")
+    fig = plt.figure(dpi=200)
+    axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
+    axis.scatter(distlist, timelist, marker=".")
     fig.savefig(savepath + name + ".png")
     print("Output: " + name + ".png")
 
 def logScatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
-    ax.scatter(distlist, timelist, marker=".")
-    ax.set_xscale('log')
-    ax.set_yscale('log')  # メイン: y軸をlogスケールで描く
+    fig = plt.figure(dpi=200)
+
+    axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
+    axis.scatter(distlist, timelist, marker=".")
+    axis.set_xscale('log')
+    axis.set_yscale('log')
+
     fig.savefig(savepath + name + ".png")
     print("Output: " + name + ".png")
 
@@ -158,4 +162,4 @@ if __name__ == '__main__' :
     region_duration_list = pVSRPSpread()
     #print(boundlyList)
 
-    logScatterFigure(*region_duration_list, "placeVisit Spread")
+    logScatterFigure(*region_duration_list, "placeVisitSpread")
