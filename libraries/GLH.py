@@ -1,6 +1,6 @@
-from geo2 import distance as g2dist
-from Caliper import gravityPointDistance
-
+from .geo2 import distance as g2dist
+from .Caliper import gravityPointDistance
+from .GeoJSON import PointGeojson, LineGeojson
 
 class GLHPoints():
     def __init__(self, points):
@@ -99,7 +99,10 @@ class GLHCollection():
     def exportJson(self):
         path = self.segment + "." + self.element1 + "." + self.element2
         return {"datatype": path, "data": self.trajectry_list}
-    
+    def exportGeoJson(self):
+        path = self.segment + "." + self.element1 + "." + self.element2
+        geojsonObj = PointGeojson(path, self.trajectry_list)
+        return geojsonObj.geojson
 
     def print(self):
         for doc in self.collection:
@@ -128,10 +131,10 @@ class GLHCollectionAsWp(GLHCollection):
 
 class GLHCollectionPvSrp(GLHCollection):
     def __init__(self, collection):
-            segment = "placeVisit"
-            element1 = "simplifiedRawPath"
-            element2 = "points"
-            super().__init__(collection, segment, element1, element2)
+        segment = "placeVisit"
+        element1 = "simplifiedRawPath"
+        element2 = "points"
+        super().__init__(collection, segment, element1, element2)
     def trajectlyList(self):
         for document in self.collection:
             self.trajectry_list.extend(GLHDocumentPv(document).trajectlyList(self.element1, self.element2))
@@ -156,6 +159,41 @@ class GLHCollectionPvLoc(GLHCollection):
     def trajectlyList(self):
         for document in self.collection:
             self.trajectry_list.extend(GLHDocumentPv(document).locationList())
+
+class RoutePath :
+    def __init__(self, corsor):
+        self.collection = corsor
+        self.route_path = []
+
+    def createRoutePath(self) : 
+        for document in self.collection :
+            self.route_path.extend(self.docRoutePath(document))
+
+    def docRoutePath(self, document):
+        docList = []
+        if "activitySegment" in document :
+            docList.extend(self.activitySegmentPath(document["activitySegment"]))
+        elif "placeVisit" in document :
+            docList.append(self.placeVisitPath(document["placeVisit"]))
+        else : 
+            print("undefined Segment")
+        return docList
+
+    def activitySegmentPath(self, segment) :
+        if "simplifiedRawPath" in segment :
+            return [[point["lngE7"], point["latE7"]] for point in segment["simplifiedRawPath"]["points"]]
+        else:
+            return [[]]
+    
+    def placeVisitPath(self, segment):
+        location = segment["location"]
+        return [location["longitudeE7"], location["latitudeE7"]]
+    
+    def exportGeoJson(self):
+        path = "all_route_path"
+        geojsonObj = LineGeojson(path, self.route_path)
+        return geojsonObj.geojson
+
 
 def msToMinite(timeMs):
     offset = 1000 * 60

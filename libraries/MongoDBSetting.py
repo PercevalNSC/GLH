@@ -24,7 +24,7 @@ class MongoDBSet :
         return self.query(query, limit)
     
     def pvSrpQuery(self, limit = 0):
-        query = {"activitySegment.waypointPath" : {"$exists": True}}
+        query = {"placeVisit.simplifiedRawPath" : {"$exists": True}}
         return self.query(query, limit)
     
     def pvLocatinQuery(self, limit = 0):
@@ -42,6 +42,7 @@ class MongoDBSet :
     def printCorsor(self, corsor):
         for i in corsor:
             print(i)
+        corsor.rewind()
 
 if __name__ == "__main__" :
     cl = MongoDBSet()

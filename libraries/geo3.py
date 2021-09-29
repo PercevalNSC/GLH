@@ -19,6 +19,7 @@ class Coordinate :
 
     def print(self):
         print([self.lng, self.lat])
+
 class Point :
     def __init__(self, x, y):
         self.x = float(x)

@@ -3,7 +3,7 @@
 # https://tjkendev.github.io/procon-library/python/geometry/rotating_calipers.html
 
 from math import sqrt
-from geo2 import distance as g2distance
+from .geo2 import distance as g2distance
 import time
 
 # グラハムスキャン
