@@ -14,6 +14,22 @@ class MongoDBSet :
     
     def countQuery(self, query):
         return self.glh_clct.count_documents(query)
+    
+    def asSrpQuery(self, limit = 0):
+        query = {"activitySegment.simplifiedRawPath" : {"$exists": True}}
+        return self.query(query, limit)
+    
+    def asWpQuery(self, limit = 0):
+        query = {"activitySegment.waypointPath" : {"$exists": True}}
+        return self.query(query, limit)
+    
+    def pvSrpQuery(self, limit = 0):
+        query = {"activitySegment.waypointPath" : {"$exists": True}}
+        return self.query(query, limit)
+    
+    def pvLocatinQuery(self, limit = 0):
+        query = {"placeVisit.location" : {"$exists": True}}
+        return self.query(query, limit)
 
     def stat(self):
         querys = [{"activitySegment" : {"$exists": True}},
