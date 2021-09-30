@@ -19,10 +19,11 @@ def insertGLH(filelist):
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         glh_db = client.glh_db
 
-        glh_clct = glh_db.glh_clct_full
+        glh_clct = glh_db.glh_clct_1
         glh_clct.delete_many({})
 
         for filename in filelist :
+            print(filename)
             glhdata = jsonOpen(filename)
             glh_clct.insert_many(glhdata.dict["timelineObjects"])
             print("loaded: " + filename)
@@ -47,6 +48,7 @@ if __name__ == '__main__' :
 
     filelist = getjsondata(rootpath)
     assert len(filelist) > 0, "filelist is None. Check carrent directory: " + os.getcwd()
+
     insertGLH(filelist)
 
     # mongodb command
