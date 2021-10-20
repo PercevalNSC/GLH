@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify
 import json
 from libraries.MongoDBSetting import MongoDBSet
 import libraries.GLH as GLH
@@ -17,7 +17,7 @@ def home():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory('favicons/', 'favicon.ico', )
+    return app.send_static_file("img/favicon.ico")
 
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
