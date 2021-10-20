@@ -42,7 +42,8 @@ function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
 
     map.on('click', id, function (e) {
         var coordinates = e.features[0].geometry.coordinates.slice();
-        var description = "Timestamp:" + e.features[0].properties.timestamp;
+        var date = new Date(e.features[0].properties.timestamp)
+        var description = "Timestamp:" + date.toString();
         new mapboxgl.Popup()
             .setLngLat(coordinates)
             .setHTML(description)
@@ -65,7 +66,7 @@ function pvLocationPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
     dbPoint(url, "pvLocation", "white", radius = 6, opacity = 0.5);
 }
-function dbline() {
+function dbline(color = '#888', opacity = 0.5, witdh = 1) {
     url = "http://localhost:8000/api/geojson/line"
     id = "routepath"
     fetch(url, {
@@ -86,8 +87,9 @@ function dbline() {
                 'line-cap': 'butt'
             },
             'paint': {
-                'line-color': '#888',
-                'line-width': 3
+                'line-color': color,
+                'line-opacity': opacity,
+                'line-width': witdh
             }
         });
     }).catch((e) => {
@@ -101,7 +103,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxM
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11', // マップのスタイル（デザイン）
+    style: 'mapbox://styles/mapbox/streets-v11',
     center: [139.56, 35.65], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
     zoom: 13, // 初期に表示する地図のズームレベル
 });
@@ -111,9 +113,9 @@ map.addControl(new mapboxgl.NavigationControl());
 //map.addControl(new mapboxgl.ScaleControl());
 
 map.on('load', function () {
-    dbline();
+    //dbline('#888', 0.5, 1);
     pvLocationPoint();
-    asSrpPoint();
     asWpPoint();
+    asSrpPoint();
     pvSrpPoint();
 });

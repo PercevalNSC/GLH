@@ -52,7 +52,11 @@ class GLHDocumentPv(GLHDocument):
         location = self.document[self.segment]["location"]
         duration = self.document[self.segment]["duration"]
         timestamp = int((duration["startTimestampMs"] + duration["endTimestampMs"])/2)
-        return [[location["longitudeE7"], location["latitudeE7"], timestamp]]
+        if ("longitudeE7" in location) & ("latitudeE7" in location):
+            return [[location["longitudeE7"], location["latitudeE7"], timestamp]]
+        else:
+            return []
+
     def locationDuration(self):
         duration = self.document[self.segment]["duration"]
         return duration["endTimestampMs"] - duration["startTimestampMs"]
@@ -187,7 +191,10 @@ class RoutePath :
     
     def placeVisitPath(self, segment):
         location = segment["location"]
-        return [location["longitudeE7"], location["latitudeE7"]]
+        if ("longitudeE7" in location) & ("latitudeE7" in location):
+            return [location["longitudeE7"], location["latitudeE7"]]
+        else:
+            return []
     
     def exportGeoJson(self):
         path = "all_route_path"
