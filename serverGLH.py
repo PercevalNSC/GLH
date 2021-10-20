@@ -15,10 +15,6 @@ def storejson(data, name = "dbdata.json"):
 def home():
     return render_template('GLH.html')
 
-@app.route('/favicon.ico')
-def favicon():
-    return app.send_static_file("img/favicon.ico")
-
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
     collection = GLH.GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
