@@ -38,7 +38,7 @@ class PointGeojson(Geojson) :
         return features
 
 class LineGeojson(Geojson) :
-    def __init__(self, name, list):
+    def __init__(self, name, coordinates):
         self.geojson = {
             "type": "LineString",
             "name": name,
@@ -48,5 +48,5 @@ class LineGeojson(Geojson) :
                     "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
                 }
             },
-            "coordinates": list
+            "coordinates": coordinates
         }

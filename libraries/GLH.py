@@ -1,6 +1,8 @@
 from .geo2 import distance as g2dist
 from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson
+import matplotlib.pyplot as plt
+import pprint
 
 class GLHPoints():
     def __init__(self, points):
@@ -32,10 +34,10 @@ class GLHDocument():
         self.document = document
         self.segment = segment
 
-    def trajectlyList(self, element1, element2):
+    def trajectryList(self, element1, element2):
         return [ [item["lngE7"], item["latE7"], item["timestampMs"]] for item in self.document[self.segment][element1][element2]]
 
-    def trajectlyListNoTimestamp(self, element1, element2):
+    def trajectryListNoTimestamp(self, element1, element2):
         return [ [item["lngE7"], item["latE7"], "NULL"] for item in self.document[self.segment][element1][element2]]
 
 class GLHDocumentAs(GLHDocument):
@@ -96,9 +98,9 @@ class GLHCollection():
 
         return result
     
-    def trajectlyList(self):
+    def trajectryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocument(document, self.segment).trajectlyList(self.element1, self.element2))   
+            self.trajectry_list.extend(GLHDocument(document, self.segment).trajectryList(self.element1, self.element2))   
     
     def exportJson(self):
         path = self.segment + "." + self.element1 + "." + self.element2
@@ -119,9 +121,10 @@ class GLHCollectionAsSrp(GLHCollection):
         element1 = "simplifiedRawPath"
         element2 = "points"
         super().__init__(collection, segment, element1, element2)
-    def trajectlyList(self):
+    def trajectryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocumentAs(document).trajectlyList(self.element1, self.element2))  
+            self.trajectry_list.extend(GLHDocumentAs(document).trajectryList(self.element1, self.element2))
+        return self.trajectry_list
 
 class GLHCollectionAsWp(GLHCollection):
     def __init__(self, collection):
@@ -129,9 +132,9 @@ class GLHCollectionAsWp(GLHCollection):
         element1 = "waypointPath"
         element2 = "waypoints"
         super().__init__(collection, segment, element1, element2)
-    def trajectlyList(self):
+    def trajectryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocumentAs(document).trajectlyListNoTimestamp(self.element1, self.element2))
+            self.trajectry_list.extend(GLHDocumentAs(document).trajectryListNoTimestamp(self.element1, self.element2))
 
 class GLHCollectionPvSrp(GLHCollection):
     def __init__(self, collection):
@@ -139,9 +142,10 @@ class GLHCollectionPvSrp(GLHCollection):
         element1 = "simplifiedRawPath"
         element2 = "points"
         super().__init__(collection, segment, element1, element2)
-    def trajectlyList(self):
+    def trajectryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocumentPv(document).trajectlyList(self.element1, self.element2))
+            self.trajectry_list.extend(GLHDocumentPv(document).trajectryList(self.element1, self.element2))
+        return self.trajectry_list
     def regionDurationList(self):
         region_duration_list = [[],[]]
         for doc in self.collection :
@@ -160,7 +164,7 @@ class GLHCollectionPvLoc(GLHCollection):
             element1 = "location"
             element2 = ""
             super().__init__(collection, segment, element1, element2)
-    def trajectlyList(self):
+    def trajectryList(self):
         for document in self.collection:
             self.trajectry_list.extend(GLHDocumentPv(document).locationList())
 
@@ -200,6 +204,39 @@ class RoutePath :
         path = "all_route_path"
         geojsonObj = LineGeojson(path, self.route_path)
         return geojsonObj.geojson
+
+class GLHTrajectoryData():
+    def __init__(self) -> None:
+        self.trajetorydata = []
+
+    def allTrajectryData(self, assrp_collection, pvsrp_collection) :
+        as_srp_trajectrydata = self.assrpTrajectoryData(assrp_collection)
+        pv_srp_trajectrydata = self.pvsrpTrajectoryData(pvsrp_collection)
+        self.trajetorydata = sorted(as_srp_trajectrydata + pv_srp_trajectrydata,key=lambda x: x[2])
+        return self.trajetorydata
+    def assrpTrajectoryData(self, collection):
+        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
+        return self.trajetorydata
+    def pvsrpTrajectoryData(self, collection):
+        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
+        return self.trajetorydata
+    
+    def exportGeojson(self):
+        coordinates = [x[:2] for x in self.trajetorydata]
+        path = "trajectry_data"
+        geojsonObj = LineGeojson(path, coordinates)
+        return geojsonObj.geojson
+    def exportFigure(self):
+        x = [r[0] for r in self.trajetorydata]
+        y = [r[1] for r in self.trajetorydata]
+        fig = plt.figure()
+        axis = fig.add_subplot(1,1,1)
+        axis.scatter(x,y, marker=".")
+        fig.show()
+        fig.savefig("clustering")
+    def print(self):
+        pprint.pprint(self.trajetorydata)
+
 
 
 def msToMinite(timeMs):

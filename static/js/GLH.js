@@ -114,8 +114,9 @@ map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function () {
     //dbline('#888', 0.5, 1);
-    pvLocationPoint();
-    asWpPoint();
+    
+    //asWpPoint();
     asSrpPoint();
     pvSrpPoint();
+    pvLocationPoint();
 });

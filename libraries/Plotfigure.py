@@ -39,4 +39,3 @@ def fullFigure(distlists,timelists):
     
     fig.tight_layout()
     fig.savefig("./images/difference.png")
-    
