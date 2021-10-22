@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 
+savepath= "./images/"
+
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
     logScatterFigure(distlists[1], timelists[1], "PlaceVisit")
     logScatterFigure(distlists[0] + distlists[1], timelists[0] + timelists[1], "FullSegment")
 
 def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
-    savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure(dpi=200)
     axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
@@ -15,7 +16,6 @@ def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "du
     print("Output: " + name + ".png")
 
 def logScatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
-    savepath = "./images/"
     n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure(dpi=200)
 
@@ -39,3 +39,13 @@ def fullFigure(distlists,timelists):
     
     fig.tight_layout()
     fig.savefig("./images/difference.png")
+
+def coordinatesFigure(coordinates, title, color="r"):
+    x = [r[0] for r in coordinates]
+    y = [r[1] for r in coordinates]
+    xlabel = "latitude"
+    ylabel = "longitude"
+    fig = plt.figure()
+    axis = fig.add_subplot(1,1,1, title=title, xlabel=xlabel, ylabel=ylabel)
+    axis.scatter(x, y, marker=".", c=color)
+    fig.savefig(savepath + title + ".png")

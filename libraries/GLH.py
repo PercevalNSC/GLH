@@ -1,9 +1,9 @@
 from .geo2 import distance as g2dist
 from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson
+from .Plotfigure import coordinatesFigure
 import matplotlib.pyplot as plt
 import pprint
-import numpy as np
 
 class GLHPoints():
     def __init__(self, points):
@@ -208,17 +208,17 @@ class RoutePath :
 
 class GLHTrajectoryData():
     def __init__(self) -> None:
-        self.trajetorydata = np.array([])
+        self.trajetorydata = []
 
     def allTrajectryData(self, assrp_collection, pvsrp_collection) :
-        trajectorydata = np.concatenate([self.assrpTrajectoryData(assrp_collection), self.pvsrpTrajectoryData(pvsrp_collection)])
-        self.trajetorydata = trajectorydata[np.argsort(trajectorydata[:, 2])]
+        trajectorydata = self.assrpTrajectoryData(assrp_collection) + self.pvsrpTrajectoryData(pvsrp_collection)
+        self.trajetorydata = sorted(trajectorydata, key=lambda x: x[2])
         return self.trajetorydata
     def assrpTrajectoryData(self, collection):
-        self.trajetorydata = np.array(GLHCollectionAsSrp(collection).trajectryList())
+        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
         return self.trajetorydata
     def pvsrpTrajectoryData(self, collection):
-        self.trajetorydata = np.array(GLHCollectionPvSrp(collection).trajectryList())
+        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
         return self.trajetorydata
     
     def exportGeojson(self):
@@ -227,13 +227,7 @@ class GLHTrajectoryData():
         geojsonObj = LineGeojson(path, coordinates)
         return geojsonObj.geojson
     def exportFigure(self):
-        x = [r[0] for r in self.trajetorydata]
-        y = [r[1] for r in self.trajetorydata]
-        fig = plt.figure()
-        axis = fig.add_subplot(1,1,1)
-        axis.scatter(x,y, marker=".")
-        fig.show()
-        fig.savefig("clustering")
+        coordinatesFigure(self.trajetorydata, "clustering")
     def print(self):
         pprint.pprint(self.trajetorydata)
 
