@@ -3,6 +3,7 @@ from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson
 import matplotlib.pyplot as plt
 import pprint
+import numpy as np
 
 class GLHPoints():
     def __init__(self, points):
@@ -207,18 +208,17 @@ class RoutePath :
 
 class GLHTrajectoryData():
     def __init__(self) -> None:
-        self.trajetorydata = []
+        self.trajetorydata = np.array([])
 
     def allTrajectryData(self, assrp_collection, pvsrp_collection) :
-        as_srp_trajectrydata = self.assrpTrajectoryData(assrp_collection)
-        pv_srp_trajectrydata = self.pvsrpTrajectoryData(pvsrp_collection)
-        self.trajetorydata = sorted(as_srp_trajectrydata + pv_srp_trajectrydata,key=lambda x: x[2])
+        trajectorydata = np.concatenate([self.assrpTrajectoryData(assrp_collection), self.pvsrpTrajectoryData(pvsrp_collection)])
+        self.trajetorydata = trajectorydata[np.argsort(trajectorydata[:, 2])]
         return self.trajetorydata
     def assrpTrajectoryData(self, collection):
-        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
+        self.trajetorydata = np.array(GLHCollectionAsSrp(collection).trajectryList())
         return self.trajetorydata
     def pvsrpTrajectoryData(self, collection):
-        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
+        self.trajetorydata = np.array(GLHCollectionPvSrp(collection).trajectryList())
         return self.trajetorydata
     
     def exportGeojson(self):
@@ -237,6 +237,21 @@ class GLHTrajectoryData():
     def print(self):
         pprint.pprint(self.trajetorydata)
 
+class ASTrajectoryData(GLHTrajectoryData):
+    def __init__(self, collection) -> None:
+        super().__init__(collection)
+    
+    def trajectorydataCostructor(self, collection):
+        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
+        return self.trajetorydata
+
+class PVTrajectoryData(GLHTrajectoryData):
+    def __init__(self, collection) -> None:
+        super().__init__(collection)
+    
+    def trajectorydataCostructor(self, collection):
+        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
+        return self.trajetorydata
 
 
 def msToMinite(timeMs):

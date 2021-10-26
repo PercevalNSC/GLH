@@ -16,6 +16,7 @@ if __name__ == "__main__":
 
     trajectrydata = np.array(trajectrydata)
     coordinates = trajectrydata[:,0:2]
+    
     eps = 0.001
     min_samples = 4
     dbscan = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(coordinates)

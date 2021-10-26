@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify
 import json
 from libraries.MongoDBSetting import MongoDBSet
-import libraries.GLH as GLH
+from libraries.GLH import GLHCollectionAsSrp, GLHCollectionAsWp, GLHCollectionPvSrp, GLHCollectionPvLoc, RoutePath
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -17,57 +17,57 @@ def home():
 
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
-    collection = GLH.GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
+    collection = GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
     collection.trajectlyList()
     result = collection.exportJson()
     return jsonify(result)
 @app.route('/api/json/point/activitySegment.waypointPath')
 def jsonAsWp():
-    collection = GLH.GLHCollectionAsWp(MongoDBSet().asWpQuery())
+    collection = GLHCollectionAsWp(MongoDBSet().asWpQuery())
     collection.trajectlyList()
     result = collection.exportJson()
     return jsonify(result)
 @app.route('/api/json/point/placeVisit.simplifiedRawPath')
 def jsonPvSrp():
-    collection = GLH.GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
+    collection = GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
     collection.trajectlyList()
     result = collection.exportJson()
     return jsonify(result)
 @app.route('/api/json/point/placeVisit.location')
 def jsonPvLoc():
-    collection = GLH.GLHCollectionPvLoc(MongoDBSet().pvLocatinQuery())
+    collection = GLHCollectionPvLoc(MongoDBSet().pvLocatinQuery())
     collection.trajectlyList()
     result = collection.exportJson()
     return jsonify(result)
 
 @app.route('/api/geojson/line')
 def geojsonline():
-    routepath = GLH.RoutePath(MongoDBSet().query({}))
+    routepath = RoutePath(MongoDBSet().query({}))
     routepath.createRoutePath()
     result = routepath.exportGeoJson()
     return jsonify(result)
 
 @app.route('/api/geojson/point/activitySegment.simplifiedRawPath')
 def geojsonAsSrp():
-    collection = GLH.GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
+    collection = GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
     collection.trajectlyList()
     result = collection.exportGeoJson()
     return jsonify(result)
 @app.route('/api/geojson/point/activitySegment.waypointPath')
 def geojsonAsWp():
-    collection = GLH.GLHCollectionAsWp(MongoDBSet().asWpQuery())
+    collection = GLHCollectionAsWp(MongoDBSet().asWpQuery())
     collection.trajectlyList()
     result = collection.exportGeoJson()
     return jsonify(result)
 @app.route('/api/geojson/point/placeVisit.simplifiedRawPath')
 def geojsonPvSrp():
-    collection = GLH.GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
+    collection = GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
     collection.trajectlyList()
     result = collection.exportGeoJson()
     return jsonify(result)
 @app.route('/api/geojson/point/placeVisit.location')
 def geojsonPvLoc():
-    collection = GLH.GLHCollectionPvLoc(MongoDBSet().pvLocatinQuery())
+    collection = GLHCollectionPvLoc(MongoDBSet().pvLocatinQuery())
     collection.trajectlyList()
     result = collection.exportGeoJson()
     return jsonify(result)

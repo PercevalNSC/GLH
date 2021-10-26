@@ -4,6 +4,7 @@
 
 import math
 
+#緯度経度オブジェクト
 class Coordinate :
     def __init__(self, lng, lat):
         self.lng = float(lng)
