@@ -52,8 +52,8 @@ def dbscanPoint():
     min_samples = 4
     as_srp_collection = MongoDBSet().asSrpQuery()
     pv_srp_collection = MongoDBSet().pvSrpQuery()
-
     std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+    app.logger.debug("Clustering: DBSCAN(eps: " + str(eps) + ", min_samples: " + str(min_samples) + ")" )
     return jsonify(std.dbscan(eps, min_samples))
 
 @app.route('/api/geojson/point/activitySegment.simplifiedRawPath')

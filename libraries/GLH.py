@@ -302,24 +302,6 @@ class DBSCANCoodinates():
         # print(self.clustering.labels_)
         print(max(self.clustering.labels_))
 
-class LabelCoordinates():
-    def __init__(self, labelcoordinates) -> None:
-        self.labelcoordinates = labelcoordinates
-    def gravityPoint(self):
-        result = []
-        for l in self.labelcoordinates:
-            if l[0] == -1 :
-                continue
-            else:
-                sum = [0.0, 0.0]
-                for c in l[1]:
-                    sum[0] += c[0]
-                    sum[1] += c[1]
-                gp = [x/len(l[1]) for x in sum]
-                result.append(gp)
-        return result
-
-
 def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
