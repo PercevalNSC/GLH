@@ -268,33 +268,28 @@ class TrajectoryData():
     
     def dbscan(self, eps, min_samples):
         return DBSCANCoodinates(self.coordinates(), eps, min_samples)
-
     
 class DBSCANCoodinates():
     def __init__(self, coordinates, eps, min_samples) -> None:
-        self.coordinates = coordinates
+        self.coordinates :np.ndarray = coordinates
         self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
     def labelPoint(self):
-        return self._labelGravityPoint(self.labelCoordinates())
-    def labelCoordinates(self):
-        labelcoordinates = []
-        for i in range(-1, max(self.clustering.labels_)):
-            one_label_coordinates = [list(self.coordinates[index]) for index, label in enumerate(self.clustering.labels_) if i == label]
-            labelcoordinates.append([i, one_label_coordinates])              
-        return labelcoordinates
+        return self._labelGravityPoint(self.labeledCoordinates())
+    def labeledCoordinates(self):          
+        return [[i, self._specificLabelCoodinates(i)] for i in range(-1, max(self.clustering.labels_))]
     def _labelGravityPoint(self, labelcoordinates):
         result = []
         for l in labelcoordinates:
             if l[0] == -1 :
                 continue
             else:
-                sum = [0.0, 0.0]
-                for c in l[1]:
-                    sum[0] += c[0]
-                    sum[1] += c[1]
-                gp = [x/len(l[1]) for x in sum]
-                result.append(gp)
+                print(l[1])
+                print(np.average(l[1], axis=0).tolist())
+                result.extend(np.average(l[1], axis=0).tolist())
         return result
+    
+    def _specificLabelCoodinates(self, slabel):
+        return [[self.coordinates[index]] for index, label in enumerate(self.clustering.labels_) if slabel == label]
 
     def clusteringFigure(self):
         coordinatesFigure(self.coordinates, "DBSCAN", self.clustering.labels_)

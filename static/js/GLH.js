@@ -64,7 +64,7 @@ function pvSrpPoint() {
 }
 function pvLocationPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
-    dbPoint(url, "pvLocation", "white", radius = 6, opacity = 0.5);
+    dbPoint(url, "pvLocation", "green", radius = 6, opacity = 0.5);
 }
 function dbscanPoint(){
     url = "http://localhost:8000/api/geojson/point/dbscan"

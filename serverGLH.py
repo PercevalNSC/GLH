@@ -48,7 +48,7 @@ def geojsonline():
     return jsonify(result)
 @app.route('/api/geojson/point/dbscan')
 def dbscanPoint():
-    eps = 0.0001
+    eps = 0.001
     min_samples = 4
     as_srp_collection = MongoDBSet().asSrpQuery()
     pv_srp_collection = MongoDBSet().pvSrpQuery()
