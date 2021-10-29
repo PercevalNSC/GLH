@@ -1,4 +1,3 @@
-from numpy.lib.financial import pv
 from .geo2 import distance as g2dist
 from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson

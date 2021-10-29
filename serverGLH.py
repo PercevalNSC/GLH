@@ -1,18 +1,15 @@
 from flask import Flask, render_template, jsonify
-import json
 from libraries.MongoDBSetting import MongoDBSet
 from libraries.GLH import GLHCollectionAsSrp, GLHCollectionAsWp, GLHCollectionPvSrp, GLHCollectionPvLoc, RoutePath, AllTrajectoryData
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 
-def storejson(data, name = "dbdata.json"):
-    with open(name, "w") as f :
-        json.dump(data, f, indent=2,ensure_ascii=False)
-
-
 @app.route('/')
 def home():
+    """
+    root
+    """
     return render_template('GLH.html')
 
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
@@ -53,7 +50,6 @@ def dbscanPoint():
     as_srp_collection = MongoDBSet().asSrpQuery()
     pv_srp_collection = MongoDBSet().pvSrpQuery()
     std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-    app.logger.debug("Clustering: DBSCAN(eps: " + str(eps) + ", min_samples: " + str(min_samples) + ")" )
     return jsonify(std.dbscan(eps, min_samples))
 
 @app.route('/api/geojson/point/activitySegment.simplifiedRawPath')
