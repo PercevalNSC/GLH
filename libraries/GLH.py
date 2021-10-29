@@ -1,9 +1,11 @@
+from numpy.lib.financial import pv
 from .geo2 import distance as g2dist
 from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson
 from .Plotfigure import coordinatesFigure
-import matplotlib.pyplot as plt
 import pprint
+from sklearn.cluster import DBSCAN
+import numpy as np
 
 class GLHPoints():
     def __init__(self, points):
@@ -35,7 +37,7 @@ class GLHDocument():
         self.document = document
         self.segment = segment
 
-    def trajectryList(self, element1, element2):
+    def trajectoryList(self, element1, element2):
         return [ [item["lngE7"], item["latE7"], item["timestampMs"]] for item in self.document[self.segment][element1][element2]]
 
     def trajectryListNoTimestamp(self, element1, element2):
@@ -99,9 +101,9 @@ class GLHCollection():
 
         return result
     
-    def trajectryList(self):
+    def trajectoryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocument(document, self.segment).trajectryList(self.element1, self.element2))   
+            self.trajectry_list.extend(GLHDocument(document, self.segment).trajectoryList(self.element1, self.element2))   
     
     def exportJson(self):
         path = self.segment + "." + self.element1 + "." + self.element2
@@ -122,9 +124,9 @@ class GLHCollectionAsSrp(GLHCollection):
         element1 = "simplifiedRawPath"
         element2 = "points"
         super().__init__(collection, segment, element1, element2)
-    def trajectryList(self):
+    def trajectoryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocumentAs(document).trajectryList(self.element1, self.element2))
+            self.trajectry_list.extend(GLHDocumentAs(document).trajectoryList(self.element1, self.element2))
         return self.trajectry_list
 
 class GLHCollectionAsWp(GLHCollection):
@@ -133,7 +135,7 @@ class GLHCollectionAsWp(GLHCollection):
         element1 = "waypointPath"
         element2 = "waypoints"
         super().__init__(collection, segment, element1, element2)
-    def trajectryList(self):
+    def trajectoryList(self):
         for document in self.collection:
             self.trajectry_list.extend(GLHDocumentAs(document).trajectryListNoTimestamp(self.element1, self.element2))
 
@@ -143,9 +145,9 @@ class GLHCollectionPvSrp(GLHCollection):
         element1 = "simplifiedRawPath"
         element2 = "points"
         super().__init__(collection, segment, element1, element2)
-    def trajectryList(self):
+    def trajectoryList(self):
         for document in self.collection:
-            self.trajectry_list.extend(GLHDocumentPv(document).trajectryList(self.element1, self.element2))
+            self.trajectry_list.extend(GLHDocumentPv(document).trajectoryList(self.element1, self.element2))
         return self.trajectry_list
     def regionDurationList(self):
         region_duration_list = [[],[]]
@@ -165,7 +167,7 @@ class GLHCollectionPvLoc(GLHCollection):
             element1 = "location"
             element2 = ""
             super().__init__(collection, segment, element1, element2)
-    def trajectryList(self):
+    def trajectoryList(self):
         for document in self.collection:
             self.trajectry_list.extend(GLHDocumentPv(document).locationList())
 
@@ -207,45 +209,115 @@ class RoutePath :
         return geojsonObj.geojson
 
 class GLHTrajectoryData():
-    def __init__(self) -> None:
-        self.trajetorydata = []
+    def __init__(self, collection) -> None:
+        self.glhtrajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
 
-    def allTrajectryData(self, assrp_collection, pvsrp_collection) :
-        trajectorydata = self.assrpTrajectoryData(assrp_collection) + self.pvsrpTrajectoryData(pvsrp_collection)
-        self.trajetorydata = sorted(trajectorydata, key=lambda x: x[2])
-        return self.trajetorydata
-    def assrpTrajectoryData(self, collection):
-        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
-        return self.trajetorydata
-    def pvsrpTrajectoryData(self, collection):
-        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
-        return self.trajetorydata
+    def _trajectorydataCostructor(self, collection):
+        return TrajectoryData([])
+    
+    def dbscan(self, eps, min_samples):
+        self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
+        path = "ClusterPoint"
+        geojsonObj = LineGeojson(path, self.clustering.labelPoint())
+        return geojsonObj.geojson
     
     def exportGeojson(self):
-        coordinates = [x[:2] for x in self.trajetorydata]
+        coordinates = [x[:2] for x in self.glhtrajectorydata]
         path = "trajectry_data"
         geojsonObj = LineGeojson(path, coordinates)
         return geojsonObj.geojson
     def exportFigure(self):
-        coordinatesFigure(self.trajetorydata, "clustering")
+        coordinatesFigure(self.glhtrajectorydata, "clustering")
     def print(self):
-        pprint.pprint(self.trajetorydata)
+        pprint.pprint(self.glhtrajectorydata)
 
 class ASTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection) -> None:
         super().__init__(collection)
     
-    def trajectorydataCostructor(self, collection):
-        self.trajetorydata = GLHCollectionAsSrp(collection).trajectryList()
-        return self.trajetorydata
+    def _trajectorydataCostructor(self, collection):
+        return TrajectoryData(GLHCollectionAsSrp(collection).trajectoryList())
 
 class PVTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection) -> None:
         super().__init__(collection)
     
-    def trajectorydataCostructor(self, collection):
-        self.trajetorydata = GLHCollectionPvSrp(collection).trajectryList()
-        return self.trajetorydata
+    def _trajectorydataCostructor(self, collection):
+        return TrajectoryData(GLHCollectionPvSrp(collection).trajectoryList())
+
+class AllTrajectoryData(GLHTrajectoryData):
+    def __init__(self, collection1, collection2) -> None:
+        self.glhtrajectorydata = self._trajectorydataCostructor(collection1, collection2)
+    def _trajectorydataCostructor(self, assrp_collection,pvsrp_collection):
+        assrp_trajectorydata = ASTrajectoryData(assrp_collection).glhtrajectorydata.trajectorydata.tolist()
+        pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).glhtrajectorydata.trajectorydata.tolist()
+        trajectorydata = assrp_trajectorydata + pvsrp_trajectorydata
+        return TrajectoryData(sorted(trajectorydata, key=lambda x: x[2]))
+
+class TrajectoryData():
+    def __init__(self, trajectorydata: list) -> None:
+        self.trajectorydata : np.ndarray = np.array(self.removeNoise(trajectorydata))
+
+    def removeNoise(self, rawdata: list):
+        for x in rawdata:
+            if 0 in x:
+                rawdata.remove(x)
+        return rawdata
+    def coordinates(self):
+        return self.trajectorydata[:, 0:2]
+    
+    def dbscan(self, eps, min_samples):
+        return DBSCANCoodinates(self.coordinates(), eps, min_samples)
+
+    
+class DBSCANCoodinates():
+    def __init__(self, coordinates, eps, min_samples) -> None:
+        self.coordinates = coordinates
+        self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
+    def labelPoint(self):
+        return self._labelGravityPoint(self.labelCoordinates())
+    def labelCoordinates(self):
+        labelcoordinates = []
+        for i in range(-1, max(self.clustering.labels_)):
+            one_label_coordinates = [list(self.coordinates[index]) for index, label in enumerate(self.clustering.labels_) if i == label]
+            labelcoordinates.append([i, one_label_coordinates])              
+        return labelcoordinates
+    def _labelGravityPoint(self, labelcoordinates):
+        result = []
+        for l in labelcoordinates:
+            if l[0] == -1 :
+                continue
+            else:
+                sum = [0.0, 0.0]
+                for c in l[1]:
+                    sum[0] += c[0]
+                    sum[1] += c[1]
+                gp = [x/len(l[1]) for x in sum]
+                result.append(gp)
+        return result
+
+    def clusteringFigure(self):
+        coordinatesFigure(self.coordinates, "DBSCAN", self.clustering.labels_)
+    def clusterstat(self):
+        # print(self.clustering.labels_)
+        print(max(self.clustering.labels_))
+
+class LabelCoordinates():
+    def __init__(self, labelcoordinates) -> None:
+        self.labelcoordinates = labelcoordinates
+    def gravityPoint(self):
+        result = []
+        for l in self.labelcoordinates:
+            if l[0] == -1 :
+                continue
+            else:
+                sum = [0.0, 0.0]
+                for c in l[1]:
+                    sum[0] += c[0]
+                    sum[1] += c[1]
+                gp = [x/len(l[1]) for x in sum]
+                result.append(gp)
+        return result
 
 
 def msToMinite(timeMs):

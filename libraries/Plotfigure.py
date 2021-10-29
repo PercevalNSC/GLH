@@ -45,7 +45,7 @@ def coordinatesFigure(coordinates, title, color="r"):
     y = [r[1] for r in coordinates]
     xlabel = "latitude"
     ylabel = "longitude"
-    fig = plt.figure()
+    fig = plt.figure(dpi=200)
     axis = fig.add_subplot(1,1,1, title=title, xlabel=xlabel, ylabel=ylabel)
-    axis.scatter(x, y, marker=".", c=color)
+    axis.scatter(x, y, s=1, c=color)
     fig.savefig(savepath + title + ".png")

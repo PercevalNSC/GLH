@@ -66,6 +66,10 @@ function pvLocationPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
     dbPoint(url, "pvLocation", "white", radius = 6, opacity = 0.5);
 }
+function dbscanPoint(){
+    url = "http://localhost:8000/api/geojson/point/dbscan"
+    dbPoint(url, "dbscan", "red", radius = 10, opacity = 0.5);
+}
 function dbline(color = '#888', opacity = 0.5, witdh = 1) {
     url = "http://localhost:8000/api/geojson/line"
     id = "routepath"
@@ -119,4 +123,5 @@ map.on('load', function () {
     asSrpPoint();
     pvSrpPoint();
     pvLocationPoint();
+    dbscanPoint();
 });
