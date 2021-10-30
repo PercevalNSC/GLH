@@ -1,15 +1,9 @@
 from flask import Flask, render_template, jsonify
-import json
 from libraries.MongoDBSetting import MongoDBSet
 from libraries.GLH import GLHCollectionAsSrp, GLHCollectionAsWp, GLHCollectionPvSrp, GLHCollectionPvLoc, RoutePath, AllTrajectoryData
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
-
-def storejson(data, name = "dbdata.json"):
-    with open(name, "w") as f :
-        json.dump(data, f, indent=2,ensure_ascii=False)
-
 
 @app.route('/')
 def home():
