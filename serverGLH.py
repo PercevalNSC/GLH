@@ -16,33 +16,28 @@ def home():
 def jsonAsSrp():
     collection = GLHCollectionAsSrp(MongoDBSet().asSrpQuery())
     collection.trajectoryList()
-    result = collection.exportJson()
-    return jsonify(result)
+    return jsonify(collection.exportJson())
 @app.route('/api/json/point/activitySegment.waypointPath')
 def jsonAsWp():
     collection = GLHCollectionAsWp(MongoDBSet().asWpQuery())
     collection.trajectoryList()
-    result = collection.exportJson()
-    return jsonify(result)
+    return jsonify(collection.exportJson())
 @app.route('/api/json/point/placeVisit.simplifiedRawPath')
 def jsonPvSrp():
     collection = GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
     collection.trajectoryList()
-    result = collection.exportJson()
-    return jsonify(result)
+    return jsonify(collection.exportJson())
 @app.route('/api/json/point/placeVisit.location')
 def jsonPvLoc():
     collection = GLHCollectionPvLoc(MongoDBSet().pvLocatinQuery())
     collection.trajectoryList()
-    result = collection.exportJson()
-    return jsonify(result)
+    return jsonify(collection.exportJson())
 
 @app.route('/api/geojson/line/route')
 def geojsonline():
     routepath = RoutePath(MongoDBSet().query({}))
     routepath.createRoutePath()
-    result = routepath.exportGeoJson()
-    return jsonify(result)
+    return jsonify(routepath.exportGeoJson())
 @app.route('/api/geojson/point/dbscan')
 def dbscanPoint():
     eps = 0.00001

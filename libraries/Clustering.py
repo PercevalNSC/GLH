@@ -33,8 +33,6 @@ class DBSCANCoodinates():
             if l[0] == -1 :
                 continue
             else:
-                print(l[1])
-                print(np.average(l[1], axis=0).tolist())
                 result.extend(np.average(l[1], axis=0).tolist())
         return result
     
