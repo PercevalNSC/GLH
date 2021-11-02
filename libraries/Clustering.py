@@ -1,6 +1,7 @@
 from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN
 import numpy as np
+import pprint
 
 from .Plotfigure import coordinatesFigure
 
@@ -25,10 +26,14 @@ class DBSCANCoodinates():
         self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
     def labelPoint(self):
         return self._labelGravityPoint(self.labeledCoordinates())
-    def labeledCoordinates(self):          
-        return [[i, self._specificLabelCoodinates(i)] for i in range(-1, max(self.clustering.labels_))]
+    def labeledCoordinates(self):
+        labeled_coords = [[label, []] for label in range(-1, max(self.clustering.labels_)+1)]
+        for index, label in enumerate(self.clustering.labels_):
+            labeled_coords[label+1][1].append([self.coordinates[index]])
+        return labeled_coords
     def _labelGravityPoint(self, labelcoordinates):
         result = []
+        # TODO: labelcoordinates[1:]
         for l in labelcoordinates:
             if l[0] == -1 :
                 continue

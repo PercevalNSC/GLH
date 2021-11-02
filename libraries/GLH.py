@@ -2,10 +2,10 @@ from .geo2 import distance as g2dist
 from .Caliper import gravityPointDistance
 from .GeoJSON import PointGeojson, LineGeojson
 from .Plotfigure import coordinatesFigure
-from .Clustering import TrajectoryData
+from .Clustering import TrajectoryData, KNNFindPoint
 import pprint
 
-
+#TODO: fix names by PEP8
 class GLHPoints():
     def __init__(self, points):
         self.points = points
@@ -252,6 +252,17 @@ class AllTrajectoryData(GLHTrajectoryData):
         pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).glhtrajectorydata.trajectorydata.tolist()
         trajectorydata = assrp_trajectorydata + pvsrp_trajectorydata
         return TrajectoryData(sorted(trajectorydata, key=lambda x: x[2]))
+
+class GLHFindPoint():
+    def __init__(self) -> None:
+        #FIX: add locations, dbscan_points
+        self.lacations = []
+        self.dbscan_points = []
+    def findpoint(self):
+        pointobj = KNNFindPoint(self.lacations,  self.dbscan_points, size=5)
+        neighbors = pointobj.nearest_neightbors_list()
+        #FIX: add findpoint algorythm
+        return neighbors
 
 def msToMinite(timeMs):
     offset = 1000 * 60
