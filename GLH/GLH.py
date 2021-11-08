@@ -1,8 +1,8 @@
-from .geo2 import distance as g2dist
-from .Caliper import gravityPointDistance
-from .GeoJSON import PointGeojson, LineGeojson
-from .Plotfigure import coordinatesFigure
-from .Clustering import TrajectoryData, KNNFindPoint
+from GLHmodule.geo2 import distance as g2dist
+from GLHmodule.Caliper import gravityPointDistance
+from GLHmodule.GeoJSON import PointGeojson, LineGeojson
+from GLHmodule.Plotfigure import coordinatesFigure
+from GLHmodule.Clustering import TrajectoryData, KNNFindPoint
 import pprint
 
 #TODO: fix names by PEP8
@@ -267,20 +267,3 @@ class GLHFindPoint():
 def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
-
-
-if __name__ == '__main__' :
-
-    segments = ["activitySegment", "placeVisit"]
-    limits= [0, 0]
-    elements = ["dist", "duration"]
-
-    from MongoDBSetting import MongoDBSet
-
-    client = MongoDBSet()
-    client.stat()
-    query = {"placeVisit.simplifiedRawPath" : {"$exists": True}}
-    obj = GLHCollectionPvSrp(client.query(query))
-    obj.print()
-    print(obj.regionDurationList())
-    

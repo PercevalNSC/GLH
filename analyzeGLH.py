@@ -1,6 +1,6 @@
-import libraries.Plotfigure as pf
-from libraries.MongoDBSetting import MongoDBSet
-import libraries.GLH as GLH
+import GLH.GLHmodule.Plotfigure as pf
+from Setting.MongoDBSetting import MongoDBSet
+from GLH import GLH
     
 # MongoDBQueryを取得して差分リストを返す
 def elementList(segment, element, limit = 0):
@@ -18,7 +18,7 @@ def distDurationList(segments, elements, limits):
     return dist_duration_list
 
 def pVSRPSpread():
-    collection = GLH.GLHCollectionPvSrp(MongoDBSet().pvSrpQuery())
+    collection = GLH.GLHCollectionPvSrp(MongoDBSet().pvsrp_query())
     return collection.regionDurationList()
   
 if __name__ == '__main__' :
