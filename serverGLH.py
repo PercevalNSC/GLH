@@ -7,7 +7,7 @@ app.config["JSON_AS_ASCII"] = False
 @app.route('/')
 def home():
     """
-    root
+    root neko
     """
     return render_template('GLH.html')
 
