@@ -36,6 +36,7 @@ function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
                 'circle-stroke-width': 1
             }
         });
+        console.log("Write: " + url);
     }).catch((e) => {
         console.log(e);
     });
@@ -96,6 +97,7 @@ function dbline(color = '#888', opacity = 0.5, witdh = 1) {
                 'line-width': witdh
             }
         });
+        console.log("Write: " + url);
     }).catch((e) => {
         console.log(e);
     });
@@ -107,6 +109,7 @@ function db_polygon(url, id, fillcolor = '#0080ff') {
         return response.json();
     }).then((geojson) => {
         add_db_polygon(id, geojson, fillcolor);
+        console.log("Write: " + url);
     }).catch((e) => {
         console.log(e);
     });
@@ -116,6 +119,10 @@ function add_db_polygon(id, data, fillcolor = '#0080ff') {
         'type': 'geojson',
         'data': data
     });
+    //polygon_fill(id, fillcolor);
+    polygon_sorround(id);
+}
+function polygon_fill(id, fillcolor = '#0080ff'){
     map.addLayer({
         'id': id + "fill",
         'type': 'fill',
@@ -126,7 +133,8 @@ function add_db_polygon(id, data, fillcolor = '#0080ff') {
             'fill-opacity': 0.5
         }
     });
-    // Add a black outline around the polygon.
+}
+function polygon_sorround(id){
     map.addLayer({
         'id': id + "outline",
         'type': 'line',
@@ -136,8 +144,7 @@ function add_db_polygon(id, data, fillcolor = '#0080ff') {
             'line-color': '#000',
             'line-width': 3
         }
-    });
-
+    })
 }
 function dbscan_polygon() {
     url = "http://localhost:8000/api/geojson/polygon/dbscan"

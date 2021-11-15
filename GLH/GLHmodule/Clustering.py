@@ -36,10 +36,13 @@ class DBSCANCoodinates():
         return result
 
     def polygon_convhull(self, polygon):
+        """
+        ポリゴンの凸包を求め，座標のリストを返す
+        """
+        # 重複を除いて，3点に満たないときreturn
         polygon = np.unique(polygon, axis=0)
         if polygon.size < 6 :
             return []
-        print(polygon)
         hull = ConvexHull(polygon)
         points = hull.points
         conv_points = points[hull.vertices]

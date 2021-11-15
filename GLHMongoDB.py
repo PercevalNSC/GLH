@@ -1,21 +1,31 @@
+from sklearn import cluster
 from GLH import *
+from GLH.GLHmodule import Clustering
 from Setting.MongoDBSetting import MongoDBSet
 
-
 def get_dbscan_point(eps, min_samples):
-    as_srp_collection = MongoDBSet().assrp_query()
-    pv_srp_collection = MongoDBSet().pvsrp_query()
-    std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-    return std.dbscan_point(eps, min_samples)
+    std = DBSCANConstruct(eps, min_samples)
+    return std.point()
 def get_dbscan_polygon(eps, min_samples):
-    as_srp_collection = MongoDBSet().assrp_query()
-    pv_srp_collection = MongoDBSet().pvsrp_query()
-    std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-    return std.dbscan_polygon(eps, min_samples)
+    std = DBSCANConstruct(eps, min_samples)
+    return std.polygon()
 def route_path():
     routepath = RoutePath(MongoDBSet().query({}))
     routepath.createRoutePath()
     return routepath.exportGeoJson()
+
+class DBSCANConstruct():
+    clustering_obj = None
+    def __init__(self, eps, min_samples) -> None:
+        if self.clustering_obj == None :
+            as_srp_collection = MongoDBSet().assrp_query()
+            pv_srp_collection = MongoDBSet().pvsrp_query()
+            self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+            self.clustering_obj.dbscan(eps, min_samples)
+    def polygon(self):
+        return self.clustering_obj.dbscan_polygon()
+    def point(self):
+        return self.clustering_obj.dbscan_point()
 
 class GetGLHCollection():
     def __init__(self) -> None:

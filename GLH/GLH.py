@@ -237,18 +237,24 @@ class RoutePath :
 class GLHTrajectoryData():
     def __init__(self, collection) -> None:
         self.glhtrajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
+        self.clustring = None
 
     def _trajectorydataCostructor(self, collection):
         return TrajectoryData([])
     
-    def dbscan_point(self, eps, min_samples):
+    def dbscan(self, eps, min_samples):
         self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
+    def dbscan_point(self):
+        if self.clustering == None :
+            print("No clustring object")
+            return {}
         path = "ClusterPoint"
-        print(self.clustering.labelPoint())
         geojsonObj = PointGeojson(path, self.clustering.labelPoint())
         return geojsonObj.geojson
-    def dbscan_polygon(self, eps, min_samples):
-        self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
+    def dbscan_polygon(self):
+        if self.clustering == None :
+            print("No clustring object")
+            return {}
         path = "ClusterPoint"
         label_polygons = self.clustering.label_polygon()
         geojsonObj = PolygonGeojson(path, label_polygons)
