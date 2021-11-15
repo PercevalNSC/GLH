@@ -66,7 +66,7 @@ function pvLocationPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
     dbPoint(url, "pvLocation", "white", radius = 6, opacity = 1);
 }
-function dbscanPoint(){
+function dbscanPoint() {
     url = "http://localhost:8000/api/geojson/point/dbscan"
     dbPoint(url, "dbscan", "red", radius = 10, opacity = 0.5);
 }
@@ -100,7 +100,50 @@ function dbline(color = '#888', opacity = 0.5, witdh = 1) {
         console.log(e);
     });
 }
+function db_polygon(url, id, fillcolor = '#0080ff') {
+    fetch(url, {
+        mode: 'cors'
+    }).then((response) => {
+        return response.json();
+    }).then((geojson) => {
+        add_db_polygon(id, geojson, fillcolor);
+    }).catch((e) => {
+        console.log(e);
+    });
+};
+function add_db_polygon(id, data, fillcolor = '#0080ff') {
+    map.addSource(id, {
+        'type': 'geojson',
+        'data': data
+    });
+    map.addLayer({
+        'id': id + "fill",
+        'type': 'fill',
+        'source': id, // reference the data source
+        'layout': {},
+        'paint': {
+            'fill-color': fillcolor, // blue color fill
+            'fill-opacity': 0.5
+        }
+    });
+    // Add a black outline around the polygon.
+    map.addLayer({
+        'id': id + "outline",
+        'type': 'line',
+        'source': id,
+        'layout': {},
+        'paint': {
+            'line-color': '#000',
+            'line-width': 3
+        }
+    });
 
+}
+function dbscan_polygon() {
+    url = "http://localhost:8000/api/geojson/polygon/dbscan"
+    id = "dbscan_polygon"
+    db_polygon(url, id)
+}
 //
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
@@ -118,10 +161,11 @@ map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function () {
     //dbline('#888', 0.5, 1);
-    
+
     //asWpPoint();
     asSrpPoint();
     pvSrpPoint();
-    pvLocationPoint();
-    dbscanPoint();
+    //pvLocationPoint();
+    //dbscanPoint();
+    dbscan_polygon();
 });

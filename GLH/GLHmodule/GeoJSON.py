@@ -20,10 +20,12 @@ class PointGeojson(Geojson) :
     def __init__(self, name, list):
         super().__init__(name, list)
 
-    def makingFeature(self, list):
+    def makingFeature(self, list :list):
         features = []
         for item in list :
             # item[0],[1]: coordinate, item[2]: timestamp
+            if len(item) == 2 :
+                item.append(0)
             feature = {
                 "type": "Feature",
                 "properties": {
@@ -50,3 +52,21 @@ class LineGeojson(Geojson) :
             },
             "coordinates": coordinates
         }
+
+class PolygonGeojson(Geojson):
+    def __init__(self, name, multi_coodinates):
+        self.geojson = {
+            'type': 'Feature',
+            "name": name,
+            "crs": {
+                "type": "name",
+                "properties": {
+                    "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                }
+            },
+            'geometry': {
+                'type': 'Polygon',
+                'coordinates': multi_coodinates
+            }
+       }
+

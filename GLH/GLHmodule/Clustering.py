@@ -1,5 +1,6 @@
 from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN
+from scipy.spatial import ConvexHull
 import numpy as np
 import pprint
 
@@ -24,12 +25,32 @@ class DBSCANCoodinates():
     def __init__(self, coordinates, eps, min_samples) -> None:
         self.coordinates :np.ndarray = coordinates
         self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
+    def label_polygon(self):
+        result = []
+        for labelcoordinates in self.labeledCoordinates() :
+            if labelcoordinates[0] == -1 :
+                continue
+            else:
+                polygon = np.array(labelcoordinates[1])
+                result.append(self.polygon_convhull(polygon))
+        return result
+
+    def polygon_convhull(self, polygon):
+        polygon = np.unique(polygon, axis=0)
+        if polygon.size < 6 :
+            return []
+        print(polygon)
+        hull = ConvexHull(polygon)
+        points = hull.points
+        conv_points = points[hull.vertices]
+        return conv_points.tolist()
+
     def labelPoint(self):
         return self._labelGravityPoint(self.labeledCoordinates())
     def labeledCoordinates(self):
         labeled_coords = [[label, []] for label in range(-1, max(self.clustering.labels_)+1)]
         for index, label in enumerate(self.clustering.labels_):
-            labeled_coords[label+1][1].append([self.coordinates[index]])
+            labeled_coords[label+1][1].append(self.coordinates[index])
         return labeled_coords
     def _labelGravityPoint(self, labelcoordinates):
         result = []
@@ -38,7 +59,7 @@ class DBSCANCoodinates():
             if l[0] == -1 :
                 continue
             else:
-                result.extend(np.average(l[1], axis=0).tolist())
+                result.append(np.average(l[1], axis=0).tolist())
         return result
     
     def _specificLabelCoodinates(self, slabel):

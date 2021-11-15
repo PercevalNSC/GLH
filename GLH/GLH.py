@@ -1,8 +1,8 @@
-from GLHmodule.geo2 import distance as g2dist
-from GLHmodule.Caliper import gravityPointDistance
-from GLHmodule.GeoJSON import PointGeojson, LineGeojson
-from GLHmodule.Plotfigure import coordinatesFigure
-from GLHmodule.Clustering import TrajectoryData, KNNFindPoint
+from .GLHmodule import distance as g2dist
+from .GLHmodule import gravityPointDistance, convex_hull
+from .GLHmodule import PointGeojson, LineGeojson, PolygonGeojson
+from .GLHmodule import coordinatesFigure
+from .GLHmodule import TrajectoryData, KNNFindPoint
 import pprint
 
 #TODO: fix names by PEP8
@@ -32,14 +32,24 @@ class GLHPoints():
         return [[p["latE7"], p["lngE7"]] for p in self.points]
 
 class GLHDocument():
+    """
+    GLHDocument is parent class of GLH documents.
+    GLHDocument -> GLHDocumentAs, GLHDocumentPv
+    """
     def __init__(self, document, segment):
         self.document = document
         self.segment = segment
 
     def trajectoryList(self, element1, element2):
+        """
+        return trajectory data used document[element1][element2]
+        """
         return [ [item["lngE7"], item["latE7"], item["timestampMs"]] for item in self.document[self.segment][element1][element2]]
 
     def trajectryListNoTimestamp(self, element1, element2):
+        """
+        return trajectory data without timestamp 
+        """
         return [ [item["lngE7"], item["latE7"], "NULL"] for item in self.document[self.segment][element1][element2]]
 
 class GLHDocumentAs(GLHDocument):
@@ -53,6 +63,9 @@ class GLHDocumentPv(GLHDocument):
         super().__init__(document, segment)
     
     def locationList(self):
+        """
+        return [lat, lng, timetamp] of a location in a placeVisit document 
+        """
         location = self.document[self.segment]["location"]
         duration = self.document[self.segment]["duration"]
         timestamp = int((duration["startTimestampMs"] + duration["endTimestampMs"])/2)
@@ -62,10 +75,17 @@ class GLHDocumentPv(GLHDocument):
             return []
 
     def locationDuration(self):
+        """
+        return time of location
+        """
         duration = self.document[self.segment]["duration"]
         return duration["endTimestampMs"] - duration["startTimestampMs"]
     # 空間的大きさと時間のリスト、１点しか無ければ空のリスト
     def regionDuration(self):
+        """
+        return a list of [spatial size, duration] in a document
+        if document has only one point, return no item list
+        """
         points = GLHPoints(self.points())
         if points.len() < 2 :
             return []
@@ -83,6 +103,10 @@ class GLHDocumentPv(GLHDocument):
         return self.document[self.segment]["simplifiedRawPath"]["points"]
 
 class GLHCollection():
+    """
+    Parent class of GLH collections
+    GLHcollection -> AsSrp, AsWp, PvSrp, PvLoc
+    """
     def __init__(self, collection, segment, element1, element2):
         self.collection = collection
         self.segment = segment
@@ -91,6 +115,9 @@ class GLHCollection():
         self.trajectry_list = []
     
     def differenceList(self):
+        """
+        simplifiedRawPathの差分のリスト
+        """
         result = []
 
         for doc in self.collection :
@@ -214,12 +241,18 @@ class GLHTrajectoryData():
     def _trajectorydataCostructor(self, collection):
         return TrajectoryData([])
     
-    def dbscan(self, eps, min_samples):
+    def dbscan_point(self, eps, min_samples):
         self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
         path = "ClusterPoint"
-        geojsonObj = LineGeojson(path, self.clustering.labelPoint())
+        print(self.clustering.labelPoint())
+        geojsonObj = PointGeojson(path, self.clustering.labelPoint())
         return geojsonObj.geojson
-    
+    def dbscan_polygon(self, eps, min_samples):
+        self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
+        path = "ClusterPoint"
+        label_polygons = self.clustering.label_polygon()
+        geojsonObj = PolygonGeojson(path, label_polygons)
+        return geojsonObj.geojson
     def exportGeojson(self):
         coordinates = [x[:2] for x in self.glhtrajectorydata]
         path = "trajectry_data"
@@ -267,3 +300,6 @@ class GLHFindPoint():
 def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
+
+if __name__ == "__main__":
+    print("neko")

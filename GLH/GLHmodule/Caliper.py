@@ -7,7 +7,7 @@ from .geo2 import distance as g2distance
 import time
 
 # グラハムスキャン
-def convex_hull(points):
+def convex_hull(points :list):
     # pointsを辞書順かつ非重複にする
     points.sort()
     points = get_unique_list(points)
