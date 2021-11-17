@@ -1,5 +1,5 @@
 from sklearn.neighbors import NearestNeighbors
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from scipy.spatial import ConvexHull
 import numpy as np
 import pprint
@@ -20,11 +20,17 @@ class TrajectoryData():
     
     def dbscan(self, eps, min_samples):
         return DBSCANCoodinates(self.coordinates(), eps, min_samples)
-
-class DBSCANCoodinates():
+    def optics(self, min_samples):
+        return OPTICSCoordinates(self.coordinates(), min_samples)
+class ClusteringCoordinates():
     def __init__(self, coordinates, eps, min_samples) -> None:
         self.coordinates :np.ndarray = coordinates
-        self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
+        self.clustering = self.clustering_construct(eps, min_samples)
+        self.labels = self.clustering.labels_
+    def clustering_construct(self, eps, min_samples):
+        print("No clustering methods")
+        self.labels = None
+        return None
     def label_polygon(self):
         result = []
         for labelcoordinates in self.labeledCoordinates() :
@@ -51,8 +57,9 @@ class DBSCANCoodinates():
     def labelPoint(self):
         return self._labelGravityPoint(self.labeledCoordinates())
     def labeledCoordinates(self):
-        labeled_coords = [[label, []] for label in range(-1, max(self.clustering.labels_)+1)]
-        for index, label in enumerate(self.clustering.labels_):
+        labels = self.labels
+        labeled_coords = [[label, []] for label in range(-1, max(labels)+1)]
+        for index, label in enumerate(labels):
             labeled_coords[label+1][1].append(self.coordinates[index])
         return labeled_coords
     def _labelGravityPoint(self, labelcoordinates):
@@ -65,14 +72,28 @@ class DBSCANCoodinates():
                 result.append(np.average(l[1], axis=0).tolist())
         return result
     
-    def _specificLabelCoodinates(self, slabel):
-        return [[self.coordinates[index]] for index, label in enumerate(self.clustering.labels_) if slabel == label]
-
     def clusteringFigure(self):
-        coordinatesFigure(self.coordinates, "DBSCAN", self.clustering.labels_)
+        coordinatesFigure(self.coordinates, "Clustering", self.clustering.labels_)
     def clusterstat(self):
         # print(self.clustering.labels_)
         print(max(self.clustering.labels_))
+
+class DBSCANCoodinates(ClusteringCoordinates):
+    def __init__(self, coordinates, eps, min_samples) -> None:
+        super().__init__(coordinates, eps, min_samples)
+    def clustering_construct(self, eps, min_samples):
+        return DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
+
+class OPTICSCoordinates(ClusteringCoordinates):
+    def __init__(self, coordinates, min_samples) -> None:
+        eps = 0
+        super().__init__(coordinates, eps, min_samples)
+    def clustering_construct(self, eps, min_samples):
+        return OPTICS(min_samples=min_samples).fit(self.coordinates)
+    def optics_set_eps(self, eps):
+        self.labels = cluster_optics_dbscan(reachability=self.clustering.reachability_,
+                                   core_distances=self.clustering.core_distances_,
+                                   ordering=self.clustering.ordering_, eps=eps)
 
 
 class KNNFindPoint :

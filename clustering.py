@@ -8,4 +8,10 @@ if __name__ == "__main__":
     pv_srp_collection = MongoDBSet().pvsrp_query()
 
     std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-    print(std.dbscan(eps, min_samples))
+    std.dbscan(eps, min_samples)
+    print(std.dbscan_point())
+    std.optics(min_samples)
+    std.optics_set_eps(eps)
+    print(std.dbscan_point())
+
+

@@ -46,6 +46,16 @@ def dbscan_polygon():
     eps = 0.01
     min_samples = 4
     return jsonify(get_dbscan_polygon(eps, min_samples))
+@app.route('/api/geojson/point/optics')
+def optics_point():
+    eps = 0.001
+    min_samples = 4
+    return jsonify(get_optics_point(eps, min_samples))
+@app.route('/api/geojson/polygon/optics')
+def optics_polygon():
+    eps = 0.001
+    min_samples = 4
+    return jsonify(get_optics_polygon(eps, min_samples))
 
 
 @app.route('/geocoder')

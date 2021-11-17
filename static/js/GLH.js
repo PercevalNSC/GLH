@@ -151,6 +151,11 @@ function dbscan_polygon() {
     id = "dbscan_polygon"
     db_polygon(url, id)
 }
+function optics_polygon() {
+    url = "http://localhost:8000/api/geojson/polygon/optics"
+    id = "optics_polygon"
+    db_polygon(url, id)
+}
 //
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
@@ -174,5 +179,6 @@ map.on('load', function () {
     pvSrpPoint();
     //pvLocationPoint();
     //dbscanPoint();
-    dbscan_polygon();
+    //dbscan_polygon();
+    optics_polygon();
 });

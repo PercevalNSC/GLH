@@ -248,17 +248,21 @@ class GLHTrajectoryData():
         if self.clustering == None :
             print("No clustring object")
             return {}
-        path = "ClusterPoint"
+        path = "Cluster Point for DBSCAN"
         geojsonObj = PointGeojson(path, self.clustering.labelPoint())
         return geojsonObj.geojson
     def dbscan_polygon(self):
         if self.clustering == None :
             print("No clustring object")
             return {}
-        path = "ClusterPoint"
+        path = "Cluster Polygon for DBSCAN"
         label_polygons = self.clustering.label_polygon()
         geojsonObj = PolygonGeojson(path, label_polygons)
         return geojsonObj.geojson
+    def optics(self, min_samples):
+        self.clustering = self.glhtrajectorydata.optics(min_samples)
+    def optics_set_eps(self, eps):
+        self.clustering.optics_set_eps(eps)
     def exportGeojson(self):
         coordinates = [x[:2] for x in self.glhtrajectorydata]
         path = "trajectry_data"

@@ -1,6 +1,5 @@
-from sklearn import cluster
 from GLH import *
-from GLH.GLHmodule import Clustering
+from GLH.GLHmodule.Clustering import OPTICSCoordinates
 from Setting.MongoDBSetting import MongoDBSet
 
 def get_dbscan_point(eps, min_samples):
@@ -8,6 +7,14 @@ def get_dbscan_point(eps, min_samples):
     return std.point()
 def get_dbscan_polygon(eps, min_samples):
     std = DBSCANConstruct(eps, min_samples)
+    return std.polygon()
+def get_optics_point(eps, min_samples):
+    std = OPTICSConstruct(min_samples)
+    std.set_eps(eps)
+    return std.point()
+def get_optics_polygon(eps, min_samples):
+    std = OPTICSConstruct(min_samples)
+    std.set_eps(eps)
     return std.polygon()
 def route_path():
     routepath = RoutePath(MongoDBSet().query({}))
@@ -22,6 +29,20 @@ class DBSCANConstruct():
             pv_srp_collection = MongoDBSet().pvsrp_query()
             self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
             self.clustering_obj.dbscan(eps, min_samples)
+    def polygon(self):
+        return self.clustering_obj.dbscan_polygon()
+    def point(self):
+        return self.clustering_obj.dbscan_point()
+class OPTICSConstruct():
+    clustering_obj = None
+    def __init__(self, min_samples) -> None:
+        if self.clustering_obj == None :
+            as_srp_collection = MongoDBSet().assrp_query()
+            pv_srp_collection = MongoDBSet().pvsrp_query()
+            self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+            self.clustering_obj.optics(min_samples)
+    def set_eps(self, eps):
+        self.clustering_obj.optics_set_eps(eps)
     def polygon(self):
         return self.clustering_obj.dbscan_polygon()
     def point(self):
