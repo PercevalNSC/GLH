@@ -202,6 +202,64 @@ function optics_polygon() {
 }
 //
 
+class ClusteringParam {
+    constructor() {
+        this.assrp = true
+        this.aswp = true
+        this.pvsrp = true
+        this.pvloc = true
+        this.optics = true
+        this.eps = 0.001
+        this.printall = true
+    }
+}
+
+window.onload = function (){
+    // create dat.GUI instance
+    const gui = new dat.GUI();
+
+    // create parameter instance
+    const clustering_param = new ClusteringParam();
+
+    // add parameter object to dat.GUI instance
+    gui.add(clustering_param, 'assrp').onChange(function (bool) {
+        clustering_param.assrp = bool;
+        visible_control(bool, "AsSrp");
+    });
+    gui.add(clustering_param, 'aswp').onChange(function (bool) {
+        clustering_param.aswp = bool;
+        visible_control(bool, "AsWp");
+    });
+    gui.add(clustering_param, 'pvsrp').onChange(function (bool) {
+        clustering_param.pvsrp = bool;
+        visible_control(bool, "PvSrp");
+    });
+    gui.add(clustering_param, 'pvloc').onChange(function (bool) {
+        clustering_param.pvloc = bool;
+        visible_control(bool, "PvLoc");
+    });
+    gui.add(clustering_param, 'optics').onChange(function (bool) {
+        clustering_param.optics = bool;
+        visible_control(bool, "optics_polygon");
+        
+    });
+    gui.add(clustering_param, 'eps', 0.00001, 0.1).onChange(function (eps) {
+        clustering_param.eps = eps
+    });
+    gui.add(clustering_param, 'printall').onChange(function (bool) {
+        if (bool) {
+            console.log(clustering_param);
+        };
+    });
+    function visible_control(bool, id){
+        if (bool) {
+            map.setLayoutProperty(id, 'visibility', 'visible');
+        }else {
+            map.setLayoutProperty(id, 'visibility', 'none');
+        }
+    }
+}
+
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 
 centers = {"chofu": [139.56, 35.65]}
