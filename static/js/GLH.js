@@ -115,7 +115,7 @@ function pvLocationPoint() {
     let pv_location = new DrawPoints(url, "PvLoc", color = "white", radius = 6, opacity = 1);
     pv_location.add_structure();
 }
-function dbscanPoint() {
+function dbscan_point() {
     url = "http://localhost:8000/api/geojson/point/dbscan"
     let dbscan_point = new DrawPoints(url, "dbscan_point");
     dbscan_point.add_structure();
@@ -143,105 +143,73 @@ class DrawLine extends DrawStructure {
     }
 }
 
-function add_routepath(color = '#888', opacity = 0.5, width = 1){
+function add_routepath(color = 'gray', opacity = 0.5, width = 1){
     url = "http://localhost:8000/api/geojson/line/route"
     id = "routepath"
     let routepath = new DrawLine(url, id, color, width, opacity);
     routepath.add_structure();
 }
-function dbline(color = '#888', opacity = 0.5, witdh = 1) {
-    url = "http://localhost:8000/api/geojson/line"
-    id = "routepath"
-    fetch(url, {
-        mode: 'cors'
-    }).then((response) => {
-        return response.json();
-    }).then((geojson) => {
-        map.addSource(id, {
-            'type': 'geojson',
-            'data': geojson
-        });
+
+class DrawPolygon extends DrawStructure {
+    constructor(url, id, fillcolor = "white", linecolor = "black", width = 3, opacity = 0.5, visibility = "visivle"){
+        super(url, id, fillcolor, opacity, visibility);
+        this.linecolor = linecolor;
+        this.width = width;
+    }
+    _add_layer(){
+        if (this.color != "None") {
+            this._add_fill_layer();
+        };
+        this._add_surround_layer();
+    }
+    _add_fill_layer(){
         map.addLayer({
-            'id': id,
-            'type': 'line',
-            'source': id,
-            'layout': {
-                'line-join': 'bevel',
-                'line-cap': 'butt'
-            },
+            'id': this.id + "fill",
+            'type': 'fill',
+            'source': this.id, // reference the data source
+            'layout': {},
             'paint': {
-                'line-color': color,
-                'line-opacity': opacity,
-                'line-width': witdh
+                'fill-color': this.color, // blue color fill
+                'fill-opacity': this.opacity
             }
         });
-        console.log("Write: " + url);
-    }).catch((e) => {
-        console.log(e);
-    });
+    }
+    _add_surround_layer(){
+        map.addLayer({
+            'id': this.id + "outline",
+            'type': 'line',
+            'source': this.id,
+            'layout': {},
+            'paint': {
+                'line-color': '#000',
+                'line-width': this.width
+            }
+        });
+    }
 }
-function db_polygon(url, id, fillcolor = '#0080ff') {
-    fetch(url, {
-        mode: 'cors'
-    }).then((response) => {
-        return response.json();
-    }).then((geojson) => {
-        add_db_polygon(id, geojson, fillcolor);
-        console.log("Write: " + url);
-    }).catch((e) => {
-        console.log(e);
-    });
-};
-function add_db_polygon(id, data, fillcolor = '#0080ff') {
-    map.addSource(id, {
-        'type': 'geojson',
-        'data': data
-    });
-    //polygon_fill(id, fillcolor);
-    polygon_sorround(id);
-}
-function polygon_fill(id, fillcolor = '#0080ff'){
-    map.addLayer({
-        'id': id + "fill",
-        'type': 'fill',
-        'source': id, // reference the data source
-        'layout': {},
-        'paint': {
-            'fill-color': fillcolor, // blue color fill
-            'fill-opacity': 0.5
-        }
-    });
-}
-function polygon_sorround(id){
-    map.addLayer({
-        'id': id + "outline",
-        'type': 'line',
-        'source': id,
-        'layout': {},
-        'paint': {
-            'line-color': '#000',
-            'line-width': 3
-        }
-    })
-}
+
 function dbscan_polygon() {
     url = "http://localhost:8000/api/geojson/polygon/dbscan"
     id = "dbscan_polygon"
-    db_polygon(url, id)
+    let dbscan_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5)
+    dbscan_polygon.add_structure();
 }
 function optics_polygon() {
     url = "http://localhost:8000/api/geojson/polygon/optics"
     id = "optics_polygon"
-    db_polygon(url, id)
+    let optics_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5);
+    optics_polygon.add_structure();
 }
 //
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 
+centers = {"chofu": [139.56, 35.65]}
+
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
-    center: [139.56, 35.65], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
+    center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
     zoom: 13, // 初期に表示する地図のズームレベル
 });
 
@@ -250,7 +218,6 @@ map.addControl(new mapboxgl.NavigationControl());
 //map.addControl(new mapboxgl.ScaleControl());
 
 map.on('load', function () {
-    //dbline('#888', 0.5, 1);
 
     add_routepath();
     asWpPoint();
@@ -258,6 +225,6 @@ map.on('load', function () {
     pvSrpPoint();
     pvLocationPoint();
     //dbscanPoint();
-    //dbscan_polygon();
+    dbscan_polygon();
     //optics_polygon();
 });
