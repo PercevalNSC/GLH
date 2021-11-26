@@ -15,61 +15,139 @@ function addManyMarkers(map, lnglatlist, color = "blue") {
     }
     return markerlist;
 }
-function dbPoint(url, id, color, radius = 4, opacity = 0.65) {
-    fetch(url, {
-        mode: 'cors'
-    }).then((response) => {
-        return response.json();
-    }).then((geojson) => {
-        map.addSource(id, {
+
+class DrawStructure {
+    constructor(url, id, color, opacity, visibility){
+        this.url = url;
+        this.id = id;
+        this.color = color;
+        this.opacity = opacity;
+        this.visibility = visibility;
+    }
+    add_structure(){
+        fetch(url, {
+            mode: 'cors'
+        }).then((response) => {
+            return response.json();
+        }).then((geojson) => {
+            this._add_geojson(geojson)
+            console.log("Write: " + this.url);
+        }).catch((e) => {
+            console.log(e);
+        });
+    }
+    _add_geojson(geojson){
+        this._add_source(geojson);
+        this._add_layer();
+
+    }
+    _add_source(geojson){
+        map.addSource(this.id, {
             'type': 'geojson',
             'data': geojson
         });
+    }
+    _add_layer(){
+        // specified structure
         map.addLayer({
-            'id': id,
-            'source': id,
+            'id': this.id,
+            'source': this.id,
             'type': 'circle',
+            'layout': {
+                'visibility': this.visibility
+            },
+            'paint': {},
+        });
+    }
+}
+
+class DrawPoints extends DrawStructure{
+    constructor(url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible'){
+        super(url, id, color, opacity, visibility);
+        this.radius = radius
+    }
+    _add_layer(){
+        map.addLayer({
+            'id': this.id,
+            'source': this.id,
+            'type': 'circle',
+            'layout': {
+                'visibility': this.visibility
+            },
             'paint': {
-                'circle-radius': radius,
-                'circle-opacity': opacity,
-                'circle-color': color,
+                'circle-radius': this.radius,
+                'circle-opacity': this.opacity,
+                'circle-color': this.color,
                 'circle-stroke-width': 1
             }
         });
-        console.log("Write: " + url);
-    }).catch((e) => {
-        console.log(e);
-    });
-
-    map.on('click', id, function (e) {
-        var coordinates = e.features[0].geometry.coordinates.slice();
-        var date = new Date(e.features[0].properties.timestamp)
-        var description = "Timestamp:" + date.toString();
-        new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(description)
-            .addTo(map);
-    });
+        this._click_popup();
+    }
+    _click_popup(){
+        map.on('click', this.id, function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var date = new Date(e.features[0].properties.timestamp)
+            var description = "Timestamp:" + date.toString();
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+        });
+    }
 }
 function asSrpPoint() {
     url = "http://localhost:8000/api/geojson/point/activitySegment.simplifiedRawPath"
-    dbPoint(url, "asSrp", "blue");
+    let as_srp_point = new DrawPoints(url, "AsSrp", color = "blue")
+    as_srp_point.add_structure();
 }
 function asWpPoint() {
     url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
-    dbPoint(url, "asWp", "pink");
+    let as_wp_point = new DrawPoints(url, "AsWp", color = "pink")
+    as_wp_point.add_structure();
 }
 function pvSrpPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
-    dbPoint(url, "pvSrp", "yellow");
+    let pv_srp_point = new DrawPoints(url, "PvSrp", color = "yellow");
+    pv_srp_point.add_structure();
 }
 function pvLocationPoint() {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
-    dbPoint(url, "pvLocation", "white", radius = 6, opacity = 1);
+    let pv_location = new DrawPoints(url, "PvLoc", color = "white", radius = 6, opacity = 1);
+    pv_location.add_structure();
 }
 function dbscanPoint() {
     url = "http://localhost:8000/api/geojson/point/dbscan"
-    dbPoint(url, "dbscan", "red", radius = 10, opacity = 0.5);
+    let dbscan_point = new DrawPoints(url, "dbscan_point");
+    dbscan_point.add_structure();
+}
+class DrawLine extends DrawStructure {
+    constructor(url, id, color = 'black', width = 1, opacity = 0.5, visibility = 'visible'){
+        super(url, id, color, opacity, visibility);
+        this.witdh = width
+    }
+    _add_layer(){
+        map.addLayer({
+            'id': this.id,
+            'type': 'line',
+            'source': this.id,
+            'layout': {
+                'line-join': 'bevel',
+                'line-cap': 'butt'
+            },
+            'paint': {
+                'line-color': this.color,
+                'line-opacity': this.opacity,
+                'line-width': this.witdh
+            }
+        });
+    }
+}
+
+function add_routepath(color = '#888', opacity = 0.5, width = 1){
+    url = "http://localhost:8000/api/geojson/line/route"
+    id = "routepath"
+    let routepath = new DrawLine(url, id, color, width, opacity);
+    routepath.add_structure();
 }
 function dbline(color = '#888', opacity = 0.5, witdh = 1) {
     url = "http://localhost:8000/api/geojson/line"
@@ -174,11 +252,12 @@ map.addControl(new mapboxgl.NavigationControl());
 map.on('load', function () {
     //dbline('#888', 0.5, 1);
 
-    //asWpPoint();
+    add_routepath();
+    asWpPoint();
     asSrpPoint();
     pvSrpPoint();
-    //pvLocationPoint();
+    pvLocationPoint();
     //dbscanPoint();
     //dbscan_polygon();
-    optics_polygon();
+    //optics_polygon();
 });

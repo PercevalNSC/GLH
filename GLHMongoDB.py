@@ -28,11 +28,13 @@ class DBSCANConstruct():
             as_srp_collection = MongoDBSet().assrp_query()
             pv_srp_collection = MongoDBSet().pvsrp_query()
             self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-            self.clustering_obj.dbscan(eps, min_samples)
+            self.set_dbscan(eps, min_samples)
+    def set_dbscan(self, eps, min_samples):
+        self.clustering_obj.dbscan(eps, min_samples)
     def polygon(self):
-        return self.clustering_obj.dbscan_polygon()
+        return self.clustering_obj.cluster_polygon()
     def point(self):
-        return self.clustering_obj.dbscan_point()
+        return self.clustering_obj.cluster_point()
 class OPTICSConstruct():
     clustering_obj = None
     def __init__(self, min_samples) -> None:
@@ -40,13 +42,15 @@ class OPTICSConstruct():
             as_srp_collection = MongoDBSet().assrp_query()
             pv_srp_collection = MongoDBSet().pvsrp_query()
             self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-            self.clustering_obj.optics(min_samples)
+            self.set_optics(min_samples)
+    def set_optics(self, min_samples):
+        self.clustering_obj.optics(min_samples)
     def set_eps(self, eps):
         self.clustering_obj.optics_set_eps(eps)
     def polygon(self):
-        return self.clustering_obj.dbscan_polygon()
+        return self.clustering_obj.cluster_polygon()
     def point(self):
-        return self.clustering_obj.dbscan_point()
+        return self.clustering_obj.cluster_point()
 
 class GetGLHCollection():
     def __init__(self) -> None:

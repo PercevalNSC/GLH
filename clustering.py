@@ -7,11 +7,10 @@ if __name__ == "__main__":
     as_srp_collection = MongoDBSet().assrp_query()
     pv_srp_collection = MongoDBSet().pvsrp_query()
 
-    std = AllTrajectoryData(as_srp_collection, pv_srp_collection)
-    std.dbscan(eps, min_samples)
-    print(std.dbscan_point())
-    std.optics(min_samples)
-    std.optics_set_eps(eps)
-    print(std.dbscan_point())
-
+    atd = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+    atd.dbscan(eps, min_samples)
+    print(atd.clustering.labeled_trajectory_data())
+    print(atd.clustering.labeled_coordinates())
+    print(atd.clustering.cluster_point_td())
+    print(atd.clustering.cluster_point_coords())
 

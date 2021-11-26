@@ -236,42 +236,44 @@ class RoutePath :
 
 class GLHTrajectoryData():
     def __init__(self, collection) -> None:
-        self.glhtrajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
-        self.clustring = None
+        self.trajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
+        self.clustering = None
 
     def _trajectorydataCostructor(self, collection):
         return TrajectoryData([])
     
-    def dbscan(self, eps, min_samples):
-        self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
-    def dbscan_point(self):
+    def cluster_point(self):
         if self.clustering == None :
             print("No clustring object")
             return {}
         path = "Cluster Point for DBSCAN"
-        geojsonObj = PointGeojson(path, self.clustering.labelPoint())
+        geojsonObj = PointGeojson(path, self.clustering.cluster_point_coords())
         return geojsonObj.geojson
-    def dbscan_polygon(self):
+    def cluster_polygon(self):
         if self.clustering == None :
             print("No clustring object")
             return {}
         path = "Cluster Polygon for DBSCAN"
-        label_polygons = self.clustering.label_polygon()
+        label_polygons = self.clustering.cluster_polygon_coords()
         geojsonObj = PolygonGeojson(path, label_polygons)
         return geojsonObj.geojson
+    def dbscan(self, eps, min_samples):
+        self.clustering = self.trajectorydata.to_dbscan(eps, min_samples)
+        #self.clustering = self.trajectorydata.dbscan(eps, min_samples)
     def optics(self, min_samples):
-        self.clustering = self.glhtrajectorydata.optics(min_samples)
+        self.clustering = self.trajectorydata.to_optics(min_samples)
+        #self.clustering = self.trajectorydata.optics(min_samples)
     def optics_set_eps(self, eps):
-        self.clustering.optics_set_eps(eps)
+        self.clustering.set_eps(eps)
     def exportGeojson(self):
-        coordinates = [x[:2] for x in self.glhtrajectorydata]
+        coordinates = [x[:2] for x in self.trajectorydata]
         path = "trajectry_data"
         geojsonObj = LineGeojson(path, coordinates)
         return geojsonObj.geojson
     def exportFigure(self):
-        coordinatesFigure(self.glhtrajectorydata, "clustering")
+        coordinatesFigure(self.trajectorydata, "clustering")
     def print(self):
-        pprint.pprint(self.glhtrajectorydata)
+        pprint.pprint(self.trajectorydata)
 
 class ASTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection) -> None:
@@ -289,10 +291,10 @@ class PVTrajectoryData(GLHTrajectoryData):
 
 class AllTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection1, collection2) -> None:
-        self.glhtrajectorydata = self._trajectorydataCostructor(collection1, collection2)
+        self.trajectorydata = self._trajectorydataCostructor(collection1, collection2)
     def _trajectorydataCostructor(self, assrp_collection,pvsrp_collection):
-        assrp_trajectorydata = ASTrajectoryData(assrp_collection).glhtrajectorydata.trajectorydata.tolist()
-        pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).glhtrajectorydata.trajectorydata.tolist()
+        assrp_trajectorydata = ASTrajectoryData(assrp_collection).trajectorydata.trajectorydata.tolist()
+        pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).trajectorydata.trajectorydata.tolist()
         trajectorydata = assrp_trajectorydata + pvsrp_trajectorydata
         return TrajectoryData(sorted(trajectorydata, key=lambda x: x[2]))
 
