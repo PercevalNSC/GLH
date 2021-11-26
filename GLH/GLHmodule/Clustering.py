@@ -44,12 +44,21 @@ class ClusteringTrajectoryData(TrajectoryData):
         self.clustering = None
         self.labels = None
     
+    def labeled_trajectory_list(self):
+        labeled_data = [[label, []] for label in range(-1, max(self.labels)+1)]
+        for index, label in enumerate(self.labels):
+            labeled_list :list = labeled_data[label+1][1]   # ラベルが-1スタートなのでラベルのインデックスをずらす
+            labeled_list.append(self.trajectorydata[index].tolist())
+        return labeled_data
     def labeled_trajectory_data(self):
         labeled_data = [[label, []] for label in range(-1, max(self.labels)+1)]
         for index, label in enumerate(self.labels):
             labeled_list :list = labeled_data[label+1][1]   # ラベルが-1スタートなのでラベルのインデックスをずらす
             labeled_list.append(self.trajectorydata[index])
         return labeled_data
+
+    def cluster_during(self, labeled_data):
+        pass
         
     def cluster_point_td(self):
         return self._label_gravity_point(self.labeled_trajectory_data())
@@ -70,7 +79,7 @@ class ClusteringTrajectoryData(TrajectoryData):
                 result.append(np.average(l[1], axis=0).tolist())
         return result
     
-    
+ 
 
 class DBSCANTrajectoryData(ClusteringTrajectoryData):
     def __init__(self, trajectorydata: list) -> None:
@@ -87,7 +96,7 @@ class OPTICSTrajectoryData(ClusteringTrajectoryData):
         self.labels = self.clustering.labels
     def set_eps(self, eps):
         self.clustering.optics_set_eps(eps)
-
+        self.labels = self.clustering.labels
 
 
 class ClusteringCoordinates():
@@ -166,7 +175,6 @@ class OPTICSCoordinates(ClusteringCoordinates):
         self._clustering_construct(min_samples)
     def _clustering_construct(self, min_samples):
         self.clustering = OPTICS(min_samples=min_samples).fit(self.coordinates)
-        self.labels = None
     def optics_set_eps(self, eps):
         self.labels = cluster_optics_dbscan(reachability=self.clustering.reachability_,
                                    core_distances=self.clustering.core_distances_,

@@ -7,6 +7,10 @@ app.config["JSON_AS_ASCII"] = False
 def home():
     return render_template('GLH.html')
 
+@app.route('/hello/name')
+def hello(name = None):
+    print(name)
+
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
     return jsonify(GetGLHAssrp().json())

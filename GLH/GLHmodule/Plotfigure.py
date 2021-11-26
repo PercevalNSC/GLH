@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.ticker as ticker
 
 savepath= "./images/"
 
@@ -49,3 +51,12 @@ def coordinatesFigure(coordinates, title, color="r"):
     axis = fig.add_subplot(1,1,1, title=title, xlabel=xlabel, ylabel=ylabel)
     axis.scatter(x, y, s=1, c=color)
     fig.savefig(savepath + title + ".png")
+
+def cluster_figure(cluster_data, name = "No title", ylabel = "No ylabel"):
+    cl_data = np.array(cluster_data)
+    fig = plt.figure(dpi = 200)
+    ax = fig.add_subplot(1,1,1, title = name, xlabel = "cluster label", ylabel = ylabel)
+    ax.get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
+    ax.bar(cl_data[:, 0], cl_data[:, 1])
+    fig.show()
+    fig.savefig(savepath + name + ".png")

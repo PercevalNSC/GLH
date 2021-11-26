@@ -175,6 +175,7 @@ class DrawPolygon extends DrawStructure {
         });
     }
     _add_surround_layer(){
+        console.log(this.id + "outline")
         map.addLayer({
             'id': this.id + "outline",
             'type': 'line',
@@ -240,11 +241,12 @@ window.onload = function (){
     });
     gui.add(clustering_param, 'optics').onChange(function (bool) {
         clustering_param.optics = bool;
-        visible_control(bool, "optics_polygon");
+        visible_control(bool, "optics_polygonoutline");
         
     });
     gui.add(clustering_param, 'eps', 0.00001, 0.1).onChange(function (eps) {
         clustering_param.eps = eps
+        set_eps(eps);
     });
     gui.add(clustering_param, 'printall').onChange(function (bool) {
         if (bool) {
@@ -257,6 +259,10 @@ window.onload = function (){
         }else {
             map.setLayoutProperty(id, 'visibility', 'none');
         }
+    }
+    function set_eps(eps){
+        // TODO
+        ;
     }
 }
 
@@ -282,7 +288,7 @@ map.on('load', function () {
     asSrpPoint();
     pvSrpPoint();
     pvLocationPoint();
+    optics_polygon();
     //dbscanPoint();
-    dbscan_polygon();
-    //optics_polygon();
+    //dbscan_polygon();
 });

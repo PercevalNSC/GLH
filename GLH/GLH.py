@@ -242,6 +242,11 @@ class GLHTrajectoryData():
     def _trajectorydataCostructor(self, collection):
         return TrajectoryData([])
     
+    def labeled_trajectory_data(self):
+        labeled_list = self.clustering.labeled_trajectory_list()
+        for i in labeled_list :
+            print(i[0], i[1])
+        return labeled_list
     def cluster_point(self):
         if self.clustering == None :
             print("No clustring object")
