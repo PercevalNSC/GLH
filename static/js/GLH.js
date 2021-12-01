@@ -175,6 +175,7 @@ class DrawPolygon extends DrawStructure {
         });
     }
     _add_surround_layer(){
+        console.log(this.id + "outline")
         map.addLayer({
             'id': this.id + "outline",
             'type': 'line',
