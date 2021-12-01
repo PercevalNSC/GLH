@@ -171,6 +171,7 @@ class DBSCANCoordinates(ClusteringCoordinates):
         super().__init__(coordinates)
         self._clustering_construct(eps, min_samples)
     def _clustering_construct(self, eps, min_samples):
+        print("Starting DBSCAN")
         self.clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(self.coordinates)
         self.labels = self.clustering.labels_
 
@@ -179,8 +180,10 @@ class OPTICSCoordinates(ClusteringCoordinates):
         super().__init__(coordinates)
         self._clustering_construct(min_samples)
     def _clustering_construct(self, min_samples):
+        print("Starting OPTICS")
         self.clustering = OPTICS(min_samples=min_samples).fit(self.coordinates)
     def optics_set_eps(self, eps):
+        print("OPTICS set: eps=", eps)
         self.labels = cluster_optics_dbscan(reachability=self.clustering.reachability_,
                                    core_distances=self.clustering.core_distances_,
                                    ordering=self.clustering.ordering_, eps=eps)

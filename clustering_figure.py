@@ -2,7 +2,7 @@ from GLHMongoDB import OPTICSConstruct
 from GLH.GLHmodule.Plotfigure import cluster_figure
 from GLH.GLHmodule.Clustering import LabeledTrajectoryData
 
-eps = 0.0001
+eps = 1
 min_samples = 4
 obj = OPTICSConstruct(min_samples)
 obj.set_eps(eps)

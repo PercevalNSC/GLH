@@ -13,13 +13,13 @@ def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "du
     n = "[n = " + str(len(distlist)) + "]"
     fig = plt.figure(dpi=200)
     axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
-    axis.scatter(distlist, timelist, marker=".")
+    axis.scatter(distlist, timelist, marker=".", s=1)
     fig.savefig(savepath + name + ".png")
     print("Output: " + name + ".png")
 
 def logScatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     n = "[n = " + str(len(distlist)) + "]"
-    fig = plt.figure(dpi=200)
+    fig = plt.figure(dpi=400)
 
     axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
     axis.scatter(distlist, timelist, marker=".")
