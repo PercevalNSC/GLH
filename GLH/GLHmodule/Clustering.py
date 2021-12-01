@@ -4,8 +4,12 @@ from scipy.spatial import ConvexHull
 import numpy as np
 import pprint
 
-from .Plotfigure import coordinatesFigure
+from .Plotfigure import coordinatesFigure, scatterFigure
 from .geo2 import distance as g2distance
+
+TOKYO_1LNG = (1.51985 + 1.85225) * 30
+TOKYO_1LNG1 = 1.51985 * 60
+TOKYO_1LNG2 = 1.85225 * 60
 
 class TrajectoryData():
     def __init__(self, trajectorydata: list) -> None:
@@ -44,12 +48,21 @@ class ClusteringTrajectoryData(TrajectoryData):
         self.clustering = None
         self.labels = None
     
+    def labeled_trajectory_list(self):
+        labeled_data = [[label, []] for label in range(-1, max(self.labels)+1)]
+        for index, label in enumerate(self.labels):
+            labeled_list :list = labeled_data[label+1][1]   # ラベルが-1スタートなのでラベルのインデックスをずらす
+            labeled_list.append(self.trajectorydata[index].tolist())
+        return labeled_data
     def labeled_trajectory_data(self):
         labeled_data = [[label, []] for label in range(-1, max(self.labels)+1)]
         for index, label in enumerate(self.labels):
             labeled_list :list = labeled_data[label+1][1]   # ラベルが-1スタートなのでラベルのインデックスをずらす
             labeled_list.append(self.trajectorydata[index])
         return labeled_data
+
+    def cluster_during(self, labeled_data):
+        pass
         
     def cluster_point_td(self):
         return self._label_gravity_point(self.labeled_trajectory_data())
@@ -70,13 +83,13 @@ class ClusteringTrajectoryData(TrajectoryData):
                 result.append(np.average(l[1], axis=0).tolist())
         return result
     
-    
+ 
 
 class DBSCANTrajectoryData(ClusteringTrajectoryData):
     def __init__(self, trajectorydata: list) -> None:
         super().__init__(trajectorydata)
     def clustering_set(self, eps, min_samples):
-        self.clustering :DBSCANCoordinates = DBSCANCoordinates(self.coordinates(), eps, min_samples)
+        self.clustering :DBSCANCoordinates = DBSCANCoordinates(self.coordinates(), geography_to_euclid(eps), min_samples)
         self.labels = self.clustering.labels
 
 class OPTICSTrajectoryData(ClusteringTrajectoryData):
@@ -84,10 +97,11 @@ class OPTICSTrajectoryData(ClusteringTrajectoryData):
         super().__init__(trajectorydata)
     def clustering_set(self, min_samples):
         self.clustering :OPTICSCoordinates = OPTICSCoordinates(self.coordinates(), min_samples)
-        self.labels = self.clustering.labels
     def set_eps(self, eps):
-        self.clustering.optics_set_eps(eps)
-
+        self.clustering.optics_set_eps(geography_to_euclid(eps))
+        self.labels = self.clustering.labels
+    def reachability_plot(self):
+        self.clustering.reachability_plot()
 
 
 class ClusteringCoordinates():
@@ -166,11 +180,14 @@ class OPTICSCoordinates(ClusteringCoordinates):
         self._clustering_construct(min_samples)
     def _clustering_construct(self, min_samples):
         self.clustering = OPTICS(min_samples=min_samples).fit(self.coordinates)
-        self.labels = None
     def optics_set_eps(self, eps):
         self.labels = cluster_optics_dbscan(reachability=self.clustering.reachability_,
                                    core_distances=self.clustering.core_distances_,
                                    ordering=self.clustering.ordering_, eps=eps)
+    def reachability_plot(self):
+        space = np.arange(len(self.coordinates))
+        reachability = self.clustering.reachability_[self.clustering.ordering_]
+        scatterFigure(space, reachability, "reachability", "", "reachability[]")
 
 
 class KNNFindPoint :
@@ -186,3 +203,30 @@ class KNNFindPoint :
     def _nearest_neighbors(self, indices):
         return [list(self.datasets[index]) for index in indices]
 
+
+class LabeledTrajectoryData():
+    def __init__(self, labeled_trajectory_data) -> None:
+        self.labeled_trajectory_data = labeled_trajectory_data
+    
+    def cluster_term(self) -> list:
+        label_term = []
+        for cluster_trajectory_data in self.labeled_trajectory_data :
+            label = cluster_trajectory_data[0]
+            trajectory_data = cluster_trajectory_data[1]
+            term = self._trajectory_data_term(trajectory_data)
+            label_term.append([label, term])
+        return label_term
+    
+    def _trajectory_data_term(self, trajectory_data):
+        timestamp_min_max = [trajectory_data[0][2], trajectory_data[0][2]]
+        for trajectory_set in trajectory_data :
+            timestamp_min_max[0] = min(timestamp_min_max[0], trajectory_set[2])
+            timestamp_min_max[1] = max(timestamp_min_max[1], trajectory_set[2])
+        return timestamp_min_max[1] - timestamp_min_max[0]
+
+def euclid_to_geography(euclid_dist):
+    return euclid_dist * TOKYO_1LNG #(km)
+
+def geography_to_euclid(geography_dist):
+    # input (km)
+    return geography_dist / TOKYO_1LNG

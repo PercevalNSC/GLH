@@ -7,6 +7,11 @@ app.config["JSON_AS_ASCII"] = False
 def home():
     return render_template('GLH.html')
 
+@app.route('/hello/<name>')
+def hello(name = None):
+    print(name)
+    return name
+
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
     return jsonify(GetGLHAssrp().json())
@@ -36,27 +41,44 @@ def geojsonPvLoc():
 @app.route('/api/geojson/line/route')
 def geojsonline():
     return jsonify(route_path())
+
 @app.route('/api/geojson/point/dbscan')
 def dbscanPoint():
-    eps = 0.001
+    eps = 1
+    min_samples = 4
+    return jsonify(get_dbscan_point(eps, min_samples))
+@app.route('/api/geojson/point/dbscan/<float:eps>')
+def eps_dbscan_point(eps = 1.0):
     min_samples = 4
     return jsonify(get_dbscan_point(eps, min_samples))
 @app.route('/api/geojson/polygon/dbscan')
 def dbscan_polygon():
-    eps = 0.01
+    eps = 1
     min_samples = 4
     return jsonify(get_dbscan_polygon(eps, min_samples))
+@app.route('/api/geojson/polygon/dbscan/<float:eps>')
+def eps_dbscan_polygon(eps = 1.0):
+    min_samples = 4
+    return jsonify(get_dbscan_polygon(eps, min_samples))
+
 @app.route('/api/geojson/point/optics')
 def optics_point():
-    eps = 0.001
+    eps = 1
+    min_samples = 4
+    return jsonify(get_optics_point(eps, min_samples))
+@app.route('/api/geojson/point/optics/<float:eps>')
+def eps_optics_point(eps = 1.0):
     min_samples = 4
     return jsonify(get_optics_point(eps, min_samples))
 @app.route('/api/geojson/polygon/optics')
 def optics_polygon():
-    eps = 0.001
+    eps = 1.0
     min_samples = 4
     return jsonify(get_optics_polygon(eps, min_samples))
-
+@app.route('/api/geojson/polygon/optics/<float:eps>')
+def eps_optics_polygon(eps = 1.0):
+    min_samples = 4
+    return jsonify(get_optics_polygon(eps, min_samples))
 
 @app.route('/geocoder')
 def geocoderMap():

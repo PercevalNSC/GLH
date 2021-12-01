@@ -2,6 +2,10 @@ from GLH import *
 from GLH.GLHmodule.Clustering import OPTICSCoordinates
 from Setting.MongoDBSetting import MongoDBSet
 
+"""
+Assemble GLHLibrary and MongoDBquery, and Management clustring.
+"""
+
 def get_dbscan_point(eps, min_samples):
     std = DBSCANConstruct(eps, min_samples)
     return std.point()
@@ -47,6 +51,8 @@ class OPTICSConstruct():
         self.clustering_obj.optics(min_samples)
     def set_eps(self, eps):
         self.clustering_obj.optics_set_eps(eps)
+    def labeled_trajectory_data(self):
+        return self.clustering_obj.labeled_trajectory_data()
     def polygon(self):
         return self.clustering_obj.cluster_polygon()
     def point(self):

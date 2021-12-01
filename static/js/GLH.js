@@ -194,13 +194,82 @@ function dbscan_polygon() {
     let dbscan_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5)
     dbscan_polygon.add_structure();
 }
-function optics_polygon() {
-    url = "http://localhost:8000/api/geojson/polygon/optics"
+function optics_polygon(eps = 1.0) {
+    url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(4)
     id = "optics_polygon"
     let optics_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5);
     optics_polygon.add_structure();
 }
 //
+
+class ClusteringParam {
+    constructor() {
+        this.assrp = true
+        this.aswp = false
+        this.pvsrp = true
+        this.pvloc = true
+        this.route = false
+        this.optics = true
+        this.eps = 1
+        this.printall = true
+    }
+}
+
+window.onload = function (){
+    // create dat.GUI instance
+    const gui = new dat.GUI();
+
+    // create parameter instance
+    const clustering_param = new ClusteringParam();
+
+    // add parameter object to dat.GUI instance
+    gui.add(clustering_param, 'assrp').onChange(function (bool) {
+        clustering_param.assrp = bool;
+        visible_control(bool, "AsSrp");
+    });
+    gui.add(clustering_param, 'aswp').onChange(function (bool) {
+        clustering_param.aswp = bool;
+        visible_control(bool, "AsWp");
+    });
+    gui.add(clustering_param, 'pvsrp').onChange(function (bool) {
+        clustering_param.pvsrp = bool;
+        visible_control(bool, "PvSrp");
+    });
+    gui.add(clustering_param, 'pvloc').onChange(function (bool) {
+        clustering_param.pvloc = bool;
+        visible_control(bool, "PvLoc");
+    });
+    gui.add(clustering_param, 'route').onChange(function (bool) {
+        clustering_param.route = bool;
+        visible_control(bool, "route")
+    })
+    gui.add(clustering_param, 'optics').onChange(function (bool) {
+        clustering_param.optics = bool;
+        visible_control(bool, "optics_polygonoutline");
+    });
+    gui.add(clustering_param, 'eps').onChange(function (eps) {
+        clustering_param.eps = eps
+        set_eps(eps);
+    });
+    gui.add(clustering_param, 'printall').onChange(function (bool) {
+        if (bool) {
+            console.log(clustering_param);
+        };
+    });
+    function visible_control(bool, id){
+        if (bool) {
+            map.setLayoutProperty(id, 'visibility', 'visible');
+        }else {
+            map.setLayoutProperty(id, 'visibility', 'none');
+        }
+    }
+    function set_eps(eps){
+        // TODO
+        map.removeLayer("optics_polygonoutline")
+        map.removeSource("optics_polygon")
+        optics_polygon(eps)
+    }
+}
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 
@@ -216,15 +285,19 @@ var map = new mapboxgl.Map({
 map.addControl(new mapboxgl.FullscreenControl());
 map.addControl(new mapboxgl.NavigationControl());
 //map.addControl(new mapboxgl.ScaleControl());
+map.addControl(new mapboxgl.ScaleControl({
+    maxWidth: 200,
+    unit: 'metric'
+}));
 
 map.on('load', function () {
 
-    add_routepath();
+    //add_routepath();
     asWpPoint();
     asSrpPoint();
     pvSrpPoint();
     pvLocationPoint();
+    optics_polygon(1.0);
     //dbscanPoint();
-    dbscan_polygon();
-    //optics_polygon();
+    //dbscan_polygon();
 });
