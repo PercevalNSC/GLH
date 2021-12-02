@@ -4,7 +4,7 @@ from scipy.spatial import ConvexHull
 import numpy as np
 import pprint
 
-from .Plotfigure import coordinatesFigure, scatterFigure
+from .Plotfigure import coordinatesFigure, scatterFigure, reachability_figure
 from .geo2 import distance as g2distance
 
 TOKYO_1LNG = (1.51985 + 1.85225) * 30
@@ -109,6 +109,8 @@ class OPTICSTrajectoryData(ClusteringTrajectoryData):
     def set_eps(self, eps):
         self.clustering.optics_set_eps(geography_to_euclid(eps))
         self.labels = self.clustering.labels
+    def create_optics_arrays(self):
+        return OPTICSArrays(self.trajectorydata, self.clustering.clustering.reachability_, self.clustering.clustering.ordering_)
     def reachability_plot(self):
         self.clustering.reachability_plot()
 
@@ -196,14 +198,63 @@ class OPTICSCoordinates(ClusteringCoordinates):
         self.labels = cluster_optics_dbscan(reachability=self.clustering.reachability_,
                                    core_distances=self.clustering.core_distances_,
                                    ordering=self.clustering.ordering_, eps=eps)
+    def crate_optics_arrays(self):
+        return OPTICSArrays(self.coordinates, self.clustering.reachability_, self.clustering.ordering_)
     def reachability_plot(self):
         space = np.arange(len(self.coordinates))
         reachability = self.clustering.reachability_[self.clustering.ordering_]
-        scatterFigure(space, reachability, "reachability", "", "reachability[]")
+        reachability_figure(space, reachability, "reachability_plot")
 
+class OPTICSArrays :
+    plot_count = 0
+    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray) -> None:
+        self.coordinates = data
+        self.reachability = reachability
+        self.ordering = ordering
+
+    def map_scope(self, p1, p2):
+        
+        for i in range(len(self.coordinates))[::-1]:
+            if (self.coordinates[i][0] < p1[0]) | (p2[0] < self.coordinates[i][0]) | (self.coordinates[i][1] < p1[1]) | (p2[1] < self.coordinates[i][1]):
+                self.remove_index(i)
+        
+    def remove_index(self, index :int):
+        self.coordinates = np.delete(self.coordinates, index, 0)
+        self.reachability = np.delete(self.reachability, index, 0)
+        self.ordering = self.remove_ordering(self.ordering, index)
+    def remove_ordering(self, ordering, index):
+        slideorder = list(map(lambda x: x-1 if x > index else x, ordering))
+        return np.delete(slideorder, index, 0)
+
+    def consistency(self):
+        if len(self.coordinates) == len(self.reachability)  and len(self.coordinates) == len(self.ordering):
+            return True
+        else :
+            return False
+
+    def ordered_reachability(self):
+        return self.reachability[self.ordering]
+    def reachability_plot(self):
+        if self.consistency() :
+            space = np.arange(len(self.coordinates))
+            reachability = self.ordered_reachability()
+            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count))
+            OPTICSArrays.plot_count += 1
+        else:
+            print("consistency fail")
+    def data_plot(self):
+        #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
+        coordinatesFigure(self.coordinates,  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
+        OPTICSArrays.plot_count += 1
+    def print(self):
+        print("Data:", self.coordinates, "len:", len(self.coordinates))
+        print("Reachability:", self.reachability, "len:", len(self.reachability))
+        print("Ordering:", self.ordering, "len:", len(self.ordering))
+    
+    
 
 class KNNFindPoint :
-    def __init__(self, datasets :list, points: list, size : int = 5) -> None:
+    def __init__(self, datasets :list, points: list, size :int = 5) -> None:
         self.datasets = np.array(datasets)
         self.points = np.array(points)
         self.model = self._construct_model(size)
