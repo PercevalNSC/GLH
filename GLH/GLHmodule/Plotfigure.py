@@ -70,6 +70,6 @@ def reachability_figure(space, reachability, name, xlabel = "space", ylabel = "r
     fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
     axis.bar(space, reachability)
-    axis.set_yscale('log')
+    #axis.set_yscale('log')
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
