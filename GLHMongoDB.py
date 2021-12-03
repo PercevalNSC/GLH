@@ -1,8 +1,8 @@
-from sklearn import cluster
 from GLH import *
-from GLH.GLHmodule.Clustering import OPTICSCoordinates
+from GLH.GLHmodule import GeoJSON
+from GLH.GLHmodule.geo2 import getBoundsAt
 from Setting.MongoDBSetting import MongoDBSet
-
+from GLH.GLHmodule.GeoJSON import PolygonGeojson
 """
 Assemble GLHLibrary and MongoDBquery, and Management clustring.
 """
@@ -25,6 +25,13 @@ def route_path():
     routepath = RoutePath(MongoDBSet().query({}))
     routepath.createRoutePath()
     return routepath.exportGeoJson()
+
+def get_viewport(center, zoom, width, height):
+    corner = getBoundsAt(center, zoom, [width, height])
+    # corner = [[139.53727523803707, 35.6487230630116], [139.55272476196285, 35.66127644371278]]
+    polygon = [corner[0],[corner[0][0], corner[1][1]], corner[1], [corner[1][0], corner[0][1]], corner[0]]
+    view_port_geojson = PolygonGeojson("view_port", [polygon])
+    return view_port_geojson.geojson
 
 class DBSCANConstruct():
     """

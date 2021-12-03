@@ -179,14 +179,13 @@ class DrawPolygon extends DrawStructure {
         });
     }
     _add_surround_layer(){
-        console.log(this.id + "outline")
         map.addLayer({
             'id': this.id + "outline",
             'type': 'line',
             'source': this.id,
             'layout': {},
             'paint': {
-                'line-color': '#000',
+                'line-color': this.linecolor,
                 'line-width': this.width
             }
         });
@@ -200,10 +199,16 @@ function dbscan_polygon() {
     dbscan_polygon.add_structure();
 }
 function optics_polygon(eps = 1.0) {
-    url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(4)
+    url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
     id = "optics_polygon"
-    let optics_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5);
+    let optics_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.6);
     optics_polygon.add_structure();
+}
+function viewport_polygon(){
+    url = "http://localhost:8000/api/geojson/viewport";
+    id = "viewport";
+    let viewport_polygon = new DrawPolygon(url, id, "None", "gray", 2, 0.3);
+    viewport_polygon.add_structure();
 }
 //
 
@@ -303,6 +308,5 @@ map.on('load', function () {
     optics_polygon(0.1);
     //dbscanPoint();
     //dbscan_polygon();
-    corner = [[139.53727523803707, 35.6487230630116], [139.55272476196285, 35.66127644371278]]
-    addManyMarkers(map, corner)
+    viewport_polygon();
 });

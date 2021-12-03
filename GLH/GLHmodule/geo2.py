@@ -46,7 +46,7 @@ def getBoundsAt(center :list, z :int, size :list):
 
   center : center latlng of map
   z : zoom level
-  size : window size [height, width]
+  size : window size [width, height]
   """
   d = [float(size[0]) / (2 * math.pow(2, z)), float(size[1]) / (2 * math.pow(2, z))]
   p = fromLngLatToPoint(*center)

@@ -40,7 +40,10 @@ class PointGeojson(Geojson) :
         return features
 
 class LineGeojson(Geojson) :
-    def __init__(self, name, coordinates):
+    def __init__(self, name, polygons):
+        """
+        polygons = [polygon1, polygon2, ...], polygon is coordinates
+        """
         self.geojson = {
             "type": "LineString",
             "name": name,
@@ -50,11 +53,11 @@ class LineGeojson(Geojson) :
                     "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
                 }
             },
-            "coordinates": coordinates
+            "coordinates": polygons
         }
 
 class PolygonGeojson(Geojson):
-    def __init__(self, name, multi_coodinates):
+    def __init__(self, name, coodinates):
         self.geojson = {
             'type': 'Feature',
             "name": name,
@@ -66,7 +69,7 @@ class PolygonGeojson(Geojson):
             },
             'geometry': {
                 'type': 'Polygon',
-                'coordinates': multi_coodinates
+                'coordinates': coodinates
             }
        }
 

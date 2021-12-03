@@ -79,6 +79,12 @@ def optics_polygon():
 def eps_optics_polygon(eps = 1.0):
     min_samples = 4
     return jsonify(get_optics_polygon(eps, min_samples))
+@app.route('/api/geojson/viewport')
+def view_port():
+    center = [139.545, 35.655]
+    zoom = 15
+    size = [1080, 720]
+    return jsonify(get_viewport(center, zoom, *size))
 
 @app.route('/geocoder')
 def geocoderMap():
