@@ -6,3 +6,4 @@ jsondata/
 
 dbload.json
 
+*.code-workspace
