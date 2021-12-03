@@ -239,11 +239,11 @@ class OPTICSArrays :
 
     def ordered_reachability(self):
         return self.reachability[self.ordering]
-    def reachability_plot(self):
+    def reachability_plot(self, eps = 0):
         if self.consistency() :
             space = np.arange(len(self.data))
             reachability = self.ordered_reachability()
-            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count))
+            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
         else:
             print("consistency fail")

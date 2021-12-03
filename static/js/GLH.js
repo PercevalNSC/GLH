@@ -215,7 +215,7 @@ class ClusteringParam {
         this.pvloc = true
         this.route = false
         this.optics = true
-        this.eps = 1
+        this.eps = 0.1
         this.printall = true
     }
 }
@@ -252,7 +252,7 @@ window.onload = function (){
         clustering_param.optics = bool;
         visible_control(bool, "optics_polygonoutline");
     });
-    gui.add(clustering_param, 'eps').onChange(function (eps) {
+    gui.add(clustering_param, 'eps').name("eps[km]").onChange(function (eps) {
         clustering_param.eps = eps
         set_eps(eps);
     });
@@ -300,7 +300,7 @@ map.on('load', function () {
     asSrpPoint();
     pvSrpPoint();
     pvLocationPoint();
-    optics_polygon(1.0);
+    optics_polygon(0.1);
     //dbscanPoint();
     //dbscan_polygon();
     corner = [[139.53727523803707, 35.6487230630116], [139.55272476196285, 35.66127644371278]]
