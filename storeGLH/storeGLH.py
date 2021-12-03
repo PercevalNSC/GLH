@@ -19,7 +19,7 @@ def insertGLH(filelist):
     with MongoClient("mongodb://127.0.0.1:27017") as client:
         glh_db = client.glh_db
 
-        glh_clct = glh_db.glh_clct_1
+        glh_clct = glh_db.glh_clct_full
         glh_clct.delete_many({})
 
         for filename in filelist :
