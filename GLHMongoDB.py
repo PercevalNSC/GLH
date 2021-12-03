@@ -1,3 +1,4 @@
+from sklearn import cluster
 from GLH import *
 from GLH.GLHmodule.Clustering import OPTICSCoordinates
 from Setting.MongoDBSetting import MongoDBSet
@@ -26,37 +27,52 @@ def route_path():
     return routepath.exportGeoJson()
 
 class DBSCANConstruct():
+    """
+    get all trajectory data and create DBSCAN object, set eps and min_samples
+    """
     clustering_obj = None
     def __init__(self, eps, min_samples) -> None:
         if self.clustering_obj == None :
             as_srp_collection = MongoDBSet().assrp_query()
             pv_srp_collection = MongoDBSet().pvsrp_query()
-            self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+            DBSCANConstruct.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
             self.set_dbscan(eps, min_samples)
     def set_dbscan(self, eps, min_samples):
-        self.clustering_obj.dbscan(eps, min_samples)
+        DBSCANConstruct.clustering_obj.dbscan(eps, min_samples)
     def polygon(self):
-        return self.clustering_obj.cluster_polygon()
+        return DBSCANConstruct.clustering_obj.cluster_polygon()
     def point(self):
-        return self.clustering_obj.cluster_point()
+        return DBSCANConstruct.clustering_obj.cluster_point()
 class OPTICSConstruct():
+    """
+    get all trajectory data and create OPTICS object, set min_samples
+    eps is set after constructer through set_eps(eps)
+    """
     clustering_obj = None
+    min_samples = None
     def __init__(self, min_samples) -> None:
-        if self.clustering_obj == None :
+        if OPTICSConstruct.clustering_obj == None :
             as_srp_collection = MongoDBSet().assrp_query()
             pv_srp_collection = MongoDBSet().pvsrp_query()
-            self.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
+            OPTICSConstruct.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
             self.set_optics(min_samples)
-    def set_optics(self, min_samples):
-        self.clustering_obj.optics(min_samples)
-    def set_eps(self, eps):
-        self.clustering_obj.optics_set_eps(eps)
+        else:
+            if OPTICSConstruct.min_samples != min_samples :
+                self.set_optics(min_samples)
+            else:
+                pass
+
+    def set_optics(self, min_samples) -> None:
+        OPTICSConstruct.min_samples = min_samples
+        OPTICSConstruct.clustering_obj.optics(min_samples)
+    def set_eps(self, eps) -> None:
+        OPTICSConstruct.clustering_obj.optics_set_eps(eps)
     def labeled_trajectory_data(self):
-        return self.clustering_obj.labeled_trajectory_data()
+        return OPTICSConstruct.clustering_obj.labeled_trajectory_data()
     def polygon(self):
-        return self.clustering_obj.cluster_polygon()
+        return OPTICSConstruct.clustering_obj.cluster_polygon()
     def point(self):
-        return self.clustering_obj.cluster_point()
+        return OPTICSConstruct.clustering_obj.cluster_point()
 
 class GetGLHCollection():
     def __init__(self) -> None:

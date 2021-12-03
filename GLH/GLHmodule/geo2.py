@@ -40,12 +40,24 @@ def unprojectMany(pxs, centerLngLat, z, size):
   c = fromLngLatToPixel(centerLngLat[0], centerLngLat[1], z)
   return [fromPixelToLngLat(c[0] - float(size[0]) / 2  + p[0], c[1] - float(size[1]) / 2 + p[1], z) for p in pxs]
 
-def getBoundsAt(center, z, size):
+def getBoundsAt(center :list, z :int, size :list):
+  """
+  return [left_down[lng, lat], right_up[lng, lat]]
+
+  center : center latlng of map
+  z : zoom level
+  size : window size [height, width]
+  """
   d = [float(size[0]) / (2 * math.pow(2, z)), float(size[1]) / (2 * math.pow(2, z))]
   p = fromLngLatToPoint(*center)
   return [fromPointToLngLat(p[0] - d[0], p[1] + d[1]), fromPointToLngLat(p[0] + d[0], p[1] - d[1])]
 
 def getCenterFromBounds(bounds):
+  """
+  return center_lnglat
+
+  bounds: 2 lnglat of window corner
+  """
   p0 = fromLngLatToPoint(*bounds[0])
   p1 = fromLngLatToPoint(*bounds[1])
   return fromPointToLngLat((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)

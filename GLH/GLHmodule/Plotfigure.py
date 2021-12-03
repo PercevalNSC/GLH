@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker
 
-savepath= "./images/"
+SAVEPATH= "./images/"
+FIGURE_DPI = 200
 
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
@@ -11,22 +12,22 @@ def createFigures(distlists,timelists):
 
 def scatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     n = "[n = " + str(len(distlist)) + "]"
-    fig = plt.figure(dpi=200)
+    fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
     axis.scatter(distlist, timelist, marker=".", s=1)
-    fig.savefig(savepath + name + ".png")
+    fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
 def logScatterFigure(distlist, timelist, name, xlabel = "distance[m]", ylabel = "duration[minute]"):
     n = "[n = " + str(len(distlist)) + "]"
-    fig = plt.figure(dpi=400)
+    fig = plt.figure(dpi=FIGURE_DPI)
 
     axis = fig.add_subplot(1, 1, 1, title = name + n, xlabel = xlabel, ylabel = ylabel)
     axis.scatter(distlist, timelist, marker=".")
     axis.set_xscale('log')
     axis.set_yscale('log')
 
-    fig.savefig(savepath + name + ".png")
+    fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
 def fullFigure(distlists,timelists):
@@ -42,21 +43,32 @@ def fullFigure(distlists,timelists):
     fig.tight_layout()
     fig.savefig("./images/difference.png")
 
-def coordinatesFigure(coordinates, title, color="r"):
+def coordinatesFigure(coordinates, name, color="r"):
     x = [r[0] for r in coordinates]
     y = [r[1] for r in coordinates]
-    xlabel = "latitude"
-    ylabel = "longitude"
-    fig = plt.figure(dpi=200)
-    axis = fig.add_subplot(1,1,1, title=title, xlabel=xlabel, ylabel=ylabel)
+    xlabel = "longitude"
+    ylabel = "latitude"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis = fig.add_subplot(1,1,1, title=name, xlabel=xlabel, ylabel=ylabel)
+    axis.get_xaxis().get_major_formatter().set_useOffset(False)
+    axis.get_yaxis().get_major_formatter().set_useOffset(False)
     axis.scatter(x, y, s=1, c=color)
-    fig.savefig(savepath + title + ".png")
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
 
 def cluster_figure(cluster_data, name = "No title", ylabel = "No ylabel"):
     cl_data = np.array(cluster_data)
-    fig = plt.figure(dpi = 200)
+    fig = plt.figure(dpi = FIGURE_DPI)
     ax = fig.add_subplot(1,1,1, title = name, xlabel = "cluster label", ylabel = ylabel)
     ax.get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
     ax.scatter(cl_data[:, 0], cl_data[:, 1])
     fig.show()
-    fig.savefig(savepath + name + ".png")
+    fig.savefig(SAVEPATH + name + ".png")
+
+def reachability_figure(space, reachability, name, xlabel = "space", ylabel = "reachability"):
+    n_label = "[n = " + str(len(space)) + "]"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
+    axis.bar(space, reachability)
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")

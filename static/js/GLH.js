@@ -1,3 +1,7 @@
+centers = {"chofu": [139.545, 35.655]};
+init_zoom = 15;
+neko = 0
+
 function addSingleMarker(map, lnglat, color) {
     let timestamp = "Neko: " + neko++;
     var popup = new mapboxgl.Popup({ offset: 20, closeButton: false }).setText(timestamp);
@@ -274,13 +278,11 @@ window.onload = function (){
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 
-centers = {"chofu": [139.56, 35.65]}
-
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
     center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
-    zoom: 13, // 初期に表示する地図のズームレベル
+    zoom: init_zoom, // 初期に表示する地図のズームレベル
 });
 
 map.addControl(new mapboxgl.FullscreenControl());
@@ -301,4 +303,6 @@ map.on('load', function () {
     optics_polygon(1.0);
     //dbscanPoint();
     //dbscan_polygon();
+    corner = [[139.53727523803707, 35.6487230630116], [139.55272476196285, 35.66127644371278]]
+    addManyMarkers(map, corner)
 });

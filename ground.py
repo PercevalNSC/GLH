@@ -10,3 +10,11 @@ print(real_dist)
 print(gc.geography_to_euclid(real_dist))
 print(gc.euclid_to_geography(dist))
 print(gc.geography_to_euclid(2))
+
+from GLH.GLHmodule.geo2 import getBoundsAt
+
+center = [139.545, 35.655]
+zoom = 15
+size = [720, 720]
+
+print(getBoundsAt(center, zoom, size))

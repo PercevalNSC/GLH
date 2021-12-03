@@ -1,5 +1,5 @@
 from .GLHmodule import distance as g2dist
-from .GLHmodule import gravityPointDistance, convex_hull
+from .GLHmodule import gravityPointDistance
 from .GLHmodule import PointGeojson, LineGeojson, PolygonGeojson
 from .GLHmodule import coordinatesFigure
 from .GLHmodule import TrajectoryData, KNNFindPoint
@@ -270,6 +270,10 @@ class GLHTrajectoryData():
         #self.clustering = self.trajectorydata.optics(min_samples)
     def optics_set_eps(self, eps):
         self.clustering.set_eps(eps)
+    
+    def map_scope(self, p1, p2):
+        return self.trajectorydata.map_scope(p1, p2)
+
     def exportGeojson(self):
         coordinates = [x[:2] for x in self.trajectorydata]
         path = "trajectry_data"
