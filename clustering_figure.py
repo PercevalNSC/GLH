@@ -2,7 +2,8 @@ from GLHMongoDB import OPTICSConstruct
 from GLH.GLHmodule.Plotfigure import cluster_figure
 from GLH.GLHmodule.Clustering import LabeledTrajectoryData, OPTICSTrajectoryData, geography_to_euclid
 
-eps = geography_to_euclid(1)
+geo_distance = 0.1
+eps = geography_to_euclid(geo_distance)
 min_samples = 4
 corner = [[139.50, 35.65], [139.58, 35.67]]
 construct = OPTICSConstruct(min_samples)

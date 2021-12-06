@@ -1,5 +1,5 @@
-centers = {"chofu": [139.545, 35.655]};
-init_zoom = 15;
+centers = {"chofu": [139.545, 35.655], "shibuya": [139.65, 35.65]};
+init_zoom = 11;
 neko = 0
 
 function addSingleMarker(map, lnglat, color) {
@@ -201,7 +201,7 @@ function dbscan_polygon() {
 function optics_polygon(eps = 1.0) {
     url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
     id = "optics_polygon"
-    let optics_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.6);
+    let optics_polygon = new DrawPolygon(url, id, "None", "red", 3, 0.6);
     optics_polygon.add_structure();
 }
 function viewport_polygon(){
@@ -215,11 +215,13 @@ function viewport_polygon(){
 class ClusteringParam {
     constructor() {
         this.assrp = true
-        this.aswp = false
+        this.aswp = true
         this.pvsrp = true
         this.pvloc = true
-        this.route = false
+        this.route = true
         this.optics = true
+        this.plot = true
+        this.legend = true
         this.eps = 0.1
         this.printall = true
     }
@@ -257,6 +259,12 @@ window.onload = function (){
         clustering_param.optics = bool;
         visible_control(bool, "optics_polygonoutline");
     });
+    gui.add(clustering_param, 'plot').onChange(function (bool) {
+        display_control(bool, "plot");
+    });
+    gui.add(clustering_param, 'legend').onChange(function (bool) {
+        display_control(bool, "state-legend");
+    });
     gui.add(clustering_param, 'eps').name("eps[km]").onChange(function (eps) {
         clustering_param.eps = eps
         set_eps(eps);
@@ -266,6 +274,14 @@ window.onload = function (){
             console.log(clustering_param);
         };
     });
+    
+    function display_control(bool, id){
+        if (bool) {
+            document.getElementById(id).style.display = "block"
+        }else {
+            document.getElementById(id).style.display = "none"
+        }
+    }
     function visible_control(bool, id){
         if (bool) {
             map.setLayoutProperty(id, 'visibility', 'visible');
@@ -286,7 +302,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxM
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11',
-    center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
+    center: centers["shibuya"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
     zoom: init_zoom, // 初期に表示する地図のズームレベル
 });
 
@@ -308,5 +324,5 @@ map.on('load', function () {
     optics_polygon(0.1);
     //dbscanPoint();
     //dbscan_polygon();
-    viewport_polygon();
+    //viewport_polygon();
 });
