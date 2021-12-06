@@ -75,5 +75,5 @@ def reachability_figure(space, reachability, name, eps = 0, xlabel = "space", yl
     axis.legend(loc='center left')
     #axis.set_yscale('log')
     fig.savefig(SAVEPATH + name + ".png")
-    print(heapq.nlargest(3, reachability))
+    # print(heapq.nlargest(3, reachability))
     print("Output: " + name + ".png")

@@ -215,34 +215,49 @@ class OPTICSArrays :
         self.data = data
         self.reachability = reachability
         self.ordering = ordering
+        self._ordered_data()
+
+    def _ordered_data(self):
+        print("Ordering Data")
+        self.data = self._ordered_list(self.data, self.ordering)
+        self.reachability = self._ordered_list(self.reachability, self.ordering)
+        self.ordering = self._init_order()
+
+    def _ordered_list(self, target_list, order_list):
+        if len(target_list) != len(order_list):
+            print("Invaild length: target and order list")
+            return target_list
+        result = list(range(len(order_list)))
+        for index, order in enumerate(order_list):
+            result[order] = target_list[index]
+        return result
 
     def map_scope(self, p1, p2):
-        # Order(n^2)
+        # Order(2n)
+        print("Map scope by", p1, p2)
         for i in range(len(self.data))[::-1]:
             if (self.data[i][0] < p1[0]) | (p2[0] < self.data[i][0]) | (self.data[i][1] < p1[1]) | (p2[1] < self.data[i][1]):
                 self.remove_index(i)
-        
+        self.ordering = self._init_order()
+
+    # remove_index break data consistency. after used, do _init_order()
     def remove_index(self, index :int):
         self.data = np.delete(self.data, index, 0)
         self.reachability = np.delete(self.reachability, index, 0)
-        self.ordering = self._remove_ordering(self.ordering, index)
-    def _remove_ordering(self, ordering, index):
-        # Order(n)
-        slideorder = list(map(lambda x: x-1 if x > index else x, ordering))
-        return np.delete(slideorder, index, 0)
-
+    
     def consistency(self):
         if len(self.data) == len(self.reachability)  and len(self.data) == len(self.ordering):
             return True
         else :
             return False
 
-    def ordered_reachability(self):
-        return self.reachability[self.ordering]
+    def _init_order(self):
+        return np.array(list(range(len(self.reachability))))
+    
     def reachability_plot(self, eps = 0):
         if self.consistency() :
-            space = np.arange(len(self.data))
-            reachability = self.ordered_reachability()
+            space = self.ordering
+            reachability = self.reachability
             reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
         else:
