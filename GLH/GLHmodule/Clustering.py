@@ -217,6 +217,50 @@ class OPTICSArrays :
         self.ordering = ordering
         self._ordered_data()
 
+    def map_scope(self, p1, p2):
+        # Order(2n)
+        print("Map scope by", p1, p2)
+        for i in range(len(self.data))[::-1]:
+            if (self.data[i][0] < p1[0]) | (p2[0] < self.data[i][0]) | (self.data[i][1] < p1[1]) | (p2[1] < self.data[i][1]):
+                self._remove_index(i)
+        self.ordering = self._init_order()
+
+    def reachability_plot(self, eps = 0):
+        if self._consistency() :
+            space = self.ordering
+            reachability = self.reachability
+            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
+            OPTICSArrays.plot_count += 1
+        else:
+            print("consistency fail in reachabilityplot")
+            self.status()
+
+    def data_plot(self):
+        #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
+        coordinatesFigure(self.data,  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
+        OPTICSArrays.plot_count += 1
+
+    def reachability_resolution(self, cluster_n :int) -> int:
+
+        return 0
+
+    def status(self):
+        print("Data:", self.data, "len:", len(self.data))
+        print("Reachability:", self.reachability, "len:", len(self.reachability))
+        print("Ordering:", self.ordering, "len:", len(self.ordering))
+
+    def print(self):
+        return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
+    
+    def _consistency(self):
+        if len(self.data) == len(self.reachability)  and len(self.data) == len(self.ordering):
+            return True
+        else :
+            return False
+
+    def _init_order(self):
+        return np.array(list(range(len(self.reachability))))
+    
     def _ordered_data(self):
         print("Ordering Data")
         self.data = self._ordered_list(self.data, self.ordering)
@@ -231,48 +275,11 @@ class OPTICSArrays :
         for index, order in enumerate(order_list):
             result[order] = target_list[index]
         return result
-
-    def map_scope(self, p1, p2):
-        # Order(2n)
-        print("Map scope by", p1, p2)
-        for i in range(len(self.data))[::-1]:
-            if (self.data[i][0] < p1[0]) | (p2[0] < self.data[i][0]) | (self.data[i][1] < p1[1]) | (p2[1] < self.data[i][1]):
-                self.remove_index(i)
-        self.ordering = self._init_order()
-
+    
     # remove_index break data consistency. after used, do _init_order()
-    def remove_index(self, index :int):
+    def _remove_index(self, index :int):
         self.data = np.delete(self.data, index, 0)
         self.reachability = np.delete(self.reachability, index, 0)
-    
-    def consistency(self):
-        if len(self.data) == len(self.reachability)  and len(self.data) == len(self.ordering):
-            return True
-        else :
-            return False
-
-    def _init_order(self):
-        return np.array(list(range(len(self.reachability))))
-    
-    def reachability_plot(self, eps = 0):
-        if self.consistency() :
-            space = self.ordering
-            reachability = self.reachability
-            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
-            OPTICSArrays.plot_count += 1
-        else:
-            print("consistency fail")
-    def data_plot(self):
-        #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
-        coordinatesFigure(self.data,  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
-        OPTICSArrays.plot_count += 1
-    def status(self):
-        print("Data:", self.data, "len:", len(self.data))
-        print("Reachability:", self.reachability, "len:", len(self.reachability))
-        print("Ordering:", self.ordering, "len:", len(self.ordering))
-    def print(self):
-        return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
-    
     
 
 class KNNFindPoint :

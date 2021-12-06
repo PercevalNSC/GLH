@@ -71,7 +71,8 @@ def reachability_figure(space, reachability, name, eps = 0, xlabel = "space", yl
     fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
     axis.bar(space, reachability, label = "reachability", width = 1.0)
-    axis.hlines(eps, 0, space[-1], "red", label="eps")
+    if eps != 0 :
+        axis.hlines(eps, 0, space[-1], "red", label="eps")
     axis.legend(loc='center left')
     #axis.set_yscale('log')
     fig.savefig(SAVEPATH + name + ".png")
