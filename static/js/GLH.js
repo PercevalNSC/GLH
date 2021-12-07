@@ -1,5 +1,5 @@
-centers = {"chofu": [139.545, 35.655], "shibuya": [139.65, 35.65]};
-init_zoom = 11;
+// GLH.js
+
 neko = 0
 
 function addSingleMarker(map, lnglat, color) {
@@ -99,29 +99,37 @@ class DrawPoints extends DrawStructure{
         });
     }
 }
-function asSrpPoint() {
+function asSrpPoint(color = "blue", visibility = "visible") {
     url = "http://localhost:8000/api/geojson/point/activitySegment.simplifiedRawPath"
-    let as_srp_point = new DrawPoints(url, "AsSrp", color = "blue")
+    let as_srp_point = new DrawPoints(url, "AsSrp");
+    as_srp_point.color = color
+    as_srp_point.visibility = visibility
     as_srp_point.add_structure();
 }
-function asWpPoint() {
+function asWpPoint(color = "pink", visibility = "visible") {
     url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
-    let as_wp_point = new DrawPoints(url, "AsWp", color = "pink")
+    let as_wp_point = new DrawPoints(url, "AsWp");
+    as_wp_point.color = color;
+    as_wp_point.visibility = visibility;
     as_wp_point.add_structure();
 }
-function pvSrpPoint() {
+function pvSrpPoint(color = "yellow", visibility = "visible") {
     url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
-    let pv_srp_point = new DrawPoints(url, "PvSrp", color = "yellow");
+    let pv_srp_point = new DrawPoints(url, "PvSrp");
+    pv_srp_point.color = color;
+    pv_srp_point.visibility = visibility;
     pv_srp_point.add_structure();
 }
-function pvLocationPoint() {
+function pvLocationPoint(color = "white", visibility = "visible") {
     url = "http://localhost:8000/api/geojson/point/placeVisit.location"
-    let pv_location = new DrawPoints(url, "PvLoc", color = "white", radius = 6, opacity = 1);
+    let pv_location = new DrawPoints(url, "PvLoc", color = color, radius = 6, opacity = 1, visibility = visibility);
     pv_location.add_structure();
 }
-function dbscan_point() {
+function dbscan_point(color = "red", visibility = "visible") {
     url = "http://localhost:8000/api/geojson/point/dbscan"
     let dbscan_point = new DrawPoints(url, "dbscan_point");
+    dbscan_point.color = color;
+    dbscan_point.visibility = visibility;
     dbscan_point.add_structure();
 }
 class DrawLine extends DrawStructure {
@@ -136,7 +144,8 @@ class DrawLine extends DrawStructure {
             'source': this.id,
             'layout': {
                 'line-join': 'bevel',
-                'line-cap': 'butt'
+                'line-cap': 'butt',
+                'visibility': this.visibility
             },
             'paint': {
                 'line-color': this.color,
@@ -147,10 +156,10 @@ class DrawLine extends DrawStructure {
     }
 }
 
-function add_routepath(color = 'gray', opacity = 0.5, width = 1){
+function add_routepath(color = 'gray', visibility = "visible", opacity = 0.5, width = 1){
     url = "http://localhost:8000/api/geojson/line/route"
     id = "routepath"
-    let routepath = new DrawLine(url, id, color, width, opacity);
+    let routepath = new DrawLine(url, id, color, width, opacity, visibility);
     routepath.add_structure();
 }
 
@@ -192,22 +201,22 @@ class DrawPolygon extends DrawStructure {
     }
 }
 
-function dbscan_polygon() {
+function dbscan_polygon(fillcolor = "None", linecolor = "black") {
     url = "http://localhost:8000/api/geojson/polygon/dbscan"
     id = "dbscan_polygon"
-    let dbscan_polygon = new DrawPolygon(url, id, "None", "black", 3, 0.5)
+    let dbscan_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 3, 0.5)
     dbscan_polygon.add_structure();
 }
-function optics_polygon(eps = 1.0) {
+function optics_polygon(eps = 1.0, fillcolor = "None", linecolor = "black") {
     url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
     id = "optics_polygon"
-    let optics_polygon = new DrawPolygon(url, id, "None", "red", 3, 0.6);
+    let optics_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 3, 0.6);
     optics_polygon.add_structure();
 }
-function viewport_polygon(){
+function viewport_polygon(fillcolor = "None", linecolor = "gray"){
     url = "http://localhost:8000/api/geojson/viewport";
     id = "viewport";
-    let viewport_polygon = new DrawPolygon(url, id, "None", "gray", 2, 0.3);
+    let viewport_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 2, 0.3);
     viewport_polygon.add_structure();
 }
 //
@@ -215,25 +224,36 @@ function viewport_polygon(){
 class ClusteringParam {
     constructor() {
         this.assrp = true
-        this.aswp = true
+        this.aswp = false
         this.pvsrp = true
-        this.pvloc = true
-        this.route = true
+        this.pvloc = false
+        this.route = false
         this.optics = true
-        this.plot = true
-        this.legend = true
+        this.plot = false
+        this.legend = false
         this.eps = 0.1
         this.printall = true
     }
+    
+}
+function convert_visibility(bool){
+    if (bool) {
+        return "visible"
+    }else {
+        return "none"
+    }
 }
 
+
+const clustering_param = new ClusteringParam();
+
 window.onload = function (){
+    console.log("window load")
     // create dat.GUI instance
     const gui = new dat.GUI();
 
     // create parameter instance
-    const clustering_param = new ClusteringParam();
-
+    
     // add parameter object to dat.GUI instance
     gui.add(clustering_param, 'assrp').onChange(function (bool) {
         clustering_param.assrp = bool;
@@ -253,7 +273,7 @@ window.onload = function (){
     });
     gui.add(clustering_param, 'route').onChange(function (bool) {
         clustering_param.route = bool;
-        visible_control(bool, "route")
+        visible_control(bool, "routepath")
     })
     gui.add(clustering_param, 'optics').onChange(function (bool) {
         clustering_param.optics = bool;
@@ -274,6 +294,8 @@ window.onload = function (){
             console.log(clustering_param);
         };
     });
+    display_control(clustering_param.plot, "plot");
+    display_control(clustering_param.legend, "state-legend");
     
     function display_control(bool, id){
         if (bool) {
@@ -283,11 +305,7 @@ window.onload = function (){
         }
     }
     function visible_control(bool, id){
-        if (bool) {
-            map.setLayoutProperty(id, 'visibility', 'visible');
-        }else {
-            map.setLayoutProperty(id, 'visibility', 'none');
-        }
+        map.setLayoutProperty(id, 'visibility', convert_visibility(bool))
     }
     function set_eps(eps){
         // TODO
@@ -298,11 +316,13 @@ window.onload = function (){
 }
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
+centers = {"chofu": [139.545, 35.655], "shibuya": [139.65, 35.65]};
+init_zoom = 11;
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11',
-    center: centers["shibuya"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
+    style: 'mapbox://styles/kwatanabe1998/ckwvzytdk7ixc14o53kanjxs8',
+    center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
     zoom: init_zoom, // 初期に表示する地図のズームレベル
 });
 
@@ -315,13 +335,11 @@ map.addControl(new mapboxgl.ScaleControl({
 }));
 
 map.on('load', function () {
-    //add_routepath();
-    asWpPoint();
-    asSrpPoint();
-    pvSrpPoint();
-    pvLocationPoint();
+    console.log("map load")
+    add_routepath("white", convert_visibility(clustering_param.route));
+    asWpPoint("white", convert_visibility(clustering_param.aswp));
+    asSrpPoint("pink", convert_visibility(clustering_param.assrp));
+    pvSrpPoint("pink", convert_visibility(clustering_param.pvsrp));
+    pvLocationPoint("white", convert_visibility(clustering_param.pvloc));
     optics_polygon(0.1);
-    //dbscanPoint();
-    //dbscan_polygon();
-    //viewport_polygon();
 });
