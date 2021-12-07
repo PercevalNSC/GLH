@@ -315,7 +315,6 @@ map.addControl(new mapboxgl.ScaleControl({
 }));
 
 map.on('load', function () {
-
     //add_routepath();
     asWpPoint();
     asSrpPoint();
