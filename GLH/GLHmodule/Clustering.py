@@ -1,7 +1,13 @@
+from ctypes import c_bool
+from logging import error
+from math import inf
+from matplotlib.pyplot import axis
+from sklearn import cluster
 from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from scipy.spatial import ConvexHull
 import numpy as np
+import heapq
 import pprint
 
 from .Plotfigure import coordinatesFigure, scatterFigure, reachability_figure
@@ -215,21 +221,46 @@ class OPTICSArrays :
         self.data = data
         self.reachability = reachability
         self.ordering = ordering
+        self.error_order = np.array([])
         self._ordered_data()
 
     def map_scope(self, p1, p2):
         # Order(2n)
         print("Map scope by", p1, p2)
-        for i in range(len(self.data))[::-1]:
-            if (self.data[i][0] < p1[0]) | (p2[0] < self.data[i][0]) | (self.data[i][1] < p1[1]) | (p2[1] < self.data[i][1]):
-                self._remove_index(i)
+        scope_data = []
+        scope_reachability = []
+        scope_order = []
+        flag = 0
+        skipcount = 0
+        for i in range(len(self.data)):
+            if self._is_in_map(p1, p2, self.data[i]):
+                scope_data.append(self.data[i])
+                scope_reachability.append(self.reachability[i])
+                flag = 0
+            else :
+                if flag == 0 :
+                    scope_data.append(np.zeros(3))
+                    scope_reachability.append(0)
+                    scope_order.append(self.ordering[i] - skipcount)
+                    flag = 1
+                else :
+                    skipcount += 1
+        self.data = scope_data
+        self.reachability = scope_reachability
+        self.error_order = scope_order
         self.ordering = self._init_order()
+
+    def clustering_boundary(self):
+        boundly = []
+        for i in range(len(self.reachability)-1):
+            if self.reachability[i] > self.reachability[i-1] :
+                boundly.append(self.reachability[i])
+        return boundly
+
 
     def reachability_plot(self, eps = 0):
         if self._consistency() :
-            space = self.ordering
-            reachability = self.reachability
-            reachability_figure(space, reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
+            reachability_figure(self.ordering, self.reachability, self.error_order,"reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
         else:
             print("consistency fail in reachabilityplot")
@@ -237,12 +268,23 @@ class OPTICSArrays :
 
     def data_plot(self):
         #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
-        coordinatesFigure(self.data,  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
+        coordinatesFigure(self._remove_noise(self.data),  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
         OPTICSArrays.plot_count += 1
 
     def reachability_resolution(self, cluster_n :int) -> int:
-
-        return 0
+        # print(heapq.nlargest(3, reachability))
+        largest_boundary = heapq.nlargest(cluster_n+1, self.clustering_boundary())
+        #print(largest_boundary)
+        if largest_boundary[0] == inf :
+            return largest_boundary[1] - largest_boundary[-1]
+        else :
+            return largest_boundary[0] - largest_boundary[-2]
+    
+    def continuous_resolution_print(self, cluster_n :int):
+        for i in range(2, cluster_n+1, 1):
+            print("i:",i,"resolution:", self.reachability_resolution(i))
+        
+        
 
     def status(self):
         print("Data:", self.data, "len:", len(self.data))
@@ -251,12 +293,26 @@ class OPTICSArrays :
 
     def print(self):
         return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
-    
+
+    def _remove_noise(self, data):
+        temp = []
+        for d in data:
+            if d[0] != 0 or d[1] != 0:
+                temp.append(d)
+        return temp
+
+
     def _consistency(self):
         if len(self.data) == len(self.reachability)  and len(self.data) == len(self.ordering):
             return True
         else :
             return False
+
+    def _is_in_map(self, p1, p2, cp):
+        if (cp[0] < p1[0]) | (p2[0] < cp[0]) | (cp[1] < p1[1]) | (p2[1] < cp[1]):
+            return False
+        else :
+            return True
 
     def _init_order(self):
         return np.array(list(range(len(self.reachability))))
@@ -276,6 +332,9 @@ class OPTICSArrays :
             result[order] = target_list[index]
         return result
     
+    def _pure_data(self):
+        return np.zeros(len(self.data))
+
     # remove_index break data consistency. after used, do _init_order()
     def _remove_index(self, index :int):
         self.data = np.delete(self.data, index, 0)

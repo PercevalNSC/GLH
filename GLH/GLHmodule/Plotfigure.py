@@ -66,15 +66,16 @@ def cluster_figure(cluster_data, name = "No title", ylabel = "No ylabel"):
     fig.show()
     fig.savefig(SAVEPATH + name + ".png")
 
-def reachability_figure(space, reachability, name, eps = 0, xlabel = "space", ylabel = "reachability"):
+def reachability_figure(space, reachability, error_order, name, eps = 0, xlabel = "space", ylabel = "reachability"):
     n_label = "[n = " + str(len(space)) + "]"
     fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
     axis.bar(space, reachability, label = "reachability", width = 1.0)
     if eps != 0 :
-        axis.hlines(eps, 0, space[-1], "red", label="eps")
+        axis.hlines(eps, 0, space[-1], "g", label="eps="+str(eps))
+    maxreach = max(reachability) * 0.5
+    maxreach_list = [maxreach for i in range(len(error_order))]
+    axis.bar(error_order, maxreach_list, label = "error_order", width = 0.5, color = "red")
     axis.legend(loc='center left')
-    #axis.set_yscale('log')
     fig.savefig(SAVEPATH + name + ".png")
-    # print(heapq.nlargest(3, reachability))
     print("Output: " + name + ".png")

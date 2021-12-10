@@ -1,3 +1,4 @@
+from sklearn import cluster
 from GLHMongoDB import OPTICSConstruct
 from GLH.GLHmodule.Plotfigure import cluster_figure
 from GLH.GLHmodule.Clustering import LabeledTrajectoryData, OPTICSTrajectoryData, geography_to_euclid
@@ -6,6 +7,8 @@ geo_distance = 0.1
 eps = geography_to_euclid(geo_distance)
 min_samples = 4
 corner = [[139.50, 35.65], [139.58, 35.67]]
+cluster_size = 10
+
 construct = OPTICSConstruct(min_samples)
 all_trajectory_data = construct.clustering_obj
 optics_trajectory_data : OPTICSTrajectoryData = construct.clustering_obj.clustering
@@ -13,10 +16,11 @@ optics_trajectory_data : OPTICSTrajectoryData = construct.clustering_obj.cluster
 optics_array = optics_trajectory_data.create_optics_arrays()
 optics_array.data_plot()
 optics_array.reachability_plot(eps)
+optics_array.continuous_resolution_print(cluster_size)
 optics_array.map_scope(*corner)
 optics_array.data_plot()
 optics_array.reachability_plot(eps)
-
+optics_array.continuous_resolution_print(cluster_size)
 """
 construct.set_eps(eps)
 construct.clustering_obj.clustering.reachability_plot()
