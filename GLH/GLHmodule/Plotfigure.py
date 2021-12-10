@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker
+from math import inf
 import heapq
 
 SAVEPATH= "./images/"
-FIGURE_DPI = 800
+FIGURE_DPI = 1600
 
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
@@ -73,9 +74,14 @@ def reachability_figure(space, reachability, error_order, name, eps = 0, xlabel 
     axis.bar(space, reachability, label = "reachability", width = 1.0)
     if eps != 0 :
         axis.hlines(eps, 0, space[-1], "g", label="eps="+str(eps))
-    maxreach = max(reachability) * 0.5
+    largetst_reach = heapq.nlargest(2, reachability)
+    if largetst_reach[0] == inf :
+        maxreach = largetst_reach[1] * 0.5
+    else :
+        maxreach = largetst_reach[0] * 0.5
     maxreach_list = [maxreach for i in range(len(error_order))]
     axis.bar(error_order, maxreach_list, label = "error_order", width = 0.5, color = "red")
     axis.legend(loc='center left')
+    fig.show()
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
