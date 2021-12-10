@@ -1,8 +1,6 @@
-from ctypes import c_bool
-from logging import error
+# GLHmodule.Clustering.py
+
 from math import inf
-from matplotlib.pyplot import axis
-from sklearn import cluster
 from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from scipy.spatial import ConvexHull
@@ -217,12 +215,15 @@ class OPTICSArrays :
     Data: 要素内の3番目以降の情報を使わず，座標データだけ使用する
     """
     plot_count = 0
-    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray) -> None:
+    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray, error_order = np.array([])) -> None:
         self.data = data
         self.reachability = reachability
         self.ordering = ordering
-        self.error_order = np.array([])
-        self._ordered_data()
+        self.error_order = error_order
+        if len(ordering) == 0 :
+            self.ordering = self._init_order() 
+        else:
+            self._ordered_data()
 
     def map_scope(self, p1, p2):
         # Order(2n)
@@ -245,10 +246,7 @@ class OPTICSArrays :
                     flag = 1
                 else :
                     skipcount += 1
-        self.data = scope_data
-        self.reachability = scope_reachability
-        self.error_order = scope_order
-        self.ordering = self._init_order()
+        return OPTICSArrays(scope_data, scope_reachability,[], scope_order)
 
     def clustering_boundary(self):
         boundly = []
