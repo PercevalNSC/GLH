@@ -5,7 +5,7 @@ class MongoDBSet :
     def __init__(self):
         mongodb_path = "mongodb://127.0.0.1:27017"
         db_name = "glh_db"
-        collection_name = "glh_clct_full"
+        collection_name = "glh_clct_1"
         with MongoClient(mongodb_path) as client:
             self.db = client[db_name]
             self.collection = self.db[collection_name]
