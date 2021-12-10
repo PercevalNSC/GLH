@@ -21,14 +21,14 @@ function addManyMarkers(map, lnglatlist, color = "blue") {
 }
 
 class DrawStructure {
-    constructor(url, id, color, opacity, visibility){
+    constructor(url, id, color, opacity, visibility) {
         this.url = url;
         this.id = id;
         this.color = color;
         this.opacity = opacity;
         this.visibility = visibility;
     }
-    add_structure(){
+    add_structure() {
         fetch(url, {
             mode: 'cors'
         }).then((response) => {
@@ -40,18 +40,18 @@ class DrawStructure {
             console.log(e);
         });
     }
-    _add_geojson(geojson){
+    _add_geojson(geojson) {
         this._add_source(geojson);
         this._add_layer();
 
     }
-    _add_source(geojson){
+    _add_source(geojson) {
         map.addSource(this.id, {
             'type': 'geojson',
             'data': geojson
         });
     }
-    _add_layer(){
+    _add_layer() {
         // specified structure
         map.addLayer({
             'id': this.id,
@@ -65,12 +65,12 @@ class DrawStructure {
     }
 }
 
-class DrawPoints extends DrawStructure{
-    constructor(url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible'){
+class DrawPoints extends DrawStructure {
+    constructor(url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible') {
         super(url, id, color, opacity, visibility);
         this.radius = radius
     }
-    _add_layer(){
+    _add_layer() {
         map.addLayer({
             'id': this.id,
             'source': this.id,
@@ -87,7 +87,7 @@ class DrawPoints extends DrawStructure{
         });
         this._click_popup();
     }
-    _click_popup(){
+    _click_popup() {
         map.on('click', this.id, function (e) {
             var coordinates = e.features[0].geometry.coordinates.slice();
             var date = new Date(e.features[0].properties.timestamp)
@@ -133,11 +133,11 @@ function dbscan_point(color = "red", visibility = "visible") {
     dbscan_point.add_structure();
 }
 class DrawLine extends DrawStructure {
-    constructor(url, id, color = 'black', width = 1, opacity = 0.5, visibility = 'visible'){
+    constructor(url, id, color = 'black', width = 1, opacity = 0.5, visibility = 'visible') {
         super(url, id, color, opacity, visibility);
         this.witdh = width
     }
-    _add_layer(){
+    _add_layer() {
         map.addLayer({
             'id': this.id,
             'type': 'line',
@@ -156,7 +156,7 @@ class DrawLine extends DrawStructure {
     }
 }
 
-function add_routepath(color = 'gray', visibility = "visible", opacity = 0.5, width = 1){
+function add_routepath(color = 'gray', visibility = "visible", opacity = 0.5, width = 1) {
     url = "http://localhost:8000/api/geojson/line/route"
     id = "routepath"
     let routepath = new DrawLine(url, id, color, width, opacity, visibility);
@@ -164,18 +164,18 @@ function add_routepath(color = 'gray', visibility = "visible", opacity = 0.5, wi
 }
 
 class DrawPolygon extends DrawStructure {
-    constructor(url, id, fillcolor = "white", linecolor = "black", width = 3, opacity = 0.5, visibility = "visivle"){
+    constructor(url, id, fillcolor = "white", linecolor = "black", width = 3, opacity = 0.5, visibility = "visivle") {
         super(url, id, fillcolor, opacity, visibility);
         this.linecolor = linecolor;
         this.width = width;
     }
-    _add_layer(){
+    _add_layer() {
         if (this.color != "None") {
             this._add_fill_layer();
         };
         this._add_surround_layer();
     }
-    _add_fill_layer(){
+    _add_fill_layer() {
         map.addLayer({
             'id': this.id + "fill",
             'type': 'fill',
@@ -187,7 +187,7 @@ class DrawPolygon extends DrawStructure {
             }
         });
     }
-    _add_surround_layer(){
+    _add_surround_layer() {
         map.addLayer({
             'id': this.id + "outline",
             'type': 'line',
@@ -213,7 +213,7 @@ function optics_polygon(eps = 1.0, fillcolor = "None", linecolor = "black") {
     let optics_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 3, 0.6);
     optics_polygon.add_structure();
 }
-function viewport_polygon(fillcolor = "None", linecolor = "gray"){
+function viewport_polygon(fillcolor = "None", linecolor = "gray") {
     url = "http://localhost:8000/api/geojson/viewport";
     id = "viewport";
     let viewport_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 2, 0.3);
@@ -234,12 +234,12 @@ class ClusteringParam {
         this.eps = 0.1
         this.printall = true
     }
-    
+
 }
-function convert_visibility(bool){
+function convert_visibility(bool) {
     if (bool) {
         return "visible"
-    }else {
+    } else {
         return "none"
     }
 }
@@ -247,13 +247,13 @@ function convert_visibility(bool){
 
 const clustering_param = new ClusteringParam();
 
-window.onload = function (){
+window.onload = function () {
     console.log("window load")
     // create dat.GUI instance
     const gui = new dat.GUI();
 
     // create parameter instance
-    
+
     // add parameter object to dat.GUI instance
     gui.add(clustering_param, 'assrp').onChange(function (bool) {
         clustering_param.assrp = bool;
@@ -296,34 +296,38 @@ window.onload = function (){
     });
     display_control(clustering_param.plot, "plot");
     display_control(clustering_param.legend, "state-legend");
-    
-    function display_control(bool, id){
+
+    function display_control(bool, id) {
         if (bool) {
             document.getElementById(id).style.display = "block"
-        }else {
+        } else {
             document.getElementById(id).style.display = "none"
         }
     }
-    function visible_control(bool, id){
+    function visible_control(bool, id) {
         map.setLayoutProperty(id, 'visibility', convert_visibility(bool))
     }
-    function set_eps(eps){
+    function set_eps(eps) {
         // TODO
         map.removeLayer("optics_polygonoutline")
         map.removeSource("optics_polygon")
         optics_polygon(eps)
     }
 }
+function get_window_size() {
+    return [window.innerWidth, window.innerHeight]
+}
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
-centers = {"chofu": [139.545, 35.655], "shibuya": [139.65, 35.65]};
-init_zoom = 11;
+centers = { "chofu": [139.545, 35.655], "shibuya": [139.65, 35.65] };
+init_zoom = 7;
 
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/kwatanabe1998/ckwvzytdk7ixc14o53kanjxs8',
     center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
     zoom: init_zoom, // 初期に表示する地図のズームレベル
+    scrollZoom: false
 });
 
 map.addControl(new mapboxgl.FullscreenControl());
@@ -336,6 +340,9 @@ map.addControl(new mapboxgl.ScaleControl({
 
 map.on('load', function () {
     console.log("map load")
+    console.log("map center:", map.getCenter());
+    console.log("init zoom level:", init_zoom);
+    console.log("window size:", get_window_size());
     add_routepath("white", convert_visibility(clustering_param.route));
     asWpPoint("white", convert_visibility(clustering_param.aswp));
     asSrpPoint("pink", convert_visibility(clustering_param.assrp));
