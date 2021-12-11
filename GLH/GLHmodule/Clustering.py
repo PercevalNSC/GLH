@@ -8,7 +8,7 @@ import numpy as np
 import heapq
 import pprint
 
-from .Plotfigure import coordinatesFigure, scatterFigure, reachability_figure
+from .Plotfigure import coordinatesFigure, reachability_figure, reachability_figure_pure
 from .geo2 import distance as g2distance
 
 TOKYO_1LNG = (1.51985 + 1.85225) * 30
@@ -215,11 +215,10 @@ class OPTICSArrays :
     Data: 要素内の3番目以降の情報を使わず，座標データだけ使用する
     """
     plot_count = 0
-    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray, error_order = np.array([])) -> None:
+    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray) -> None:
         self.data = data
         self.reachability = reachability
         self.ordering = ordering
-        self.error_order = error_order
         if len(ordering) == 0 :
             self.ordering = self._init_order() 
         else:
@@ -230,23 +229,49 @@ class OPTICSArrays :
         print("Map scope by", p1, p2)
         scope_data = []
         scope_reachability = []
-        scope_order = []
-        flag = 0
+        error_order = []
+        error_reachability = []
+        #flag = 0
         skipcount = 0
+        order_offset = 0
         for i in range(len(self.data)):
+            if skipcount > 0 :
+                skipcount -= 1
+                continue
+
             if self._is_in_map(p1, p2, self.data[i]):
                 scope_data.append(self.data[i])
                 scope_reachability.append(self.reachability[i])
-                flag = 0
+                #flag = 0
             else :
-                if flag == 0 :
-                    scope_data.append(np.zeros(3))
-                    scope_reachability.append(0)
-                    scope_order.append(self.ordering[i] - skipcount)
-                    flag = 1
-                else :
-                    skipcount += 1
-        return OPTICSArrays(scope_data, scope_reachability,[], scope_order)
+                temp = self.not_in_map(i, p1, p2, order_offset)
+                scope_data.append(temp[0])
+                scope_reachability.append(temp[1])
+                error_order.append(temp[2])
+                error_reachability.append(temp[3])
+                skipcount = temp[4]
+                order_offset += skipcount
+                
+        return ScopedOPTICSArrays(scope_data, scope_reachability,[], error_order, error_reachability)
+    
+    # マップにない区間のデータの処理．更新したskipcountを返す．
+    def not_in_map(self, start_index, p1, p2, order_offset):
+        """
+        return [dammy_data, dammy_reachability, error_order, error_reachability, skipcount]
+        """
+        i = start_index
+        maxreachability = 0
+        # is_in_mapがTrueになるまでiを進める．その間の最大のreachabilityをとる．
+        for i in range(start_index, len(self.data), 1):
+            if self._is_in_map(p1, p2, self.data[i]) :
+                break
+            else :
+                maxreachability = max(maxreachability, self.reachability[i])
+    
+        skipcount = i - start_index - 1
+        #print("i:", i, "index:", start_index, skipcount)
+        return [np.zeros(3), 0, self.ordering[start_index] - order_offset, maxreachability, skipcount]
+
 
     def clustering_boundary(self):
         boundly = []
@@ -258,7 +283,7 @@ class OPTICSArrays :
 
     def reachability_plot(self, eps = 0):
         if self._consistency() :
-            reachability_figure(self.ordering, self.reachability, self.error_order,"reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
+            reachability_figure_pure(self.ordering, self.reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
         else:
             print("consistency fail in reachabilityplot")
@@ -266,7 +291,8 @@ class OPTICSArrays :
 
     def data_plot(self):
         #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
-        coordinatesFigure(self._remove_noise(self.data),  "Data_Plot" + str(OPTICSArrays.plot_count), 'b' )
+        name = "Data_Plot" + str(OPTICSArrays.plot_count)
+        coordinatesFigure(self._remove_noise(self.data), name, 'b' )
         OPTICSArrays.plot_count += 1
 
     def reachability_resolution(self, cluster_n :int) -> int:
@@ -337,7 +363,21 @@ class OPTICSArrays :
     def _remove_index(self, index :int):
         self.data = np.delete(self.data, index, 0)
         self.reachability = np.delete(self.reachability, index, 0)
+
+class ScopedOPTICSArrays(OPTICSArrays):
+    def __init__(self, data: np.ndarray, reachability: np.ndarray, ordering: np.ndarray, error_order=np.array([]), error_reachability=np.array([])) -> None:
+        super().__init__(data, reachability, ordering)
+        self.error_order = error_order
+        self.error_reachability = error_reachability
     
+    def reachability_plot(self, eps = 0):
+        if self._consistency() :
+            reachability_figure(self.ordering, self.reachability, self.error_order, self.error_reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
+            OPTICSArrays.plot_count += 1
+        else:
+            print("consistency fail in reachabilityplot")
+            self.status()
+
 
 class KNNFindPoint :
     def __init__(self, datasets :list, points: list, size :int = 5) -> None:
