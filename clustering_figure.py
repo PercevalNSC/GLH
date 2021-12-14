@@ -5,7 +5,7 @@ from GLH.GLHmodule.geo2 import getBoundsAt
 geo_distance = 0.1
 min_samples = 4
 center = [139.545, 35.655]
-zoom = 14
+zoom = 7
 window_size = [1536, 807]
 cluster_size = 10
 

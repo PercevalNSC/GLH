@@ -107,3 +107,10 @@ def _add_split_reachability(axis, error_order, error_reachability, reachability)
         else :
             reach_list.append(reachability[index])
     axis.bar(error_order, reach_list, label = "error_order", width = 1.0, color = "red")
+
+def resolution_plot(cluster_numbers, resolutions, name = ""):
+    xlabel = "number of cluster"
+    ylabel = "resolution"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis : plt.Axes = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    axis.bar(cluster_numbers, resolutions, label="resolution", width=1.0)

@@ -1,0 +1,24 @@
+Ordering Data
+Output: Data_Plot0.png
+Output: reachability_in_OPTICSArrays1.png
+i: 2 resolution: 0.18194768234868797
+i: 3 resolution: 0.22568779913734793
+i: 4 resolution: 0.38897248693824493
+i: 5 resolution: 0.643422248850581
+i: 6 resolution: 0.720869622959775
+i: 7 resolution: 0.7482442341429749
+i: 8 resolution: 0.8483444812297349
+i: 9 resolution: 0.888824678107646
+i: 10 resolution: 0.8909481615726329
+Map scope by [139.5, 35.65] [139.58, 35.67]
+Output: Data_Plot2.png
+Output: reachability_in_OPTICSArrays3.png
+i: 2 resolution: 0.0001468979079849997
+i: 3 resolution: 0.0015273472845339997
+i: 4 resolution: 0.001580359601808
+i: 5 resolution: 0.002005561466519
+i: 6 resolution: 0.0020467666444629997
+i: 7 resolution: 0.0020509301869660003
+i: 8 resolution: 0.002315197490985
+i: 9 resolution: 0.002335871364341
+i: 10 resolution: 0.0024000739534890004
