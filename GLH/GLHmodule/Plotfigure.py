@@ -85,7 +85,7 @@ def reachability_figure(space, reachability, error_order, error_reachability, na
     fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
 
-    axis.bar(space, reachability, label = "reachability", width = 1.0)
+    axis.bar(space, reachability, label = "reachability")
     _add_eps_line(axis, eps, 0, space[-1])
     _add_split_reachability(axis, error_order, error_reachability, reachability)
 
@@ -106,7 +106,7 @@ def _add_split_reachability(axis, error_order, error_reachability, reachability)
             reach_list.append(maxreach)
         else :
             reach_list.append(reachability[index])
-    axis.bar(error_order, reach_list, label = "error_order", width = 1.0, color = "red")
+    axis.bar(error_order, reach_list, label = "error_order", color = "red")
 
 def resolution_plot(cluster_numbers, resolutions, name = ""):
     xlabel = "number of cluster"
@@ -114,3 +114,9 @@ def resolution_plot(cluster_numbers, resolutions, name = ""):
     fig = plt.figure(dpi=FIGURE_DPI)
     axis : plt.Axes = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
     axis.bar(cluster_numbers, resolutions, label="resolution", width=1.0)
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
+
+def fig_output(fig :plt.Figure, name :str):
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
