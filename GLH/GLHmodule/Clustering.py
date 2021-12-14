@@ -325,9 +325,8 @@ class OPTICSArrays :
                 temp.append(d)
         return temp
 
-
     def _consistency(self):
-        if len(self.data) == len(self.reachability)  and len(self.data) == len(self.ordering):
+        if len(self.data) == len(self.reachability) and len(self.data) == len(self.ordering):
             return True
         else :
             return False
