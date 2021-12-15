@@ -1,5 +1,3 @@
-from ctypes import c_bool
-from logging import error
 from math import inf
 from matplotlib.pyplot import axis
 from sklearn import cluster
