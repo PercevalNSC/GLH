@@ -1,10 +1,12 @@
+from os import error
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker
+from math import inf
 import heapq
 
 SAVEPATH= "./images/"
-FIGURE_DPI = 800
+FIGURE_DPI = 1600
 
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
@@ -66,16 +68,55 @@ def cluster_figure(cluster_data, name = "No title", ylabel = "No ylabel"):
     fig.show()
     fig.savefig(SAVEPATH + name + ".png")
 
-def reachability_figure(space, reachability, error_order, name, eps = 0, xlabel = "space", ylabel = "reachability"):
+def reachability_figure_pure(space, reachability, name, eps = 0, xlabel = "space", ylabel = "reachability"):
     n_label = "[n = " + str(len(space)) + "]"
     fig = plt.figure(dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
+
     axis.bar(space, reachability, label = "reachability", width = 1.0)
-    if eps != 0 :
-        axis.hlines(eps, 0, space[-1], "g", label="eps="+str(eps))
-    maxreach = max(reachability) * 0.5
-    maxreach_list = [maxreach for i in range(len(error_order))]
-    axis.bar(error_order, maxreach_list, label = "error_order", width = 0.5, color = "red")
+    _add_eps_line(axis, eps, 0, space[-1])
+
     axis.legend(loc='center left')
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
+
+def reachability_figure(space, reachability, error_order, error_reachability, name, eps = 0, xlabel = "space", ylabel = "reachability"):
+    n_label = "[n = " + str(len(space)) + "]"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
+
+    axis.bar(space, reachability, label = "reachability")
+    _add_eps_line(axis, eps, 0, space[-1])
+    _add_split_reachability(axis, error_order, error_reachability, reachability)
+
+    axis.legend(loc='center left')
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
+
+def _add_eps_line(axis, eps, min, max):
+    if eps != 0 :
+        axis.hlines(eps, min, max, "g", label="eps="+str(eps))
+
+def _add_split_reachability(axis, error_order, error_reachability, reachability):
+    reach_list = []
+    #print(error_order)
+    maxreach = max(reachability)
+    for index, eo in enumerate(error_order) :
+        if error_reachability[index] > maxreach :
+            reach_list.append(maxreach)
+        else :
+            reach_list.append(reachability[index])
+    axis.bar(error_order, reach_list, label = "error_order", color = "red")
+
+def resolution_plot(cluster_numbers, resolutions, name = ""):
+    xlabel = "number of cluster"
+    ylabel = "resolution"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis : plt.Axes = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    axis.bar(cluster_numbers, resolutions, label="resolution", width=1.0)
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
+
+def fig_output(fig :plt.Figure, name :str):
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")

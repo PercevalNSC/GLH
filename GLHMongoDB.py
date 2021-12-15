@@ -1,11 +1,14 @@
+# GLHMongoDB.py
+"""
+Assemble GLHLibrary and MongoDBquery, and Management clustring.
+"""
+
 from GLH import *
 from GLH.GLHmodule import GeoJSON
 from GLH.GLHmodule.geo2 import getBoundsAt
 from Setting.MongoDBSetting import MongoDBSet
 from GLH.GLHmodule.GeoJSON import PolygonGeojson
-"""
-Assemble GLHLibrary and MongoDBquery, and Management clustring.
-"""
+
 
 def get_dbscan_point(eps, min_samples):
     std = DBSCANConstruct(eps, min_samples)
