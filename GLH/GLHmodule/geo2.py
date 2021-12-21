@@ -84,6 +84,7 @@ def totalDistance(lngLatList):
     d = d + distance(lngLatList[i], lngLatList[i + 1])
   return d
 
+
 if __name__ == '__main__' :
   center = (35.665875010721926, 139.70534033813476)
   zoom=12

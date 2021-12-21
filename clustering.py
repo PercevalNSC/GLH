@@ -4,6 +4,8 @@ from GLH.GLHmodule.Clustering import LabeledTrajectoryData
 
 
 
+
+"""
 eps = 0.0001
 min_samples = 4
 obj = OPTICSConstruct(min_samples)
@@ -19,4 +21,7 @@ for label_trajectory_data in labeled_trajectory_list :
     label_time.append([label_trajectory_data[0], during_time])
 print(label_time)
 cluster_figure(label_time, "cluster_time", "time")
+
+"""
+
 

@@ -5,15 +5,12 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from scipy.spatial import ConvexHull
 import numpy as np
-import heapq
 import pprint
 
-from .Plotfigure import coordinatesFigure, reachability_figure, reachability_figure_pure
+from .Plotfigure import coordinatesFigure, out_reachability_figure, reachability_figure
 from .geo2 import distance as g2distance
-
-TOKYO_1LNG = (1.51985 + 1.85225) * 30
-TOKYO_1LNG1 = 1.51985 * 60
-TOKYO_1LNG2 = 1.85225 * 60
+from .geo3 import geography_to_euclid
+from .OPTICSData import OPTICSArrays
 
 class TrajectoryData():
     def __init__(self, trajectorydata: list) -> None:
@@ -196,7 +193,7 @@ class OPTICSCoordinates(ClusteringCoordinates):
         super().__init__(coordinates)
         self._clustering_construct(min_samples)
     def _clustering_construct(self, min_samples):
-        print("Starting OPTICS")
+        print("Starting OPTICS ...")
         self.clustering = OPTICS(min_samples=min_samples).fit(self.coordinates)
     def optics_set_eps(self, eps):
         print("OPTICS set: eps=", eps)
@@ -208,175 +205,7 @@ class OPTICSCoordinates(ClusteringCoordinates):
     def reachability_plot(self):
         space = np.arange(len(self.coordinates))
         reachability = self.clustering.reachability_[self.clustering.ordering_]
-        reachability_figure(space, reachability, "reachability_plot")
-
-class OPTICSArrays :
-    """
-    Data: 要素内の3番目以降の情報を使わず，座標データだけ使用する
-    """
-    plot_count = 0
-    def __init__(self, data :np.ndarray, reachability :np.ndarray, ordering :np.ndarray) -> None:
-        self.data = data
-        self.reachability = reachability
-        self.ordering = ordering
-        if len(ordering) == 0 :
-            self.ordering = self._init_order() 
-        else:
-            self._ordered_data()
-
-    def map_scope(self, p1, p2):
-        # Order(2n)
-        print("Map scope by", p1, p2)
-        scope_data = []
-        scope_reachability = []
-        error_order = []
-        error_reachability = []
-        #flag = 0
-        skipcount = 0
-        order_offset = 0
-        for i in range(len(self.data)):
-            if skipcount > 0 :
-                skipcount -= 1
-                continue
-
-            if self._is_in_map(p1, p2, self.data[i]):
-                scope_data.append(self.data[i])
-                scope_reachability.append(self.reachability[i])
-                #flag = 0
-            else :
-                temp = self.not_in_map(i, p1, p2, order_offset)
-                scope_data.append(temp[0])
-                scope_reachability.append(temp[1])
-                error_order.append(temp[2])
-                error_reachability.append(temp[3])
-                skipcount = temp[4]
-                order_offset += skipcount
-                
-        return ScopedOPTICSArrays(scope_data, scope_reachability,[], error_order, error_reachability)
-    
-    # マップにない区間のデータの処理．更新したskipcountを返す．
-    def not_in_map(self, start_index, p1, p2, order_offset):
-        """
-        return [dammy_data, dammy_reachability, error_order, error_reachability, skipcount]
-        """
-        i = start_index
-        maxreachability = 0
-        # is_in_mapがTrueになるまでiを進める．その間の最大のreachabilityをとる．
-        for i in range(start_index, len(self.data), 1):
-            if self._is_in_map(p1, p2, self.data[i]) :
-                break
-            else :
-                maxreachability = max(maxreachability, self.reachability[i])
-    
-        skipcount = i - start_index - 1
-        #print("i:", i, "index:", start_index, skipcount)
-        return [np.zeros(3), 0, self.ordering[start_index] - order_offset, maxreachability, skipcount]
-
-
-    def clustering_boundary(self):
-        boundly = []
-        for i in range(len(self.reachability)-1):
-            if self.reachability[i] > self.reachability[i-1] :
-                boundly.append(self.reachability[i])
-        return boundly
-
-
-    def reachability_plot(self, eps = 0):
-        if self._consistency() :
-            reachability_figure_pure(self.ordering, self.reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
-            OPTICSArrays.plot_count += 1
-        else:
-            print("consistency fail in reachabilityplot")
-            self.status()
-
-    def data_plot(self):
-        #scatterFigure(self.coordinates[:,0], self.coordinates[:, 1], "Data_Plot" + str(OPTICSArrays.plot_count), "Longtitude", "Latitude")
-        name = "Data_Plot" + str(OPTICSArrays.plot_count)
-        coordinatesFigure(self._remove_noise(self.data), name, 'b' )
-        OPTICSArrays.plot_count += 1
-
-    def reachability_resolution(self, cluster_n :int) -> int:
-        # print(heapq.nlargest(3, reachability))
-        largest_boundary = heapq.nlargest(cluster_n+1, self.clustering_boundary())
-        #print(largest_boundary)
-        if largest_boundary[0] == inf :
-            return largest_boundary[1] - largest_boundary[-1]
-        else :
-            return largest_boundary[0] - largest_boundary[-2]
-    
-    def continuous_resolution_print(self, cluster_n :int):
-        for i in range(2, cluster_n+1, 1):
-            print("i:",i,"resolution:", self.reachability_resolution(i))
-        
-        
-
-    def status(self):
-        print("Data:", self.data, "len:", len(self.data))
-        print("Reachability:", self.reachability, "len:", len(self.reachability))
-        print("Ordering:", self.ordering, "len:", len(self.ordering))
-
-    def print(self):
-        return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
-
-    def _remove_noise(self, data):
-        temp = []
-        for d in data:
-            if d[0] != 0 or d[1] != 0:
-                temp.append(d)
-        return temp
-
-    def _consistency(self):
-        if len(self.data) == len(self.reachability) and len(self.data) == len(self.ordering):
-            return True
-        else :
-            return False
-
-    def _is_in_map(self, p1, p2, cp):
-        if (cp[0] < p1[0]) | (p2[0] < cp[0]) | (cp[1] < p1[1]) | (p2[1] < cp[1]):
-            return False
-        else :
-            return True
-
-    def _init_order(self):
-        return np.array(list(range(len(self.reachability))))
-    
-    def _ordered_data(self):
-        print("Ordering Data")
-        self.data = self._ordered_list(self.data, self.ordering)
-        self.reachability = self._ordered_list(self.reachability, self.ordering)
-        self.ordering = self._init_order()
-
-    def _ordered_list(self, target_list, order_list):
-        if len(target_list) != len(order_list):
-            print("Invaild length: target and order list")
-            return target_list
-        result = list(range(len(order_list)))
-        for index, order in enumerate(order_list):
-            result[order] = target_list[index]
-        return result
-    
-    def _pure_data(self):
-        return np.zeros(len(self.data))
-
-    # remove_index break data consistency. after used, do _init_order()
-    def _remove_index(self, index :int):
-        self.data = np.delete(self.data, index, 0)
-        self.reachability = np.delete(self.reachability, index, 0)
-
-class ScopedOPTICSArrays(OPTICSArrays):
-    def __init__(self, data: np.ndarray, reachability: np.ndarray, ordering: np.ndarray, error_order=np.array([]), error_reachability=np.array([])) -> None:
-        super().__init__(data, reachability, ordering)
-        self.error_order = error_order
-        self.error_reachability = error_reachability
-    
-    def reachability_plot(self, eps = 0):
-        if self._consistency() :
-            reachability_figure(self.ordering, self.reachability, self.error_order, self.error_reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
-            OPTICSArrays.plot_count += 1
-        else:
-            print("consistency fail in reachabilityplot")
-            self.status()
-
+        out_reachability_figure(space, reachability, "reachability_plot")
 
 class KNNFindPoint :
     def __init__(self, datasets :list, points: list, size :int = 5) -> None:
@@ -411,10 +240,3 @@ class LabeledTrajectoryData():
             timestamp_min_max[0] = min(timestamp_min_max[0], trajectory_set[2])
             timestamp_min_max[1] = max(timestamp_min_max[1], trajectory_set[2])
         return timestamp_min_max[1] - timestamp_min_max[0]
-
-def euclid_to_geography(euclid_dist):
-    return euclid_dist * TOKYO_1LNG #(km)
-
-def geography_to_euclid(geography_dist):
-    # input (km)
-    return geography_dist / TOKYO_1LNG

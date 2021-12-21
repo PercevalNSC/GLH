@@ -89,5 +89,8 @@ def view_port():
 @app.route('/geocoder')
 def geocoderMap():
     return render_template('geocoder.html', title="Flask app", framework="Flask framework")
+@app.route('/get_center')
+def getcentermap():
+    return render_template('get_center.html')
 
 app.run(port=8000, debug=True)
