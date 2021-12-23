@@ -1,8 +1,8 @@
-from .GLHmodule import distance as g2dist
-from .GLHmodule import gravityPointDistance
-from .GLHmodule import PointGeojson, LineGeojson, PolygonGeojson
-from .GLHmodule import coordinatesFigure
-from .GLHmodule import TrajectoryData, KNNFindPoint
+from GLH.GLHmodule.geo2 import distance as g2dist
+from GLH.GLHmodule.Caliper import gravityPointDistance
+from GLH.GLHmodule.GeoJSON import PointGeojson, LineGeojson, PolygonGeojson
+from GLH.GLHmodule.Plotfigure import coordinatesFigure
+from GLH.Clustering import TrajectoryData, KNNFindPoint
 import pprint
 
 #TODO: fix names by PEP8

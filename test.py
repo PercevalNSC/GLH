@@ -1,6 +1,6 @@
 from io import TextIOWrapper
 from GLHMongoDB import *
-from GLH.GLHmodule.Clustering import LabeledTrajectoryData, OPTICSArrays, OPTICSTrajectoryData
+from GLH.Clustering import LabeledTrajectoryData, OPTICSArrays, OPTICSTrajectoryData
 from GLH.GLHmodule.Plotfigure import cluster_figure
 def test_getcollection(f :TextIOWrapper):
     print("Test: collection")
@@ -75,7 +75,7 @@ def test_optics_array(f :TextIOWrapper):
     optics_array.reachability_plot()
 
 def test_geo_to_euclid():
-    import GLH.GLHmodule.Clustering as gc
+    import GLH.Clustering as gc
     import math
 
     a1 = [36.1037, 140.0878]

@@ -2,13 +2,11 @@ from pymongo import MongoClient
 import json
 
 class MongoDBSet :
-    def __init__(self):
+    def __init__(self, db_name = "glh_db", clct_name = "glh_clct_full"):
         mongodb_path = "mongodb://127.0.0.1:27017"
-        db_name = "glh_db"
-        collection_name = "glh_clct_full"
         with MongoClient(mongodb_path) as client:
             self.db = client[db_name]
-            self.collection = self.db[collection_name]
+            self.collection = self.db[clct_name]
 
     def query(self, query, limit = 0):
         corsor = self.collection.find(query).limit(limit)
@@ -32,6 +30,17 @@ class MongoDBSet :
     def pvlocation_query(self, limit = 0):
         query = {"placeVisit.location" : {"$exists": True}}
         return self.query(query, limit)
+
+    def insert(self, data_dict):
+        result = self.collection.insert_one(data_dict)
+        print(result)
+    
+    def insertmany(self, data_list: list):
+        self.collection.delete_many({})
+        result = self.collection.insert_many(data_list)
+        print(result)
+        print("Insert", len(data_list), "objects.")
+
 
     def stat(self):
         querys = [{"activitySegment" : {"$exists": True}},

@@ -5,12 +5,11 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from scipy.spatial import ConvexHull
 import numpy as np
-import pprint
 
-from .Plotfigure import coordinatesFigure, out_reachability_figure, reachability_figure
-from .geo2 import distance as g2distance
-from .geo3 import geography_to_euclid
-from .OPTICSData import OPTICSArrays
+from .GLHmodule.Plotfigure import coordinatesFigure, out_reachability_figure, reachability_figure
+from .GLHmodule.geo2 import distance as g2distance
+from GLH.GLHmodule.geo3 import geography_to_euclid
+from GLH.OPTICSData import OPTICSArrays
 
 class TrajectoryData():
     def __init__(self, trajectorydata: list) -> None:
@@ -21,19 +20,23 @@ class TrajectoryData():
             if 0 in x:
                 rawdata.remove(x)
         return rawdata
+
     def coordinates(self):
         return self.trajectorydata[:, 0:2]
     
     def dbscan(self, eps, min_samples):
         print("use old dbscan method")
         return DBSCANCoordinates(self.coordinates(), eps, min_samples)
+
     def optics(self, min_samples):
         print("use old optics method")
         return OPTICSCoordinates(self.coordinates(), min_samples)
+
     def to_dbscan(self, eps, min_samples):
         dbscan = DBSCANTrajectoryData(self.trajectorydata.tolist())
         dbscan.clustering_set(eps, min_samples)
         return dbscan
+        
     def to_optics(self, min_samples):
         optics = OPTICSTrajectoryData(self.trajectorydata.tolist())
         optics.clustering_set(min_samples)
@@ -66,6 +69,7 @@ class ClusteringTrajectoryData(TrajectoryData):
             labeled_list :list = labeled_data[label+1][1]   # ラベルが-1スタートなのでラベルのインデックスをずらす
             labeled_list.append(self.trajectorydata[index].tolist())
         return labeled_data
+
     def labeled_trajectory_data(self):
         labeled_data = [[label, []] for label in range(-1, max(self.labels)+1)]
         for index, label in enumerate(self.labels):
@@ -81,8 +85,10 @@ class ClusteringTrajectoryData(TrajectoryData):
     
     def labeled_coordinates(self):
         return self.clustering.labeled_coordinates()
+
     def cluster_point_coords(self):
         return self.clustering.cluster_point()
+
     def cluster_polygon_coords(self):
         return self.clustering.cluster_polygon()
     

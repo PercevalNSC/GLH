@@ -1,10 +1,9 @@
 import numpy as np
-from sklearn import cluster
-from .Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot
+from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot
 import heapq
 from math import inf
 
-from .geo3 import euclid_to_geography
+from .GLHmodule.geo3 import euclid_to_geography
 
 class OPTICSArrays :
     """
@@ -52,32 +51,6 @@ class OPTICSArrays :
             scope_order.append(self.ordering[i])
                 
         return ScopedOPTICSArrays(scope_data, scope_reachability, scope_order, error_order, error_reachability)
-    
-    # マップにない区間のデータの処理．更新したskipcountを返す．
-    def _not_in_map(self, start_index, p1, p2):
-        """
-        return [dammy_data, dammy_reachability, error_order, error_reachability, skipcount]
-        """
-        i = start_index
-        maxreachability = 0
-        # is_in_mapがTrueになるまでiを進める．その間の最大のreachabilityをとる．
-        for i in range(start_index, len(self.data), 1):
-            if self._is_in_map(p1, p2, self.data[i]) :
-                break
-            else :
-                maxreachability = max(maxreachability, self.reachability[i])
-    
-        skipcount = i - start_index - 1
-        #print("i:", i, "index:", start_index, skipcount)
-        return [maxreachability, skipcount]
-
-
-    def clustering_boundary(self):
-        boundly = []
-        for i in range(len(self.reachability)-1):
-            if self.reachability[i] > self.reachability[i-1] :
-                boundly.append(self.reachability[i])
-        return boundly
 
     def reachability_plot(self, eps = 0):
         if self._consistency() :
@@ -89,9 +62,6 @@ class OPTICSArrays :
             print("consistency fail in reachabilityplot")
             self.status()
     
-    def _geography_reachability(self, euclid_reachability):
-        return [euclid_to_geography(euclid_reach) for euclid_reach in euclid_reachability]
-
     def data_plot(self):
         print("Data Plot ...")
         name = "Data_Plot" + str(OPTICSArrays.plot_count)
@@ -101,7 +71,7 @@ class OPTICSArrays :
 
     def reachability_resolution(self, cluster_n :int) -> int:
         # print(heapq.nlargest(3, reachability))
-        largest_boundary = heapq.nlargest(cluster_n+1, self.clustering_boundary())
+        largest_boundary = heapq.nlargest(cluster_n+1, self._clustering_boundary())
         #print(largest_boundary)
         if largest_boundary[0] == inf :
             return largest_boundary[1] - largest_boundary[-1]
@@ -117,11 +87,13 @@ class OPTICSArrays :
         return result
            
     def status(self):
+        """ Print instance value. """
         print("Data:", self.data, "len:", len(self.data))
         print("Reachability:", self.reachability, "len:", len(self.reachability))
         print("Ordering:", self.ordering, "len:", len(self.ordering))
 
     def print(self):
+        """ Return string about instance value. """
         return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
 
     def _remove_noise(self, data):
@@ -137,7 +109,8 @@ class OPTICSArrays :
         else :
             return False
 
-    def _is_in_map(self, p1, p2, cp):
+    def _is_in_map(self, p1, p2, cp) -> bool:
+        """ When cp is in rectangle constructed p1 and p2, return True """
         if (cp[0] < p1[0]) | (p2[0] < cp[0]) | (cp[1] < p1[1]) | (p2[1] < cp[1]):
             return False
         else :
@@ -147,21 +120,59 @@ class OPTICSArrays :
         return np.array(list(range(len(self.reachability))))
 
     def _ordered_list(self, target_list, order_list):
+        """ Order target_list by order_list.
+
+        return ordered_target_list
+        """
         if len(target_list) != len(order_list):
             print("Invaild length: target and order list")
             return target_list
-        result = []
+        ordered_list = []
         for order in order_list :
-            result.append(target_list[order])
-        return np.array(result)
+            ordered_list.append(target_list[order])
+        return np.array(ordered_list)
 
-    def _pure_data(self):
-        return np.zeros(len(self.data))
+    def _not_in_map(self, start_index, p1, p2):
+        """ Find continuous list not being in map.
+        Return [maxreachability, skipcount].
+        maxreachability: max reachability in map-out list,
+        skipcount: length of map-out list
+        """
+        i = start_index
+        maxreachability = 0
+        # Increament i until self.data[i] is in map
+        for i in range(start_index, len(self.data), 1):
+            if self._is_in_map(p1, p2, self.data[i]) :
+                break
+            else :
+                maxreachability = max(maxreachability, self.reachability[i])
+    
+        skipcount = i - start_index - 1
+        #print("i:", i, "index:", start_index, skipcount)
+        return [maxreachability, skipcount]
 
-    # remove_index break data consistency. after used, do _init_order()
-    def _remove_index(self, index :int):
-        self.data = np.delete(self.data, index, 0)
-        self.reachability = np.delete(self.reachability, index, 0)
+    def _geography_reachability(self, euclid_reachability):
+        """ Convert euclid distance to geographic distance in reachability. """
+        return [euclid_to_geography(euclid_reach) for euclid_reach in euclid_reachability]
+
+    def _clustering_boundary(self):
+        """ Return clustring boundary list. """
+        boundary_list = []
+        if self.reachability[0] > self.reachability[1] :
+            boundary_list.append(self.reachability[0])
+        if self.reachability[-1] > self.reachability[-2] :
+            boundary_list.append(self.reachability[-1])
+        for i in range(1, len(self.reachability)-1, 1):
+            if self.reachability[i-1] < self.reachability[i] & self.reachability[i] < self.reachability[i+1]:
+                boundary_list.append(self.reachability[i])
+        return boundary_list
+    
+    def to_dict_list(self):
+        dict_list = []
+        for i in range(len(self.reachability)):
+            one_dict = {"data": self.data[i].tolist(), "reachability": self.reachability[i].item(), "order": self.ordering[i].item()}
+            dict_list.append(one_dict)
+        return dict_list
 
 class ScopedOPTICSArrays(OPTICSArrays):
     def __init__(self, data: list, reachability: list, ordering: list, error_order: list, error_reachability: list) -> None:
