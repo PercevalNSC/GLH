@@ -2,8 +2,9 @@ import GLH.GLHmodule.Plotfigure as pf
 from Setting.MongoDBSetting import MongoDBSet
 from GLH import GLH
     
-# MongoDBQueryを取得して差分リストを返す
 def elementList(segment, element, limit = 0):
+    """ get GLHData and return different list
+    """
     query = { segment + ".simplifiedRawPath" : {"$exists": True}}
     corsor = MongoDBSet().query(query, limit)
     collection = GLH.GLHCollection(corsor, segment, "", "") # differenceListはelementを使用しないのでダミーで渡す
