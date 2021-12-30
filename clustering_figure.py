@@ -18,24 +18,30 @@ eps = geography_to_euclid(geo_distance)
 corner = getBoundsAt(center, zoom, window_size)
 
 optics_array = optics_trajectory_data.create_optics_arrays()
-optics_array.status()
+#optics_array.status()
 optics_array.data_plot()
 optics_array.reachability_plot(geo_distance)
 
-"""
+
 resolutions = optics_array.continuous_resolution(cluster_size)
 resolution_obj = ClusterResolution(*resolutions)
+resolution_obj.print()
 resolution_obj.plot()
+"""
+
 """
 
 
 scoped_array = optics_array.map_scope(*corner)
-scoped_array.status()
+#scoped_array.status()
 scoped_array.data_plot()
 scoped_array.reachability_plot(geo_distance)
-
+resolutions = scoped_array.continuous_resolution(cluster_size)
+resolution_obj = ClusterResolution(*resolutions)
+resolution_obj.print()
+resolution_obj.plot()
 """
-scoped_array.continuous_resolution(cluster_size)
+
 """
 
 

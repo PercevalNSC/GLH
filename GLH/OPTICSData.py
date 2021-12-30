@@ -1,9 +1,10 @@
 import numpy as np
-from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot
+from scipy.signal import argrelmax
 import heapq
 from math import inf
 
-from .GLHmodule.geo3 import euclid_to_geography
+from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot
+from GLH.GLHmodule.geo3 import euclid_to_geography
 
 class OPTICSArrays :
     """
@@ -54,7 +55,7 @@ class OPTICSArrays :
 
     def reachability_plot(self, eps = 0):
         if self._consistency() :
-            print("Reachability Plot")
+            print("Reachability Plot ...")
             space = list(range(len(self.reachability)))
             reachability_figure(space, self.reachability, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
@@ -71,12 +72,9 @@ class OPTICSArrays :
 
     def reachability_resolution(self, cluster_n :int) -> int:
         # print(heapq.nlargest(3, reachability))
-        largest_boundary = heapq.nlargest(cluster_n+1, self._clustering_boundary())
-        #print(largest_boundary)
-        if largest_boundary[0] == inf :
-            return largest_boundary[1] - largest_boundary[-1]
-        else :
-            return largest_boundary[0] - largest_boundary[-2]
+        largest_boundary = self._max_include_inf_list(self._clustering_boundary(), cluster_n)
+        print(largest_boundary)
+        return largest_boundary[0] - largest_boundary[-1]
     
     def continuous_resolution(self, cluster_ns :int):
         result = [[], []]
@@ -95,6 +93,13 @@ class OPTICSArrays :
     def print(self):
         """ Return string about instance value. """
         return "Data:" + str(self.data) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
+
+    def _max_include_inf_list(self, inflist :list, n :int):
+        largest = heapq.nlargest(n+1, inflist)
+        if largest[0] == inf :
+            return largest[1:]
+        else :
+            return largest[:-1]
 
     def _remove_noise(self, data):
         temp = []
@@ -157,14 +162,32 @@ class OPTICSArrays :
 
     def _clustering_boundary(self):
         """ Return clustring boundary list. """
+        return self._boundary_detection(self.reachability)
+    
+    def _boundary_detection(self, reachability):
         boundary_list = []
-        if self.reachability[0] > self.reachability[1] :
-            boundary_list.append(self.reachability[0])
-        if self.reachability[-1] > self.reachability[-2] :
-            boundary_list.append(self.reachability[-1])
-        for i in range(1, len(self.reachability)-1, 1):
-            if self.reachability[i-1] < self.reachability[i] & self.reachability[i] < self.reachability[i+1]:
-                boundary_list.append(self.reachability[i])
+        if reachability[0] >= reachability[1] :
+            boundary_list.append(reachability[0])
+        if reachability[-1] >= reachability[-2] :
+            boundary_list.append(reachability[-1])
+        
+        flag  = False
+        for i in range(1, len(reachability)-1, 1):
+            if flag :
+                if reachability[i] > reachability[i+1] :
+                    boundary_list.append(reachability[i])
+                    flag = False
+                elif reachability[i] < reachability[i+1]:
+                    flag = False
+                # reachability[i] == reachability[i+1] : flag = True
+                continue
+
+            if (reachability[i-1] < reachability[i]):
+                if reachability[i] > reachability[i+1] :
+                    boundary_list.append(reachability[i])
+                elif reachability[i] == reachability[i+1] :
+                    flag = True
+                continue
         return boundary_list
     
     def to_dict_list(self):
@@ -181,10 +204,20 @@ class ScopedOPTICSArrays(OPTICSArrays):
         self.out_reachability = error_reachability
     
     def resize_out_reachability(self, out_reachability, reachability):
-        maxreach = max(reachability)
-        result = [maxreach if out_reach > maxreach else out_reach for out_reach in out_reachability]
-        return result
+        """ Limit out_reachability height. """
+        maxreach = self._max_include_inf_list(reachability, 1)[0]
+        maxreach += maxreach * 0.01
+        resized_out_reachability = [maxreach if out_reach > maxreach else out_reach for out_reach in out_reachability]
+        return resized_out_reachability
 
+    def merge_reachability(self, reachability :list, out_reachability :list):
+        """ Merge reachability and out_reachability. """
+        merge_reach = reachability.copy()
+        out_indexes = self._search_reachability_index(self.ordering, self.out_order)
+        for index, out_index in enumerate(out_indexes) :
+            merge_reach[out_index] = out_reachability[index]
+        return merge_reach
+    
     # Override
     def reachability_plot(self, eps = 0):
         if self._consistency() :
@@ -216,13 +249,22 @@ class ScopedOPTICSArrays(OPTICSArrays):
         else :
             return False
 
+    def _clustering_boundary(self):
+        """ Return clustring boundary list. """
+        resize = self.resize_out_reachability(self.out_reachability, self.reachability)
+        reachability = self.merge_reachability(self.reachability, resize)
+        return self._boundary_detection(reachability)
+
+
 class ClusterResolution():
+    plot_count = 0
     def __init__(self, clusters, resolutions) -> None:
         self.clusters = clusters
         self.resolutions = resolutions
     
     def plot(self):
-        resolution_plot(self.clusters, self.resolutions, "Resoution Plot")
+        resolution_plot(self.clusters, self.resolutions, "Resoution Plot " + str(ClusterResolution.plot_count))
+        ClusterResolution.plot_count += 1
     
     def print(self):
         for i in range(len(self.clusters)):
