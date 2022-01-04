@@ -230,6 +230,7 @@ class ClusteringParam {
         this.route = false
         this.optics = true
         this.plot = true
+        this.legend = false
         this.eps = 0.1
         this.printall = true
     }
@@ -281,6 +282,9 @@ window.onload = function () {
     gui.add(clustering_param, 'plot').onChange(function (bool) {
         display_control(bool, "d3plot");
     });
+    gui.add(clustering_param, 'legend').onChange(function (bool) {
+        display_control(bool, "state-legend");
+    })
     gui.add(clustering_param, 'eps').name("eps[km]").onChange(function (eps) {
         clustering_param.eps = eps
         set_eps(eps);
@@ -291,6 +295,7 @@ window.onload = function () {
         };
     });
     display_control(clustering_param.plot, 'd3plot');
+    display_control(clustering_param.legend, 'state-legend');
 
     function display_control(bool, id) {
         if (bool) {
