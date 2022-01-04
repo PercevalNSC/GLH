@@ -229,8 +229,7 @@ class ClusteringParam {
         this.pvloc = false
         this.route = false
         this.optics = true
-        this.plot = false
-        this.legend = false
+        this.plot = true
         this.eps = 0.1
         this.printall = true
     }
@@ -280,10 +279,7 @@ window.onload = function () {
         visible_control(bool, "optics_polygonoutline");
     });
     gui.add(clustering_param, 'plot').onChange(function (bool) {
-        display_control(bool, "plot");
-    });
-    gui.add(clustering_param, 'legend').onChange(function (bool) {
-        display_control(bool, "state-legend");
+        display_control(bool, "d3plot");
     });
     gui.add(clustering_param, 'eps').name("eps[km]").onChange(function (eps) {
         clustering_param.eps = eps
@@ -294,8 +290,7 @@ window.onload = function () {
             console.log(clustering_param);
         };
     });
-    display_control(clustering_param.plot, "plot");
-    display_control(clustering_param.legend, "state-legend");
+    display_control(clustering_param.plot, 'd3plot');
 
     function display_control(bool, id) {
         if (bool) {

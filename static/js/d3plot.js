@@ -1,6 +1,6 @@
 // d3plot.js
-let WIDTH = 400;
-let HEIGHT = 300;
+let WIDTH = document.getElementById("d3plot").clientWidth;
+let HEIGHT = document.getElementById("d3plot").clientHeight;
 let PADDING = 30;
 
 class OPTICSData {
@@ -10,7 +10,8 @@ class OPTICSData {
         this.ordering = ordering
     }
     reachability_plot(element_id){
-        let temp1 = new ReachabilityPlotD3(this.reachability, WIDTH, HEIGHT, PADDING);
+        let data = this.reachability
+        let temp1 = new ReachabilityPlotD3(data, WIDTH, HEIGHT, PADDING);
         temp1.plot(element_id);
     }
     map_scope(p1, p2){
@@ -36,6 +37,11 @@ class OPTICSData {
             return false;
         };
     };
+    status(){
+        console.log(this.coordinates);
+        console.log(this.reachability);
+        console.log(this.ordering);
+    }
 }
 class ScopedOPTICSData extends OPTICSData {
     constructor(coordinates, reachability, ordering, out_reachability, out_ordering){
@@ -54,6 +60,7 @@ class BarChartD3 {
         this.padding = padding;
     }
     plot(element_id) {
+        this.status();
         // element_id is html id to draw bar chart.
         let width = this.width
         let height = this.height
@@ -62,10 +69,12 @@ class BarChartD3 {
         var svg = d3.select(element_id).append("svg").attr("width", width).attr("height", height);
 
         // setting axis scale
+        let ticks = 5;
+        let offset = Math.floor(this.dataset.length / ticks)
         var xScale = d3.scaleBand()
-            .rangeRound([padding, width - padding])
             .padding(0)
-            .domain(this.dataset.map(function (d) { return d[0]; }));
+            .domain(this.dataset.map(function (d) { return d[0]; }))
+            .range([padding, width - padding])
 
         var yScale = d3.scaleLinear()
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
@@ -74,7 +83,9 @@ class BarChartD3 {
         // draw axis
         svg.append("g")
             .attr("transform", "translate(" + 0 + "," + (height - padding) + ")")
-            .call(d3.axisBottom(xScale));
+            .call(d3.axisBottom(xScale).tickValues(
+                xScale.domain().filter(function(d,i){ return !(i%offset) ;})
+            ));
 
         svg.append("g")
             .attr("transform", "translate(" + padding + "," + 0 + ")")
@@ -90,13 +101,18 @@ class BarChartD3 {
             .attr("y", function (d) { return yScale(d[1]); })
             .attr("width", xScale.bandwidth())
             .attr("height", function (d) { return height - padding - yScale(d[1]); })
-            .attr("fill", "steelblue");
+            .attr("fill", "black");
     };
+    status(){
+        console.log(this.dataset);
+        console.log(this.width, this.height, this.padding);
+    }
 }
 class ReachabilityPlotD3 extends BarChartD3 {
     // reachability is 1 dimmention list.
     constructor(reachability, width, height, padding) {
         let dataset = reachability.map(function (v, i) { return (v == "inf" ? [i, 0] : [i, v]); });
+        console.log(dataset);
         super(dataset, width, height, padding);
     }
 }
@@ -108,17 +124,13 @@ function get_reachability(){
     }).then((response) => {
         return response.json();
     }).then((reach_json) => {
-        console.log(reach_json);
         let temp = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
-        temp.reachability_plot("d3plot")
+        temp.status();
+        temp.reachability_plot("#d3plot")
     }).catch((e) => {
         console.log(e);
     });
 };
 
-
-
-window.onload = function () {
-    console.log("d3 neko")
-    get_reachability()
-}
+console.log("d3 neko");
+get_reachability()

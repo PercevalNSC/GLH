@@ -6,7 +6,7 @@ DB_URL = "mongodb://127.0.0.1:27017"
 GLH_DB_NAME = "glh_db"
 GLH_CLCT_NAME = "glh_clct_1"
 REACH_DB_NAME = "glh_reach"
-REACH_CLCT_NAME = "data1"
+REACH_CLCT_NAME = "data2"
 
 class MongoDBSetting :
     def __init__(self, db_url, db_name, collection_name) -> None:

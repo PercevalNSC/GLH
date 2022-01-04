@@ -13,6 +13,9 @@ def geocoderMap():
 @app.route('/get_center')
 def getcentermap():
     return render_template('get_center.html')
+@app.route('/reachability')
+def reach():
+    return render_template("reachabilityplot.html")
 
 # For API
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
