@@ -94,7 +94,6 @@ class BarChartD3 {
         this.padding = padding;
     }
     plot(element_id) {
-        this.status();
         // element_id is html id to draw bar chart.
         let width = this.width
         let height = this.height
@@ -146,7 +145,6 @@ class ReachabilityPlotD3 extends BarChartD3 {
     // reachability is 1 dimmention list.
     constructor(reachability, width, height, padding) {
         let dataset = reachability.map(function (v, i) { return (v == "inf" ? [i, 0] : [i, v]); });
-        console.log(dataset);
         super(dataset, width, height, padding);
     }
 }
@@ -159,7 +157,6 @@ function get_reachability(){
         return response.json();
     }).then((reach_json) => {
         let temp = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
-        temp.status();
         temp.reachability_plot("#d3plot")
     }).catch((e) => {
         console.log(e);

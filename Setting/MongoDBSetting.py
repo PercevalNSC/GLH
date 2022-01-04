@@ -4,7 +4,7 @@ from math import inf
 
 DB_URL = "mongodb://127.0.0.1:27017"
 GLH_DB_NAME = "glh_db"
-GLH_CLCT_NAME = "glh_clct_1"
+GLH_CLCT_NAME = "glh_clct_full"
 REACH_DB_NAME = "glh_reach"
 REACH_CLCT_NAME = "data2"
 

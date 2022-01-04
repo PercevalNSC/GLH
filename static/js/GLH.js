@@ -315,7 +315,8 @@ window.onload = function () {
     }
 }
 function get_window_size() {
-    return [window.innerWidth, window.innerHeight]
+    element = document.getElementById("map")
+    return [element.clientWidth, element.clientHeight]
 }
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
