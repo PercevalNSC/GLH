@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.signal import argrelmax
 import heapq
 from math import inf
 

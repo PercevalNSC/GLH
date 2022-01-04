@@ -11,22 +11,41 @@ class OPTICSData {
     }
     reachability_plot(element_id){
         let data = this.reachability
-        let temp1 = new ReachabilityPlotD3(data, WIDTH, HEIGHT, PADDING);
+        let temp1 = new ReachabilityPlotD3(
+            data, WIDTH, HEIGHT, PADDING);
         temp1.plot(element_id);
     }
-    map_scope(p1, p2){
-        zoom_data = []
-        zoom_reachability = []
-        zoom_order = []
-        out_reachability = []
-        out_ordering = []
-        skipcount = 0
-        for (let i = 0; i < this.data.length ; i++) {
+    map_scope(p0, p1){
+        let coordinates = this.coordinates
+        let reachability = this.reachability
+        let ordering = this.ordering
+        let zoom_coordinates = []
+        let zoom_reachability = []
+        let zoom_ordering = []
+        let out_reachability = []
+        let out_ordering = []
+        let skipcount = 0
+        for (let i = 0; i < this.coordinates.length ; i++) {
             if (skipcount > 0) {
                 skipcount--;
                 continue;
             }
+            if (this._is_in_map(p0, p1)) {
+                zoom_coordinates.push(coordinates[i]);
+                zoom_reachability.push(reachability[i]);
+            } else {
+                temp = this._not_in_map(i, p0, p1);
+                skipcount = temp[0]
+                zoom_coordinates.push([0, 0])
+                zoom_reachability.push(0)
+                out_reachability.push(temp[1])
+                out_ordering.push(ordering[i])
+            }
+            zoom_ordering.push(ordering[i]);
         }
+        return new ScopedOPTICSData(
+            zoom_coordinates, zoom_reachability, zoom_ordering,
+            out_reachability, out_ordering);
     }
     _is_in_map(coordinate, p0, p1){
         let x = coordinate[0];
@@ -36,6 +55,21 @@ class OPTICSData {
         } else {
             return false;
         };
+    };
+    _not_in_map(start_index, p0, p1){
+        let max_reachability = 0;
+        let coordinates = this.coordinates
+        let reachability = this.reachability
+        for(let i = start_index; i < coordinates.length; i++){
+            if (this._is_in_map(coordinates[i], p0, p1)) {
+                break;
+            }else {
+                max_reachability = Math.max(
+                    max_reachability, reachability[i]);
+            }
+        }
+        skipcount = i - start_index + 1;
+        return [skipcount, max_reachability];
     };
     status(){
         console.log(this.coordinates);
