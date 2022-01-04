@@ -1,6 +1,6 @@
 from GLHMongoDB import OPTICSConstruct
 from GLH.Clustering import OPTICSTrajectoryData
-from Setting.MongoDBSetting import MongoDBSet
+from Setting.MongoDBSetting import GLHDB
 
 
 
@@ -9,7 +9,7 @@ min_samples = 4
 construct = OPTICSConstruct(min_samples)
 all_trajectory_data = construct.clustering_obj
 optics_trajectory_data : OPTICSTrajectoryData = construct.clustering_obj.clustering
-mongodb = MongoDBSet("glh_reach", "data2")
+mongodb = GLHDB("glh_reach", "data2")
 
 optics_array = optics_trajectory_data.create_optics_arrays()
 optics_array.status()

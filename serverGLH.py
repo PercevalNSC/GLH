@@ -3,15 +3,18 @@ from GLHMongoDB import *
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 
+# For HTML
 @app.route('/')
 def home():
     return render_template('GLH.html')
+@app.route('/geocoder')
+def geocoderMap():
+    return render_template('geocoder.html', title="Flask app", framework="Flask framework")
+@app.route('/get_center')
+def getcentermap():
+    return render_template('get_center.html')
 
-@app.route('/hello/<name>')
-def hello(name = None):
-    print(name)
-    return name
-
+# For API
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
 def jsonAsSrp():
     return jsonify(GetGLHAssrp().json())
@@ -86,11 +89,15 @@ def view_port():
     size = [1080, 720]
     return jsonify(get_viewport(center, zoom, *size))
 
-@app.route('/geocoder')
-def geocoderMap():
-    return render_template('geocoder.html', title="Flask app", framework="Flask framework")
-@app.route('/get_center')
-def getcentermap():
-    return render_template('get_center.html')
+@app.route('/api/get_reachability')
+def api_get_reachability():
+    return jsonify(get_reachability())
+
+
+# test
+@app.route('/hello/<name>')
+def hello(name = None):
+    print(name)
+    return name
 
 app.run(port=8000, debug=True)

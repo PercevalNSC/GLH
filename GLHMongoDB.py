@@ -4,10 +4,12 @@ Assemble GLHLibrary and MongoDBquery, and Management clustring.
 """
 
 from GLH import *
-from GLH.GLHmodule import GeoJSON
 from GLH.GLHmodule.geo2 import getBoundsAt
-from Setting.MongoDBSetting import MongoDBSet
+from Setting.MongoDBSetting import GLHDB, ReachabilityDB
 from GLH.GLHmodule.GeoJSON import PolygonGeojson
+
+def get_reachability():
+    return ReachabilityDB().reachability_json()
 
 
 def get_dbscan_point(eps, min_samples):
@@ -25,7 +27,7 @@ def get_optics_polygon(eps, min_samples):
     std.set_eps(eps)
     return std.polygon()
 def route_path():
-    routepath = RoutePath(MongoDBSet().query({}))
+    routepath = RoutePath(GLHDB().query({}))
     routepath.createRoutePath()
     return routepath.exportGeoJson()
 
@@ -43,8 +45,8 @@ class DBSCANConstruct():
     clustering_obj = None
     def __init__(self, eps, min_samples) -> None:
         if self.clustering_obj == None :
-            as_srp_collection = MongoDBSet().assrp_query()
-            pv_srp_collection = MongoDBSet().pvsrp_query()
+            as_srp_collection = GLHDB().assrp_query()
+            pv_srp_collection = GLHDB().pvsrp_query()
             DBSCANConstruct.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
             self.set_dbscan(eps, min_samples)
     def set_dbscan(self, eps, min_samples):
@@ -62,8 +64,8 @@ class OPTICSConstruct():
     min_samples = None
     def __init__(self, min_samples) -> None:
         if OPTICSConstruct.clustering_obj == None :
-            as_srp_collection = MongoDBSet().assrp_query()
-            pv_srp_collection = MongoDBSet().pvsrp_query()
+            as_srp_collection = GLHDB().assrp_query()
+            pv_srp_collection = GLHDB().pvsrp_query()
             OPTICSConstruct.clustering_obj = AllTrajectoryData(as_srp_collection, pv_srp_collection)
             self.set_optics(min_samples)
         else:
@@ -101,25 +103,26 @@ class GetGLHAssrp(GetGLHCollection):
     def __init__(self) -> None:
         super().__init__()
     def _get_collection(self):
-        return GLHCollectionAsSrp(MongoDBSet().assrp_query())
+        return GLHCollectionAsSrp(GLHDB().assrp_query())
 
 class GetGLHAswp(GetGLHCollection):
     def __init__(self) -> None:
         super().__init__()
     def _get_collection(self):
-        return GLHCollectionAsWp(MongoDBSet().aswp_query())
+        return GLHCollectionAsWp(GLHDB().aswp_query())
 
 class GetGLHPvsrp(GetGLHCollection):
     def __init__(self) -> None:
         super().__init__()
     def _get_collection(self):
-        return GLHCollectionPvSrp(MongoDBSet().pvsrp_query())
+        return GLHCollectionPvSrp(GLHDB().pvsrp_query())
 
 class GetGLHPvloc(GetGLHCollection):
     def __init__(self) -> None:
         super().__init__()
     def _get_collection(self):
-        return GLHCollectionPvLoc(MongoDBSet().pvlocation_query())
+        return GLHCollectionPvLoc(GLHDB().pvlocation_query())
 
 if __name__=="__main__":
     print("neko")
+    print(get_reachability())
