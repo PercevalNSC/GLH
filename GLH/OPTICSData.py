@@ -72,7 +72,6 @@ class OPTICSArrays :
     def reachability_resolution(self, cluster_n :int) -> int:
         # print(heapq.nlargest(3, reachability))
         largest_boundary = self._max_include_inf_list(self._clustering_boundary(), cluster_n)
-        print(largest_boundary)
         return largest_boundary[0] - largest_boundary[-1]
     
     def continuous_resolution(self, cluster_ns :int):
@@ -152,7 +151,6 @@ class OPTICSArrays :
                 maxreachability = max(maxreachability, self.reachability[i])
     
         skipcount = i - start_index - 1
-        #print("i:", i, "index:", start_index, skipcount)
         return [maxreachability, skipcount]
 
     def _geography_reachability(self, euclid_reachability):
@@ -223,7 +221,7 @@ class ScopedOPTICSArrays(OPTICSArrays):
             print("Reachability Plot ...")
             space = list(range(len(self.reachability)))
             out_space = self._search_reachability_index(self.ordering, self.out_order)
-            out_reach = self.resize_out_reachability(self.out_reachability, self.reachability)
+            out_reach = self.out_reachability
             out_reachability_figure(space, self.reachability, out_space, out_reach, "reachability_in_OPTICSArrays" + str(OPTICSArrays.plot_count), eps)
             OPTICSArrays.plot_count += 1
         else:

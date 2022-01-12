@@ -7,7 +7,8 @@ mpl.rcParams['agg.path.chunksize'] = 10000
 
 
 SAVEPATH= "./images/"
-FIGURE_DPI = 800
+FIGURE_DPI = 200
+FIGURE_SIZE =[8, 4]
 
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
@@ -82,28 +83,30 @@ def cluster_figure(cluster_data, name = "No title", ylabel = "No ylabel"):
     ax.scatter(cl_data[:, 0], cl_data[:, 1])
     fig.savefig(SAVEPATH + name + ".png")
 
-def reachability_figure(space, reachability, name, eps = 0, xlabel = "space", ylabel = "reachability"):
+def reachability_figure(space, reachability, name, eps = 0, xlabel = "order", ylabel = "reachability[km]"):
     n_label = "[n = " + str(len(space)) + "]"
-    fig = plt.figure(dpi=FIGURE_DPI)
+    fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
+    axis.set_ylim([0, 40])
 
     axis.bar(space, reachability, label = "reachability", width = 1.0)
     _add_eps_line(axis, eps, 0, space[-1])
 
-    axis.legend(loc='center left')
+    #axis.legend(loc='center left')
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
-def out_reachability_figure(space, reachability, out_space, out_reachability, name, eps = 0, xlabel = "space", ylabel = "reachability"):
+def out_reachability_figure(space, reachability, out_space, out_reachability, name, eps = 0, xlabel = "order", ylabel = "reachability[km]"):
     n_label = "[n = " + str(len(space)) + "]"
-    fig = plt.figure(dpi=FIGURE_DPI)
+    fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
+    axis.set_ylim([0, max(reachability)*1.1])
 
     axis.bar(space, reachability, label = "reachability", width=1.0)
-    _add_eps_line(axis, eps, 0, space[-1])
+    #_add_eps_line(axis, eps, 0, space[-1])
     axis.bar(out_space, out_reachability, label = "out_data", color='red', alpha = 0.4, width = 1.0)
 
-    axis.legend(loc='center left')
+    #axis.legend(loc='center left')
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
@@ -115,8 +118,8 @@ def resolution_plot(cluster_numbers, resolutions, name = ""):
     xlabel = "number of cluster"
     ylabel = "resolution"
     fig = plt.figure(dpi=FIGURE_DPI)
-    axis : plt.Axes = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
-    axis.bar(cluster_numbers, resolutions, label="resolution")
+    axis = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    axis.plot(cluster_numbers, resolutions, label="resolution")
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
