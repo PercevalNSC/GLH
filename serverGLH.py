@@ -16,6 +16,9 @@ def getcentermap():
 @app.route('/reachability')
 def reach():
     return render_template("reachabilityplot.html")
+@app.route('/map')
+def map():
+    return render_template("map.html")
 
 # For API
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')

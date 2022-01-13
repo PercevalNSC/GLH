@@ -95,7 +95,6 @@ map.on('load', function () {
     pvSrpPoint("pink", convert_visibility(clustering_param.pvsrp));
     pvLocationPoint("white", convert_visibility(clustering_param.pvloc));
     optics_polygon(0.1);
-    get_reachability(map);
 
 });
 
@@ -131,9 +130,6 @@ window.onload = function () {
         clustering_param.optics = bool;
         visible_control(bool, "optics_polygonoutline");
     });
-    gui.add(clustering_param, 'plot').onChange(function (bool) {
-        display_control(bool, "d3plot");
-    });
     gui.add(clustering_param, 'legend').onChange(function (bool) {
         display_control(bool, "state-legend");
     })
@@ -146,6 +142,5 @@ window.onload = function () {
             console.log(clustering_param);
         };
     });
-    display_control(clustering_param.plot, 'd3plot');
     display_control(clustering_param.legend, 'state-legend');
 }

@@ -5,9 +5,9 @@ from GLH.OPTICSData import ClusterResolution
 
 geo_distance = 0.1
 min_samples = 4
-center = [139.545, 35.655]
-#center = [139.075, 36.376]
-zoom = 15
+#center = [139.545, 35.655]
+center = [139.075, 36.376]
+zoom = 14
 window_size = [1536, 565]
 cluster_size = 10
 
