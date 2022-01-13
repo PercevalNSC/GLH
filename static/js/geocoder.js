@@ -1,11 +1,13 @@
+centers = {"chofu": [139.545, 35.655]};
+init_zoom = 15;
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v11', // マップのスタイル（デザイン）
-    center: [139.5446, 35.6518], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
-    zoom: 11 // 初期に表示する地図のズームレベル
+    center: centers["chofu"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
+    zoom: init_zoom // 初期に表示する地図のズームレベル
 });
 
 var coordinatesGeocoder = function (query) {

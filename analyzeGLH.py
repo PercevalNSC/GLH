@@ -1,11 +1,12 @@
 import GLH.GLHmodule.Plotfigure as pf
-from Setting.MongoDBSetting import MongoDBSet
+from Setting.MongoDBSetting import GLHDB
 from GLH import GLH
     
-# MongoDBQueryを取得して差分リストを返す
 def elementList(segment, element, limit = 0):
+    """ get GLHData and return different list
+    """
     query = { segment + ".simplifiedRawPath" : {"$exists": True}}
-    corsor = MongoDBSet().query(query, limit)
+    corsor = GLHDB().query(query, limit)
     collection = GLH.GLHCollection(corsor, segment, "", "") # differenceListはelementを使用しないのでダミーで渡す
     return  [doc[element] for doc in collection.differenceList()]
 
@@ -18,7 +19,7 @@ def distDurationList(segments, elements, limits):
     return dist_duration_list
 
 def pVSRPSpread():
-    collection = GLH.GLHCollectionPvSrp(MongoDBSet().pvsrp_query())
+    collection = GLH.GLHCollectionPvSrp(GLHDB().pvsrp_query())
     return collection.regionDurationList()
   
 if __name__ == '__main__' :
@@ -27,7 +28,7 @@ if __name__ == '__main__' :
     limits= [0, 0]
     elements = ["dist", "duration"]
 
-    MongoDBSet().stat()
+    GLHDB().stat()
 
     dist_duration_list = distDurationList(segments, elements, limits)
 

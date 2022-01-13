@@ -1,8 +1,8 @@
-from GLHmodule.geo2 import distance as g2dist
-from GLHmodule.Caliper import gravityPointDistance
-from GLHmodule.GeoJSON import PointGeojson, LineGeojson
-from GLHmodule.Plotfigure import coordinatesFigure
-from GLHmodule.Clustering import TrajectoryData, KNNFindPoint
+from GLH.GLHmodule.geo2 import distance as g2dist
+from GLH.GLHmodule.Caliper import gravityPointDistance
+from GLH.GLHmodule.GeoJSON import PointGeojson, LineGeojson, PolygonGeojson
+from GLH.GLHmodule.Plotfigure import coordinatesFigure
+from GLH.Clustering import TrajectoryData, KNNFindPoint
 import pprint
 
 #TODO: fix names by PEP8
@@ -32,14 +32,24 @@ class GLHPoints():
         return [[p["latE7"], p["lngE7"]] for p in self.points]
 
 class GLHDocument():
+    """
+    GLHDocument is parent class of GLH documents.
+    GLHDocument -> GLHDocumentAs, GLHDocumentPv
+    """
     def __init__(self, document, segment):
         self.document = document
         self.segment = segment
 
     def trajectoryList(self, element1, element2):
+        """
+        return trajectory data used document[element1][element2]
+        """
         return [ [item["lngE7"], item["latE7"], item["timestampMs"]] for item in self.document[self.segment][element1][element2]]
 
     def trajectryListNoTimestamp(self, element1, element2):
+        """
+        return trajectory data without timestamp 
+        """
         return [ [item["lngE7"], item["latE7"], "NULL"] for item in self.document[self.segment][element1][element2]]
 
 class GLHDocumentAs(GLHDocument):
@@ -53,6 +63,9 @@ class GLHDocumentPv(GLHDocument):
         super().__init__(document, segment)
     
     def locationList(self):
+        """
+        return [lat, lng, timetamp] of a location in a placeVisit document 
+        """
         location = self.document[self.segment]["location"]
         duration = self.document[self.segment]["duration"]
         timestamp = int((duration["startTimestampMs"] + duration["endTimestampMs"])/2)
@@ -62,10 +75,17 @@ class GLHDocumentPv(GLHDocument):
             return []
 
     def locationDuration(self):
+        """
+        return time of location
+        """
         duration = self.document[self.segment]["duration"]
         return duration["endTimestampMs"] - duration["startTimestampMs"]
     # 空間的大きさと時間のリスト、１点しか無ければ空のリスト
     def regionDuration(self):
+        """
+        return a list of [spatial size, duration] in a document
+        if document has only one point, return no item list
+        """
         points = GLHPoints(self.points())
         if points.len() < 2 :
             return []
@@ -83,6 +103,10 @@ class GLHDocumentPv(GLHDocument):
         return self.document[self.segment]["simplifiedRawPath"]["points"]
 
 class GLHCollection():
+    """
+    Parent class of GLH collections
+    GLHcollection -> AsSrp, AsWp, PvSrp, PvLoc
+    """
     def __init__(self, collection, segment, element1, element2):
         self.collection = collection
         self.segment = segment
@@ -91,6 +115,9 @@ class GLHCollection():
         self.trajectry_list = []
     
     def differenceList(self):
+        """
+        simplifiedRawPathの差分のリスト
+        """
         result = []
 
         for doc in self.collection :
@@ -209,26 +236,53 @@ class RoutePath :
 
 class GLHTrajectoryData():
     def __init__(self, collection) -> None:
-        self.glhtrajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
+        self.trajectorydata : TrajectoryData = self._trajectorydataCostructor(collection)
+        self.clustering = None
 
     def _trajectorydataCostructor(self, collection):
         return TrajectoryData([])
     
-    def dbscan(self, eps, min_samples):
-        self.clustering = self.glhtrajectorydata.dbscan(eps, min_samples)
-        path = "ClusterPoint"
-        geojsonObj = LineGeojson(path, self.clustering.labelPoint())
+    def labeled_trajectory_data(self):
+        labeled_list = self.clustering.labeled_trajectory_list()
+        for i in labeled_list :
+            print(i[0], i[1])
+        return labeled_list
+    def cluster_point(self):
+        if self.clustering == None :
+            print("No clustring object")
+            return {}
+        path = "Cluster Point for DBSCAN"
+        geojsonObj = PointGeojson(path, self.clustering.cluster_point_coords())
         return geojsonObj.geojson
+    def cluster_polygon(self):
+        if self.clustering == None :
+            print("No clustring object")
+            return {}
+        path = "Cluster Polygon for DBSCAN"
+        label_polygons = self.clustering.cluster_polygon_coords()
+        geojsonObj = PolygonGeojson(path, label_polygons)
+        return geojsonObj.geojson
+    def dbscan(self, eps, min_samples):
+        self.clustering = self.trajectorydata.to_dbscan(eps, min_samples)
+        #self.clustering = self.trajectorydata.dbscan(eps, min_samples)
+    def optics(self, min_samples):
+        self.clustering = self.trajectorydata.to_optics(min_samples)
+        #self.clustering = self.trajectorydata.optics(min_samples)
+    def optics_set_eps(self, eps):
+        self.clustering.set_eps(eps)
     
+    def map_scope(self, p1, p2):
+        return self.trajectorydata.map_scope(p1, p2)
+
     def exportGeojson(self):
-        coordinates = [x[:2] for x in self.glhtrajectorydata]
+        coordinates = [x[:2] for x in self.trajectorydata]
         path = "trajectry_data"
         geojsonObj = LineGeojson(path, coordinates)
         return geojsonObj.geojson
     def exportFigure(self):
-        coordinatesFigure(self.glhtrajectorydata, "clustering")
+        coordinatesFigure(self.trajectorydata, "clustering")
     def print(self):
-        pprint.pprint(self.glhtrajectorydata)
+        pprint.pprint(self.trajectorydata)
 
 class ASTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection) -> None:
@@ -246,10 +300,10 @@ class PVTrajectoryData(GLHTrajectoryData):
 
 class AllTrajectoryData(GLHTrajectoryData):
     def __init__(self, collection1, collection2) -> None:
-        self.glhtrajectorydata = self._trajectorydataCostructor(collection1, collection2)
+        self.trajectorydata = self._trajectorydataCostructor(collection1, collection2)
     def _trajectorydataCostructor(self, assrp_collection,pvsrp_collection):
-        assrp_trajectorydata = ASTrajectoryData(assrp_collection).glhtrajectorydata.trajectorydata.tolist()
-        pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).glhtrajectorydata.trajectorydata.tolist()
+        assrp_trajectorydata = ASTrajectoryData(assrp_collection).trajectorydata.trajectorydata.tolist()
+        pvsrp_trajectorydata = PVTrajectoryData(pvsrp_collection).trajectorydata.trajectorydata.tolist()
         trajectorydata = assrp_trajectorydata + pvsrp_trajectorydata
         return TrajectoryData(sorted(trajectorydata, key=lambda x: x[2]))
 
@@ -267,3 +321,6 @@ class GLHFindPoint():
 def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
+
+if __name__ == "__main__":
+    print("neko")

@@ -1,5 +1,5 @@
 # coding: utf-8
-# Author: Keita Watanabe(UEC, Fujita Lab, B4)
+# Author: Keita Watanabe(UEC, Fujita Lab)
 # version: 0.1.1(alpha.block1)
 
 import math
@@ -46,7 +46,13 @@ class Pixel :
         n = math.pi - 2 * math.pi * self.y * math.pow(2, - self.z) / 512
         return [self.x * math.pow(2, - self.z) / 512 * 360 - 180, (180 / math.pi * math.atan(0.5 * (math.exp(n) - math.exp(-n))))]
 
+TOKYO_1LNG = (1.51985 + 1.85225) * 30
+TOKYO_1LNG1 = 1.51985 * 60
+TOKYO_1LNG2 = 1.85225 * 60
 
-if __name__ == "__main__" :
-    coordinate = [135.2, 37.2]
-    Coordinate(*coordinate).print()
+def euclid_to_geography(euclid_dist):
+    return euclid_dist * TOKYO_1LNG #(km)
+
+def geography_to_euclid(geography_dist):
+    # input (km)
+    return geography_dist / TOKYO_1LNG

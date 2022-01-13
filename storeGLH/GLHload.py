@@ -101,17 +101,3 @@ class GLHinit:
             print("-----")
             print(self.dict)
         
-if __name__ == '__main__' :
-    import json
-
-    with open('2018_APRIL_2.json', 'r') as f : 
-        dict = json.load(f)
-
-    glhload = GLHinit(dict)
-    glhload.glhinit()
-
-    #activitysegment1 = ActivitySegment(dict['timelineObjects'][0]['activitySegment'])
-    #activitysegment1.initActivitySegment()
-
-    #placevisit1 = PlaceVisit(dict["timelineObjects"][1]["placeVisit"])
-    #placevisit1.initPlaceVisit()
