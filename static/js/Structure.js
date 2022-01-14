@@ -22,7 +22,8 @@ function addManyMarkers(map, lnglatlist, color = "blue") {
 }
 
 class DrawStructure {
-    constructor(url, id, color, opacity, visibility) {
+    constructor(map, url, id, color, opacity, visibility) {
+        this.map = map;
         this.url = url;
         this.id = id;
         this.color = color;
@@ -30,7 +31,7 @@ class DrawStructure {
         this.visibility = visibility;
     }
     add_structure() {
-        fetch(url, {
+        fetch(this.url, {
             mode: 'cors'
         }).then((response) => {
             return response.json();
@@ -47,14 +48,14 @@ class DrawStructure {
 
     }
     _add_source(geojson) {
-        map.addSource(this.id, {
+        this.map.addSource(this.id, {
             'type': 'geojson',
             'data': geojson
         });
     }
     _add_layer() {
         // specified structure
-        map.addLayer({
+        this.map.addLayer({
             'id': this.id,
             'source': this.id,
             'type': 'circle',
@@ -67,12 +68,12 @@ class DrawStructure {
 }
 
 class DrawPoints extends DrawStructure {
-    constructor(url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible') {
-        super(url, id, color, opacity, visibility);
+    constructor(map, url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible') {
+        super(map, url, id, color, opacity, visibility);
         this.radius = radius
     }
     _add_layer() {
-        map.addLayer({
+        this.map.addLayer({
             'id': this.id,
             'source': this.id,
             'type': 'circle',
@@ -89,57 +90,57 @@ class DrawPoints extends DrawStructure {
         this._click_popup();
     }
     _click_popup() {
-        map.on('click', this.id, function (e) {
+        this.map.on('click', this.id, function (e) {
             var coordinates = e.features[0].geometry.coordinates.slice();
             var date = new Date(e.features[0].properties.timestamp)
             var description = "Timestamp:" + date.toString();
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
                 .setHTML(description)
-                .addTo(map);
+                .addTo(this.map);
         });
     }
 }
-function asSrpPoint(color = "blue", visibility = "visible") {
-    url = "http://localhost:8000/api/geojson/point/activitySegment.simplifiedRawPath"
-    let as_srp_point = new DrawPoints(url, "AsSrp");
+function asSrpPoint(map, color = "blue", visibility = "visible") {
+    let url = "http://localhost:8000/api/geojson/point/activitySegment.simplifiedRawPath"
+    let as_srp_point = new DrawPoints(map, url, "AsSrp");
     as_srp_point.color = color
     as_srp_point.visibility = visibility
     as_srp_point.add_structure();
 }
-function asWpPoint(color = "pink", visibility = "visible") {
-    url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
-    let as_wp_point = new DrawPoints(url, "AsWp");
+function asWpPoint(map, color = "pink", visibility = "visible") {
+    let url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
+    let as_wp_point = new DrawPoints(map, url, "AsWp");
     as_wp_point.color = color;
     as_wp_point.visibility = visibility;
     as_wp_point.add_structure();
 }
-function pvSrpPoint(color = "yellow", visibility = "visible") {
-    url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
-    let pv_srp_point = new DrawPoints(url, "PvSrp");
+function pvSrpPoint(map, color = "yellow", visibility = "visible") {
+    let url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
+    let pv_srp_point = new DrawPoints(map, url, "PvSrp");
     pv_srp_point.color = color;
     pv_srp_point.visibility = visibility;
     pv_srp_point.add_structure();
 }
-function pvLocationPoint(color = "white", visibility = "visible") {
-    url = "http://localhost:8000/api/geojson/point/placeVisit.location"
-    let pv_location = new DrawPoints(url, "PvLoc", color = color, radius = 6, opacity = 1, visibility = visibility);
+function pvLocationPoint(map, color = "white", visibility = "visible") {
+    let url = "http://localhost:8000/api/geojson/point/placeVisit.location"
+    let pv_location = new DrawPoints(map, url, "PvLoc", color, 6, 1, visibility);
     pv_location.add_structure();
 }
-function dbscan_point(color = "red", visibility = "visible") {
-    url = "http://localhost:8000/api/geojson/point/dbscan"
-    let dbscan_point = new DrawPoints(url, "dbscan_point");
+function dbscan_point(map, color = "red", visibility = "visible") {
+    let url = "http://localhost:8000/api/geojson/point/dbscan"
+    let dbscan_point = new DrawPoints(map, url, "dbscan_point");
     dbscan_point.color = color;
     dbscan_point.visibility = visibility;
     dbscan_point.add_structure();
 }
 class DrawLine extends DrawStructure {
-    constructor(url, id, color = 'black', width = 1, opacity = 0.5, visibility = 'visible') {
-        super(url, id, color, opacity, visibility);
+    constructor(map, url, id, color = 'black', width = 1, opacity = 0.5, visibility = 'visible') {
+        super(map, url, id, color, opacity, visibility);
         this.witdh = width
     }
     _add_layer() {
-        map.addLayer({
+        this.map.addLayer({
             'id': this.id,
             'type': 'line',
             'source': this.id,
@@ -157,16 +158,16 @@ class DrawLine extends DrawStructure {
     }
 }
 
-function add_routepath(color = 'gray', visibility = "visible", opacity = 0.5, width = 1) {
-    url = "http://localhost:8000/api/geojson/line/route"
-    id = "routepath"
-    let routepath = new DrawLine(url, id, color, width, opacity, visibility);
+function add_routepath(map, color = 'gray', visibility = "visible", opacity = 0.5, width = 1) {
+    let url = "http://localhost:8000/api/geojson/line/route"
+    let id = "routepath"
+    let routepath = new DrawLine(map, url, id, color, width, opacity, visibility);
     routepath.add_structure();
 }
 
 class DrawPolygon extends DrawStructure {
-    constructor(url, id, fillcolor = "white", linecolor = "black", width = 3, opacity = 0.5, visibility = "visivle") {
-        super(url, id, fillcolor, opacity, visibility);
+    constructor(map, url, id, fillcolor = "white", linecolor = "black", width = 3, opacity = 0.5, visibility = "visivle") {
+        super(map, url, id, fillcolor, opacity, visibility);
         this.linecolor = linecolor;
         this.width = width;
     }
@@ -177,7 +178,7 @@ class DrawPolygon extends DrawStructure {
         this._add_surround_layer();
     }
     _add_fill_layer() {
-        map.addLayer({
+        this.map.addLayer({
             'id': this.id + "fill",
             'type': 'fill',
             'source': this.id, // reference the data source
@@ -189,7 +190,7 @@ class DrawPolygon extends DrawStructure {
         });
     }
     _add_surround_layer() {
-        map.addLayer({
+        this.map.addLayer({
             'id': this.id + "outline",
             'type': 'line',
             'source': this.id,
@@ -202,21 +203,23 @@ class DrawPolygon extends DrawStructure {
     }
 }
 
-function dbscan_polygon(fillcolor = "None", linecolor = "black") {
-    url = "http://localhost:8000/api/geojson/polygon/dbscan"
-    id = "dbscan_polygon"
-    let dbscan_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 3, 0.5)
+function dbscan_polygon(map, fillcolor = "None", linecolor = "black") {
+    let url = "http://localhost:8000/api/geojson/polygon/dbscan"
+    let id = "dbscan_polygon"
+    let dbscan_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 3, 0.5)
     dbscan_polygon.add_structure();
 }
-function optics_polygon(eps = 1.0, fillcolor = "None", linecolor = "black") {
-    url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
-    id = "optics_polygon"
-    let optics_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 3, 0.6);
+function optics_polygon(map, eps = 1.0, fillcolor = "None", linecolor = "black") {
+    let url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
+    let id = "optics_polygon"
+    let optics_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 3, 0.6);
     optics_polygon.add_structure();
 }
-function viewport_polygon(fillcolor = "None", linecolor = "gray") {
-    url = "http://localhost:8000/api/geojson/viewport";
-    id = "viewport";
-    let viewport_polygon = new DrawPolygon(url, id, fillcolor, linecolor, 2, 0.3);
+function viewport_polygon(map, fillcolor = "None", linecolor = "gray") {
+    let url = "http://localhost:8000/api/geojson/viewport";
+    let id = "viewport";
+    let viewport_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 2, 0.3);
     viewport_polygon.add_structure();
 }
+
+export {asSrpPoint, asWpPoint, pvSrpPoint, pvLocationPoint, dbscan_point, add_routepath, dbscan_polygon, optics_polygon, viewport_polygon};

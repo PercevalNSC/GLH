@@ -1,10 +1,12 @@
 // d3plot.js
 
+import {get_left_bottom, get_right_top} from "./Map.js"
+
 console.log("d3 neko");
 
-let margin = 8
-let WIDTH = document.getElementById("d3plot").clientWidth - margin;
-let HEIGHT = document.getElementById("d3plot").clientHeight - margin;
+let MARGIN = 8
+let WIDTH = document.getElementById("d3plot").clientWidth - MARGIN;
+let HEIGHT = document.getElementById("d3plot").clientHeight - MARGIN;
 let PADDING = 40;
 
 class OPTICSData {
@@ -203,7 +205,7 @@ class ReachabilityPlotD3 extends BarChartD3 {
 }
 
 function get_reachability(map) {
-    url = "http://localhost:8000/api/get_reachability"
+    let url = "http://localhost:8000/api/get_reachability"
     fetch(url, {
         mode: 'cors'
     }).then((response) => {
@@ -220,3 +222,5 @@ function get_reachability(map) {
         console.log(e);
     });
 };
+
+export {get_reachability};
