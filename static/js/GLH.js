@@ -39,7 +39,7 @@ function set_eps(eps) {
     // TODO
     map.removeLayer("optics_polygonoutline")
     map.removeSource("optics_polygon")
-    optics_polygon(eps)
+    Structure.optics_polygon(map, eps)
 }
 
 

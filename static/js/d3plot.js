@@ -1,12 +1,13 @@
 // d3plot.js
 
-import {get_left_bottom, get_right_top} from "./Map.js"
+import { get_left_bottom, get_right_top } from "./Map.js"
 
 console.log("d3 neko");
 
 let MARGIN = 8
-let WIDTH = document.getElementById("d3plot").clientWidth - MARGIN;
-let HEIGHT = document.getElementById("d3plot").clientHeight - MARGIN;
+let ID = "d3plot"
+let WIDTH = document.getElementById(ID).clientWidth - MARGIN;
+let HEIGHT = document.getElementById(ID).clientHeight - MARGIN;
 let PADDING = 40;
 
 class OPTICSData {
@@ -29,26 +30,27 @@ class OPTICSData {
         let zoom_reachability = []
         let zoom_ordering = []
         let out_ordering = []
-        let skipcount = 0
-        for (let i = 0; i < this.coordinates.length; i++) {
-            if (skipcount > 0) {
-                skipcount--;
-                continue;
-            }
-            if (this._is_in_map(coordinates[i], p0, p1)) {
-                zoom_coordinates.push(coordinates[i]);
+        let out_max_reachability = 0
+        coordinates.forEach((coordinate, i) => {
+            if (this._is_in_map(coordinate, p0, p1)) {
+                if (out_max_reachability != 0) {
+                    // add virtual point 
+                    zoom_coordinates.push([0, 0]);
+                    zoom_reachability.push(out_max_reachability);
+                    zoom_ordering.push(ordering[i - 1]);
+                    out_ordering.push(ordering[i - 1])
+                };
+                // add in map point
+                zoom_coordinates.push(coordinate);
                 zoom_reachability.push(reachability[i]);
                 zoom_ordering.push(ordering[i]);
+                out_max_reachability = 0;
             } else {
-                let temp = this._not_in_map(i, p0, p1);
-                skipcount = temp[0]
-                zoom_coordinates.push([0, 0])
-                zoom_reachability.push(temp[1])
-                zoom_ordering.push(ordering[i]);
-                out_ordering.push(ordering[i])
-            }
-
-        }
+                if (reachability[i] != "inf") {
+                    out_max_reachability = Math.max(out_max_reachability, reachability[i]);
+                };
+            };
+        })
         return new ScopedOPTICSData(
             zoom_coordinates, zoom_reachability, zoom_ordering,
             out_ordering);
@@ -61,26 +63,6 @@ class OPTICSData {
         } else {
             return false;
         };
-    };
-    _not_in_map(start_index, p0, p1) {
-        let max_reachability = 0;
-        let coordinates = this.coordinates
-        let reachability = this.reachability
-        let i = start_index
-        for (; i < coordinates.length; i++) {
-            if (this._is_in_map(coordinates[i], p0, p1)) {
-                break;
-            } else {
-                if (reachability[i] == "inf") {
-                    max_reachability = Math.max(max_reachability, 0)
-                } else {
-                    max_reachability = Math.max(max_reachability, reachability[i]);
-                }
-
-            }
-        }
-        let skipcount = i - start_index - 1;
-        return [skipcount, max_reachability];
     };
     status() {
         console.log("Coordinates:", this.coordinates);
@@ -159,6 +141,7 @@ class BarChartD3 {
         // setting axis scale
         let ticks = 5;
         let offset = Math.floor(this.dataset.length / ticks)
+        console.log(offset, this.dataset.length / ticks)
         var xScale = d3.scaleBand()
             .padding(0)
             .domain(this.dataset.map(function (d) { return d[0]; }))
@@ -223,4 +206,4 @@ function get_reachability(map) {
     });
 };
 
-export {get_reachability};
+export { get_reachability };
