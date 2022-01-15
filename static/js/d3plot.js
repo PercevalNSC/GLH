@@ -20,7 +20,7 @@ class OPTICSData {
         let data = this.reachability
         let plot_obj = new ReachabilityPlotD3(data, WIDTH, HEIGHT, PADDING);
         plot_obj.plot(element_id);
-    }
+    };
     map_scope(p0, p1) {
         console.log("map scope by", p0, p1);
         let coordinates = this.coordinates
@@ -54,7 +54,7 @@ class OPTICSData {
         return new ScopedOPTICSData(
             zoom_coordinates, zoom_reachability, zoom_ordering,
             out_ordering);
-    }
+    };
     _is_in_map(coordinate, p0, p1) {
         let x = coordinate[0];
         let y = coordinate[1];
@@ -64,11 +64,37 @@ class OPTICSData {
             return false;
         };
     };
+
+    // 降順の凸の高さのリスト
+    pick_boundary(reachability){
+        let boundary_list = []
+        let down_index_list = []
+        let last = reachability.length - 1
+        for (let i = 1; i < last; i++){
+            if (reachability[i] > reachability[i+1]) {
+                down_index_list.push(i);
+            };
+        };
+        for (let down_index of down_index_list) {
+            if (reachability[down_index-1] < reachability[down_index]){
+                boundary_list.push(reachability[down_index]);
+            };
+        };
+        if (reachability[0] >= reachability[1] ){
+            boundary_list.push(reachability[0]);
+        };
+        if ( reachability[last - 1] <= reachability[last]) {
+            boundary_list.push(reachability[last]);
+        };
+        
+        return boundary_list;
+    }
+
     status() {
         console.log("Coordinates:", this.coordinates);
         console.log("Reachability:", this.reachability);
         console.log("Ordering:", this.ordering);
-    }
+    };
 }
 class ScopedOPTICSData extends OPTICSData {
     constructor(coordinates, reachability, ordering, out_ordering) {
