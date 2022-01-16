@@ -86,9 +86,9 @@ class OPTICSData {
         if ( reachability[last - 1] <= reachability[last]) {
             boundary_list.push(reachability[last]);
         };
-        
         return boundary_list;
     }
+
 
     status() {
         console.log("Coordinates:", this.coordinates);
@@ -224,6 +224,7 @@ function get_reachability(map) {
         let p1 = get_right_top(map);
         let optics_data = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
         //optics_data.status()
+        console.log("pick boundary:", optics_data.pick_boundary(optics_data.reachability))
         let scope_data = optics_data.map_scope(p0, p1);
         scope_data.status();
         scope_data.reachability_plot("#d3plot");

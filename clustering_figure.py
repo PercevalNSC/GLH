@@ -8,8 +8,9 @@ min_samples = 4
 #center = [139.545, 35.655]
 center = [139.075, 36.376]
 zoom = 14
-window_size = [1536, 565]
-cluster_size = 10
+#window_size = [1536, 565]
+window_size = [771, 571]
+cluster_size = 20
 
 construct = OPTICSConstruct(min_samples)
 all_trajectory_data = construct.clustering_obj
