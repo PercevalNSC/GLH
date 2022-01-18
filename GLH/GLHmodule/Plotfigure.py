@@ -123,6 +123,18 @@ def resolution_plot(cluster_numbers, resolutions, name = ""):
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
 
+def compare_resolution_plot(res1, res2, name = "") :
+    assert len(res1) == len(res2), "Invaild length, res1 and res2"
+    cluster_numbers = list(range(1, len(res1)+1, 1))
+    xlabel = "number of cluster"
+    ylabel = "resolution"
+    fig = plt.figure(dpi=FIGURE_DPI)
+    axis = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
+    axis.plot(cluster_numbers, res1, label="resolution")
+    axis.plot(cluster_numbers, res2, label="resolution")
+    fig.savefig(SAVEPATH + name + ".png")
+    print("Output: " + name + ".png")
+
 def fig_output(fig :plt.Figure, name :str):
     fig.savefig(SAVEPATH + name + ".png")
     print("Output: " + name + ".png")
