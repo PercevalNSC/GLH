@@ -1,10 +1,9 @@
+from inspect import stack
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker
 import matplotlib as mpl
 mpl.rcParams['agg.path.chunksize'] = 10000
-
-
 
 SAVEPATH= "./images/"
 FIGURE_DPI = 200
@@ -100,7 +99,7 @@ def out_reachability_figure(space, reachability, out_space, out_reachability, na
     n_label = "[n = " + str(len(space)) + "]"
     fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
-    axis.set_ylim([0, max(reachability)*1.1])
+    axis.set_ylim([0, max(reachability)*1.01])
 
     axis.bar(space, reachability, label = "reachability", width=1.0)
     #_add_eps_line(axis, eps, 0, space[-1])

@@ -4,13 +4,13 @@ console.log("map neko");
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 let centers = { "chofu": [139.545, 35.655], "shibuya": [139.65, 35.65], "maebashi": [139.075, 36.376]};
-let init_zoom = 14;
+let init_zoom = [14, 11, 8, 7, 5];
 
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/kwatanabe1998/ckwvzytdk7ixc14o53kanjxs8',
     center: centers["maebashi"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
-    zoom: init_zoom, // 初期に表示する地図のズームレベル
+    zoom: init_zoom[2], // 初期に表示する地図のズームレベル
     scrollZoom: false
 });
 

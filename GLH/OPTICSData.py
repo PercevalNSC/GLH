@@ -1,4 +1,3 @@
-from mimetypes import init
 import numpy as np
 import heapq
 from math import inf, isinf
@@ -45,6 +44,11 @@ class OPTICSArrays :
             else :
                 if self.reachability[i] != inf :
                     maxreach = max(maxreach, self.reachability[i])
+                if i == len(self.datalist)-1 :
+                    scope_data.append(np.zeros(3))
+                    scope_reachability.append(maxreach)
+                    scope_order.append(self.ordering[i])
+                    error_order.append(self.ordering[i])
         return ScopedOPTICSArrays(scope_data, scope_reachability, scope_order, error_order)
 
     def _is_in_map(self, p1, p2, data) -> bool:
@@ -98,6 +102,8 @@ class OPTICSArrays :
         for d in data:
             if d[0] != 0 or d[1] != 0:
                 temp.append(d)
+            else :
+                print("errordata:", d)
         return temp
 
     def _consistency(self):
@@ -147,7 +153,7 @@ class ScopedOPTICSArrays(OPTICSArrays):
         return  [self._compare_out_reachability(maxreach, reach) for reach in self.reachability]
     
     def _compare_out_reachability(self, maxreach, reach):
-        return maxreach if reach > maxreach else reach 
+        return 0 if reach > maxreach else reach 
     
     def _out_index_list(self) -> list:
         """ Map out_ordering to ordering index """
@@ -163,6 +169,13 @@ class ScopedOPTICSArrays(OPTICSArrays):
             result[index] = 0
         return result
 
+    def _pure_height(self) -> float:
+        pure_reachability = self._pure_reachability()
+        maxreach = heapq.nlargest(2, pure_reachability)
+        if isinf(maxreach[0]) :
+            return maxreach[1]
+        else : 
+            return maxreach[0]
 
     # Override
     def reachability_plot(self, eps = 0):
@@ -179,8 +192,7 @@ class ScopedOPTICSArrays(OPTICSArrays):
             self.status()
     
     def resolution_plot(self, size: int):
-        reachability = self.resized_reachability()
-        obj = ClusterResolution(reachability)
+        obj = ScopeClusterResolution(self.reachability, self._pure_height())
         return obj.resolution_plot(size)
 
 
@@ -208,7 +220,8 @@ class ClusterResolution():
         return init_reachability
 
     def resolution_plot(self, size: int):
-        maxreach = max(self.reachability)
+        print("Resolution Plot...")
+        maxreach = self._max_reachability()
         resolution_list = [res / maxreach for res in self.reachability_resolution(size)]
         print("max_reachability:", maxreach)
         resolution_label = range(1, len(resolution_list)+1, 1)
@@ -216,6 +229,9 @@ class ClusterResolution():
         resolution_plot(resolution_label, resolution_list, "Resoution Plot " + str(ClusterResolution.plot_count))
         ClusterResolution.plot_count += 1
         return resolution_list
+    
+    def _max_reachability(self):
+        return max(self.reachability)
 
     def reachability_resolution(self, size: int) :
         boundary_list = self.pick_boundary()
@@ -232,7 +248,7 @@ class ClusterResolution():
     def pick_boundary(self):
         boundary_list = [] 
         boundary_height = 0
-        if self.reachability[0] < self.reachability[1] :
+        if self.reachability[0] > self.reachability[1] :
             boundary_list.append(self.reachability[0])
         for i in range(1, len(self.reachability)-1, 1) :
             if self.reachability[i-1] < self.reachability[i] :
@@ -251,4 +267,17 @@ class ClusterResolution():
         for i, res in enumerate(resolution_list) :
             print("i:", i+1, "resolution:", res)
 
+class ScopeClusterResolution(ClusterResolution):
+    def __init__(self, reachability, pure_height):
+        self.pure_height = pure_height
+        super().__init__(reachability)
+    
+    #Override
 
+    def _init_reachability(self, reachability: list):
+        init_reachability = [0 if reach > self.pure_height else reach for reach in reachability]
+        return init_reachability
+    
+    def _max_reachability(self):
+        print("pure_height:", self.pure_height)
+        return self.pure_height * 1.01

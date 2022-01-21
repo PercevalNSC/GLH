@@ -17,7 +17,6 @@ class ClusteringParam {
         this.eps = 0.1
         this.printall = true
     }
-
 }
 
 const clustering_param = new ClusteringParam();

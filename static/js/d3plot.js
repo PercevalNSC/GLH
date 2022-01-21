@@ -38,7 +38,7 @@ class OPTICSData {
                     zoom_coordinates.push([0, 0]);
                     zoom_reachability.push(out_max_reachability);
                     zoom_ordering.push(ordering[i - 1]);
-                    out_ordering.push(ordering[i - 1])
+                    out_ordering.push(ordering[i - 1]);
                 };
                 // add in map point
                 zoom_coordinates.push(coordinate);
@@ -48,7 +48,13 @@ class OPTICSData {
             } else {
                 if (reachability[i] != "inf") {
                     out_max_reachability = Math.max(out_max_reachability, reachability[i]);
-                };
+                }
+                if (i == coordinate.length-1) {
+                    zoom_coordinates.push([0, 0]);
+                    zoom_reachability.push(out_max_reachability);
+                    zoom_ordering.push(ordering[i]);
+                    out_ordering.push(ordering[i]);
+                }
             };
         })
         return new ScopedOPTICSData(
