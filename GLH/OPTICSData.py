@@ -1,8 +1,7 @@
 import numpy as np
-import heapq
-from math import inf, isinf
+from math import isinf
 
-from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot
+from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot, compare_resolution_plot
 from GLH.GLHmodule.geo3 import euclid_to_geography
 
 class OPTICSArrays :
@@ -14,13 +13,19 @@ class OPTICSArrays :
         if max(ordering) == len(ordering)-1:
             print("OPTICSArray: Ordering mode")
             self.datalist = self._ordered_list(data, ordering)
-            self.reachability = self._geography_reachability(self._ordered_list(reachability, ordering))
+            self.reachability = self._init_reachability(self._ordered_list(reachability, ordering))
             self.ordering = self._init_order()
         else :
             print("OPTICSArray: Pre-ordered mode")
             self.datalist = data
             self.reachability = reachability
             self.ordering = ordering
+
+    def _init_reachability(self, ordered_reachability):
+        georeach = self._geography_reachability(ordered_reachability)
+        if isinf(georeach[0]) :
+            georeach[0] = 0
+        return georeach
 
     def map_scope(self, p1, p2):
         # Order(2n)
@@ -42,8 +47,7 @@ class OPTICSArrays :
                 scope_order.append(self.ordering[i])
                 maxreach = 0
             else :
-                if self.reachability[i] != inf :
-                    maxreach = max(maxreach, self.reachability[i])
+                maxreach = max(maxreach, self.reachability[i])
                 if i == len(self.datalist)-1 :
                     scope_data.append(np.zeros(3))
                     scope_reachability.append(maxreach)
@@ -57,6 +61,9 @@ class OPTICSArrays :
             return False
         else :
             return True
+
+    def max_reachability(self):
+        return max(self.reachability)
 
     def reachability_plot(self, eps = 0):
         if self._consistency() :
@@ -78,7 +85,7 @@ class OPTICSArrays :
     def resolution_plot(self, size :int) -> int:
         # print(heapq.nlargest(3, reachability))
         obj = ClusterResolution(self.reachability)
-        return obj.resolution_plot(size)
+        return obj.pick_boundary()[:size]
            
     def status(self):
         """ Print instance value. """
@@ -90,20 +97,11 @@ class OPTICSArrays :
         """ Return string about instance value. """
         return "Data:" + str(self.datalist) + "\nReachability:" + str(self.reachability) + "\nOrdering:" +  str(self.ordering)
 
-    def _max_include_inf_list(self, inflist :list, n :int):
-        largest = heapq.nlargest(n+1, inflist)
-        if largest[0] == inf :
-            return largest[1:]
-        else :
-            return largest[:-1]
-
     def _remove_noise(self, data):
         temp = []
         for d in data:
             if d[0] != 0 or d[1] != 0:
                 temp.append(d)
-            else :
-                print("errordata:", d)
         return temp
 
     def _consistency(self):
@@ -147,9 +145,7 @@ class ScopedOPTICSArrays(OPTICSArrays):
     
     def resized_reachability(self):
         """ Limit out_reachability height. """
-        maxreach = self._max_include_inf_list(self._pure_reachability(), 1)[0]
-        print("max_pure_reachability:", maxreach)
-        maxreach += maxreach * 0.01
+        maxreach = self.max_reachability()
         return  [self._compare_out_reachability(maxreach, reach) for reach in self.reachability]
     
     def _compare_out_reachability(self, maxreach, reach):
@@ -169,15 +165,14 @@ class ScopedOPTICSArrays(OPTICSArrays):
             result[index] = 0
         return result
 
-    def _pure_height(self) -> float:
+    def pure_height(self) -> float:
         pure_reachability = self._pure_reachability()
-        maxreach = heapq.nlargest(2, pure_reachability)
-        if isinf(maxreach[0]) :
-            return maxreach[1]
-        else : 
-            return maxreach[0]
+        return max(pure_reachability)
 
     # Override
+    def max_reachability(self):
+        return self.pure_height()*1.05
+
     def reachability_plot(self, eps = 0):
         if self._consistency() :
             print("Reachability Plot ...")
@@ -192,8 +187,8 @@ class ScopedOPTICSArrays(OPTICSArrays):
             self.status()
     
     def resolution_plot(self, size: int):
-        obj = ScopeClusterResolution(self.reachability, self._pure_height())
-        return obj.resolution_plot(size)
+        obj = ScopeClusterResolution(self.reachability, self.pure_height())
+        return obj.pick_boundary()[:size]
 
 
     def status(self):
@@ -235,7 +230,6 @@ class ClusterResolution():
 
     def reachability_resolution(self, size: int) :
         boundary_list = self.pick_boundary()
-        boundary_list.sort(reverse=True)
         #print(boundary_list)
         if size > len(boundary_list)-1 :
             size = len(boundary_list)-1
@@ -246,6 +240,7 @@ class ClusterResolution():
         return resolution_list
 
     def pick_boundary(self):
+        """Retrun sorted boundary list of reachability."""
         boundary_list = [] 
         boundary_height = 0
         if self.reachability[0] > self.reachability[1] :
@@ -261,6 +256,7 @@ class ClusterResolution():
                 continue
         if self.reachability[-2] < self.reachability[-1] :
             boundary_list.append(self.reachability[-1])
+        boundary_list.sort(reverse=True)
         return boundary_list
     
     def resolution_status(self, resolution_list) -> None:
@@ -280,4 +276,61 @@ class ScopeClusterResolution(ClusterResolution):
     
     def _max_reachability(self):
         print("pure_height:", self.pure_height)
-        return self.pure_height * 1.01
+        return self.pure_height * 1.05
+
+class CompareResolution :
+    def __init__(self, res1, res2) -> None:
+        assert len(res1) == len(res2), "invaild length"
+        self.res1 = res1
+        self.res2 = res2
+
+    def compare_resolutions(self):
+        compare_resolution_plot(self.res1, self.res2, "compare_resolutions")
+
+    def compare_stack_resolutions(self):
+        sres1 = self.stacking_list(self.res1)
+        sres2 = self.stacking_list(self.res2)
+        compare_resolution_plot(sres1, sres2, "stack_resolutions")
+
+    def compare_res(self):
+        sum = 0
+        sres1 = self.stacking_list(self.res1)
+        sres2 = self.stacking_list(self.res2)
+        for i, r in enumerate(sres1) :
+            sum += sres2[i] / r
+        return sum / len(sres1)
+
+    def stacking_list(self, resolutions):
+        sum = 0
+        result = []
+        for res in resolutions:
+            result.append(res+sum)
+            sum = res+sum
+        return result
+
+class ComparePixel :
+    def __init__(self, resolutions, height1, height2, plot_height = 960) -> None:
+        self.resolutions = resolutions
+        self.height1 = height1
+        self.height2 = height2
+        self.plot_height = plot_height
+    
+    def compare_resolution(self):
+        self._resolution_plot(self.resolutions, "compare_pixel")
+    
+    def diff_compare_resolution(self):
+        diffres = self._diff_res()
+        self._resolution_plot(diffres, "diff_pixel")
+    
+    def _resolution_plot(self, resolutions, name: str):
+        res1 = self._to_pixel(self.height1, resolutions)
+        res2 = self._to_pixel(self.height2, resolutions)
+        print("res1:", res1)
+        print("res2:", res2)
+        compare_resolution_plot(res1, res2, name)
+
+    def _to_pixel(self, height, resolutions):
+        return [res / height * self.plot_height for res in resolutions]
+    
+    def _diff_res(self):
+        return  [self.resolutions[i] - self.resolutions[i+1] for i in range(len(self.resolutions)-1)]

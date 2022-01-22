@@ -161,6 +161,7 @@ class BarChartD3 {
         this.width = width;
         this.height = height;
         this.padding = padding;
+        console.log("plot size:", width, height);
     }
     plot(element_id) {
         // element_id is html id to draw bar chart.
