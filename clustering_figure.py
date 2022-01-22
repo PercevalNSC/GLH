@@ -11,7 +11,7 @@ zoom = 14
 #window_size = [1536, 565]
 window_size = [771, 571]
 plot_size = [763, 237]
-size = 100
+size = 50
 
 construct = OPTICSConstruct(min_samples)
 all_trajectory_data = construct.clustering_obj

@@ -326,7 +326,9 @@ class ComparePixel :
         res1 = self._to_pixel(self.height1, resolutions)
         res2 = self._to_pixel(self.height2, resolutions)
         print("res1:", res1)
+        print("visualy point1:", self.count_visual_point(res1))
         print("res2:", res2)
+        print("visualy point2:", self.count_visual_point(res2))
         compare_resolution_plot(res1, res2, name)
 
     def _to_pixel(self, height, resolutions):
@@ -334,3 +336,11 @@ class ComparePixel :
     
     def _diff_res(self):
         return  [self.resolutions[i] - self.resolutions[i+1] for i in range(len(self.resolutions)-1)]
+
+    def count_visual_point(self, resolutions):
+        visual_pixel = 1
+        count = 0
+        for res in resolutions:
+            if res > visual_pixel :
+                count += 1
+        return count
