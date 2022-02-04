@@ -321,6 +321,3 @@ class GLHFindPoint():
 def msToMinite(timeMs):
     offset = 1000 * 60
     return timeMs / offset
-
-if __name__ == "__main__":
-    print("neko")

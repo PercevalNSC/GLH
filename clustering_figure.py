@@ -1,7 +1,7 @@
 from GLHMongoDB import OPTICSConstruct
 from GLH.Clustering import  OPTICSTrajectoryData, geography_to_euclid
 from GLH.GLHmodule.geo2 import getBoundsAt
-from GLH.OPTICSData import CompareResolution, ComparePixel
+from GLH.OPTICSData import ComparePixel
 
 geo_distance = 0.1
 min_samples = 4
@@ -21,8 +21,8 @@ corner = getBoundsAt(center, zoom, window_size)
 
 optics_array = optics_trajectory_data.create_optics_arrays()
 #optics_array.status()
-optics_array.data_plot()
-optics_array.reachability_plot()
+#optics_array.data_plot()
+#optics_array.reachability_plot()
 # res1 = optics_array.resolution_plot(cluster_size)
 height1 = optics_array.max_reachability()
 """

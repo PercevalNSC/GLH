@@ -314,6 +314,7 @@ class ComparePixel :
         self.height1 = height1
         self.height2 = height2
         self.plot_height = plot_height
+        self.status()
     
     def compare_resolution(self):
         self._resolution_plot(self.resolutions, "compare_pixel")
@@ -325,11 +326,14 @@ class ComparePixel :
     def _resolution_plot(self, resolutions, name: str):
         res1 = self._to_pixel(self.height1, resolutions)
         res2 = self._to_pixel(self.height2, resolutions)
-        print("res1:", res1)
-        print("visualy point1:", self.count_visual_point(res1))
-        print("res2:", res2)
-        print("visualy point2:", self.count_visual_point(res2))
+        
+        #self._resolution_debug(1, res1)
+        #self._resolution_debug(2, res2)
         compare_resolution_plot(res1, res2, name)
+
+    def _resolution_debug(self, num, res):
+        print("res" + str(num) + ":", res)
+        print("visualy point" + str(num) + ":", self.count_visual_point(res))
 
     def _to_pixel(self, height, resolutions):
         return [res / height * self.plot_height for res in resolutions]
@@ -344,3 +348,7 @@ class ComparePixel :
             if res > visual_pixel :
                 count += 1
         return count
+
+    def status(self):
+        #print("Reachability:", self.resolutions)
+        print("height1:", self.height1, "height2:", self.height2, "plot_height:", self.plot_height)

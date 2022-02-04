@@ -1,4 +1,3 @@
-from inspect import stack
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker
@@ -7,7 +6,7 @@ mpl.rcParams['agg.path.chunksize'] = 10000
 
 SAVEPATH= "./images/"
 FIGURE_DPI = 200
-FIGURE_SIZE =[8, 4]
+FIGURE_SIZE =[8, 4.5]
 
 def createFigures(distlists,timelists):
     logScatterFigure(distlists[0], timelists[0], "ActivitySegment")
@@ -86,7 +85,7 @@ def reachability_figure(space, reachability, name, eps = 0, xlabel = "order", yl
     n_label = "[n = " + str(len(space)) + "]"
     fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
-    #axis.set_ylim([0, 40])
+    axis.set_ylim([0, 40])
 
     axis.bar(space, reachability, label = "reachability", width = 1.0)
     _add_eps_line(axis, eps, 0, space[-1])
@@ -99,7 +98,7 @@ def out_reachability_figure(space, reachability, out_space, out_reachability, na
     n_label = "[n = " + str(len(space)) + "]"
     fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name + n_label, xlabel = xlabel, ylabel = ylabel)
-    #axis.set_ylim([0, max(reachability)*1.05])
+    axis.set_ylim([0, max(reachability)*1.05])
 
     axis.bar(space, reachability, label = "reachability", width=1.0)
     #_add_eps_line(axis, eps, 0, space[-1])
@@ -116,7 +115,7 @@ def _add_eps_line(axis, eps, min, max):
 def resolution_plot(cluster_numbers, resolutions, name = ""):
     xlabel = "number of cluster"
     ylabel = "resolution"
-    fig = plt.figure(dpi=FIGURE_DPI)
+    fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
     axis.plot(cluster_numbers, resolutions, label="resolution")
     fig.savefig(SAVEPATH + name + ".png")
@@ -126,7 +125,7 @@ def compare_resolution_plot(res1, res2, name = "") :
     cluster_numbers = list(range(1, len(res1)+1, 1))
     xlabel = "point order"
     ylabel = "pixel[px]"
-    fig = plt.figure(dpi=FIGURE_DPI)
+    fig = plt.figure(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
     axis = fig.add_subplot(1, 1, 1, title = name, xlabel = xlabel, ylabel = ylabel)
     axis.plot(cluster_numbers, res1, label="resolution")
     axis.plot(cluster_numbers, res2, label="resolution")

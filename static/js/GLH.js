@@ -108,7 +108,9 @@ map.on('load', function () {
     add_structure();
     get_reachability(map);
 });
-
+map.on('moveend', e => {
+    console.log('moveend', map.getBounds().toArray());
+});
 
 window.onload = function () {
     console.log("window load")
