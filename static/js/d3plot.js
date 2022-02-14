@@ -16,10 +16,10 @@ class OPTICSData {
         this.reachability = reachability
         this.ordering = ordering
     }
-    reachability_plot(element_id) {
+    reachability_plot(element_id, eps = 0) {
         let data = this.reachability
-        let plot_obj = new ReachabilityPlotD3(data, WIDTH, HEIGHT, PADDING);
-        plot_obj.plot(element_id);
+        let plot_obj = new ReachabilityPlotWithEPS(data, WIDTH, HEIGHT, PADDING);
+        plot_obj.plot(element_id, eps);
     };
     map_scope(p0, p1) {
         console.log("map scope by", p0, p1);
@@ -49,7 +49,7 @@ class OPTICSData {
                 if (reachability[i] != "inf") {
                     out_max_reachability = Math.max(out_max_reachability, reachability[i]);
                 }
-                if (i == coordinate.length-1) {
+                if (i == coordinate.length - 1) {
                     zoom_coordinates.push([0, 0]);
                     zoom_reachability.push(out_max_reachability);
                     zoom_ordering.push(ordering[i]);
@@ -72,24 +72,24 @@ class OPTICSData {
     };
 
     // 降順の凸の高さのリスト
-    pick_boundary(reachability){
+    pick_boundary(reachability) {
         let boundary_list = []
         let down_index_list = []
         let last = reachability.length - 1
-        for (let i = 1; i < last; i++){
-            if (reachability[i] > reachability[i+1]) {
+        for (let i = 1; i < last; i++) {
+            if (reachability[i] > reachability[i + 1]) {
                 down_index_list.push(i);
             };
         };
         for (let down_index of down_index_list) {
-            if (reachability[down_index-1] < reachability[down_index]){
+            if (reachability[down_index - 1] < reachability[down_index]) {
                 boundary_list.push(reachability[down_index]);
             };
         };
-        if (reachability[0] >= reachability[1] ){
+        if (reachability[0] >= reachability[1]) {
             boundary_list.push(reachability[0]);
         };
-        if ( reachability[last - 1] <= reachability[last]) {
+        if (reachability[last - 1] <= reachability[last]) {
             boundary_list.push(reachability[last]);
         };
         return boundary_list;
@@ -107,10 +107,10 @@ class ScopedOPTICSData extends OPTICSData {
         super(coordinates, reachability, ordering)
         this.out_ordering = out_ordering;
     };
-    reachability_plot(element_id) {
+    reachability_plot(element_id, eps = 0) {
         let data = this.resize_out_reachability(this.reachability, this.ordering, this.out_ordering);
-        let plot_obj = new ReachabilityPlotD3(data, WIDTH, HEIGHT, PADDING);
-        plot_obj.plot(element_id);
+        let plot_obj = new ReachabilityPlotWithEPS(data, WIDTH, HEIGHT, PADDING);
+        plot_obj.plot(element_id, eps);
     }
     resize_out_reachability(reachability, ordering, out_ordering) {
         let resize_reachability = reachability.slice();
@@ -155,7 +155,7 @@ class ScopedOPTICSData extends OPTICSData {
 }
 
 class BarChartD3 {
-    // dataset is 2 dimmention array.
+    // dataset is 2 dimention array.
     constructor(dataset, width, height, padding) {
         this.dataset = dataset;
         this.width = width;
@@ -206,6 +206,8 @@ class BarChartD3 {
             .attr("width", xScale.bandwidth())
             .attr("height", function (d) { return height - padding - yScale(d[1]); })
             .attr("fill", "steelblue");
+
+        return svg;
     };
     status() {
         console.log(this.dataset);
@@ -217,6 +219,38 @@ class ReachabilityPlotD3 extends BarChartD3 {
     constructor(reachability, width, height, padding) {
         let dataset = reachability.map(function (v, i) { return (v == "inf" ? [i, 0] : [i, v]); });
         super(dataset, width, height, padding);
+    }
+}
+class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
+    constructor(reachability, width, height, padding) {
+        super(reachability, width, height, padding);
+    }
+    plot(element_id, eps_height = 0) {
+        let svg = super.plot(element_id);
+        let eps_line_height = 5
+
+        var xScale = d3.scaleBand()
+            .padding(0)
+            .domain(this.dataset.map(function (d) { return d[0]; }))
+            .range([this.padding, this.width - this.padding])
+
+        var yScale = d3.scaleLinear()
+            .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
+            .range([this.height - this.padding, this.padding]);
+
+        var drag = d3.drag()
+            .on("drag", function () {
+                d3.select(this).attr("y",d3.event.y);
+            });
+
+        svg.append("g")
+            .append("rect")
+            .attr("x", xScale(0))
+            .attr("y", yScale(eps_height) - eps_line_height / 2)
+            .attr("width", this.width - this.padding)
+            .attr("height", eps_line_height)
+            .attr("fill", "black")
+            .call(drag)
     }
 }
 
@@ -234,7 +268,7 @@ function get_reachability(map) {
         console.log("pick boundary:", optics_data.pick_boundary(optics_data.reachability))
         let scope_data = optics_data.map_scope(p0, p1);
         scope_data.status();
-        scope_data.reachability_plot("#d3plot");
+        scope_data.reachability_plot("#d3plot", 50);
     }).catch((e) => {
         console.log(e);
     });
