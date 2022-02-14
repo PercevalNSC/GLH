@@ -1,7 +1,7 @@
 // GLH.js
 
 import * as Structure from "./Structure.js"
-import {get_reachability} from "./d3plot.js"
+import {get_reachability, update_reachability} from "./d3plot.js"
 import {map, get_window_size} from "./Map.js"
 
 class ClusteringParam {
@@ -35,7 +35,7 @@ function visible_control(bool, id) {
     map.setLayoutProperty(id, 'visibility', convert_visibility(bool))
 }
 function set_eps(eps) {
-    // TODO
+    update_reachability(map, eps);
     map.removeLayer("optics_polygonoutline")
     map.removeSource("optics_polygon")
     Structure.optics_polygon(map, eps)
@@ -110,6 +110,7 @@ map.on('load', function () {
 });
 map.on('moveend', e => {
     console.log('moveend', map.getBounds().toArray());
+    update_reachability(map, clustering_param.eps);
 });
 
 window.onload = function () {
