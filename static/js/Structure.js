@@ -1,6 +1,6 @@
 // Stricture.js
 
-console.log("structure neko");
+console.log("Structure.js loaded.");
 
 
 function addSingleMarker(map, lnglat, color) {

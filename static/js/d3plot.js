@@ -2,7 +2,7 @@
 
 import { get_left_bottom, get_right_top } from "./Map.js"
 
-console.log("d3 neko");
+console.log("d3plot.js loaded.");
 
 let MARGIN = 8
 let ID = "d3plot"
@@ -231,7 +231,7 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
         this.add_eps_line(eps_height);
     }
     add_eps_line(eps_height = 0) {
-        let eps_line_height = 5
+        let eps_line_width = 5
 
         var xScale = d3.scaleBand()
             .padding(0)
@@ -242,30 +242,28 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
             .range([this.height - this.padding, this.padding]);
 
-        let range = [this.margin, this.height - this.margin];
+        // d3.eventの座標をデータセットの範囲でマッピング
+        var drag_yScale = d3.scaleLinear()
+            .clamp(true)    //範囲外を丸める
+            .domain([this.padding, this.height - this.padding])
+            .range([d3.max(this.dataset, function (d) { return d[1]; }), 0])
 
-        function limited_y(min, max) {
-            let y = d3.event.y;
-            if (y < min) {
-                return yrange[0];
-            } else if (y > max) {
-                return yrange[1];
-            } else {
-                return y;
-            }
-        };
-
+        // epslineのdrag関数
         var drag = d3.drag()
             .on("drag", function () {
-                d3.select(this).attr("y", limited_y(range[0], range[1]));
+                d3.select(this).attr("y", yScale(drag_yScale(d3.event.y)));
+            })
+            .on("end", function () {
+                let eps = drag_yScale(d3.event.y)
+                console.log("drag end:", eps);
             });
 
         this.svg.append("g")
             .append("rect")
             .attr("x", xScale(0))
-            .attr("y", yScale(eps_height) - eps_line_height / 2)
+            .attr("y", yScale(eps_height) - eps_line_width / 2)
             .attr("width", this.width - this.padding)
-            .attr("height", eps_line_height)
+            .attr("height", eps_line_width)
             .attr("fill", "black")
             .call(drag)
     }
