@@ -1,8 +1,7 @@
 // d3plot.js
 
 import { get_left_bottom, get_right_top } from "./Map.js"
-
-console.log("d3plot.js loaded.");
+import { PointGeoJson, PolygonGeoJson } from "./GeoJSON.js"
 
 let MARGIN = 8
 let ID = "d3plot"
@@ -72,7 +71,7 @@ class OPTICSData {
     };
 
     // 降順の凸の高さのリスト
-    pick_boundary(reachability) {
+    maximaList(reachability) {
         let boundary_list = []
         let down_index_list = []
         let last = reachability.length - 1
@@ -95,6 +94,34 @@ class OPTICSData {
         return boundary_list;
     }
 
+    outputClusters(eps){
+        console.log("eps:", eps)
+        let polygons = []
+        let cluster_points = []
+        this.reachability.forEach((r, i) => {
+            if (r <= eps) {
+                cluster_points.push(this.coordinates[i]);
+            }else if (cluster_points.length != 0) {
+                polygons.push(this._clusterToPolygon(cluster_points));
+                cluster_points = [];
+            } else {
+                ;
+            }
+        })
+        return polygons;
+    }
+    _clusterToPolygon(cluster_points){
+        let convexhull = d3.polygonHull(cluster_points);
+        return convexhull
+    }
+    coodinatesToGeojson(){
+        let geojsonobj = new PointGeoJson(this.coordinates);
+        return JSON.stringify(geojsonobj.geojson);
+    }
+    clustersToGeojson(eps){
+        let geojsonobj = new PolygonGeoJson(this.outputClusters(eps));
+        return JSON.stringify(geojsonobj.geojson);
+    }
 
     status() {
         console.log("Coordinates:", this.coordinates);
@@ -282,6 +309,7 @@ function get_reachability(map) {
         optics_data = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
         //optics_data.status()
         //console.log("pick boundary:", optics_data.pick_boundary(optics_data.reachability))
+        console.log("polygons:", optics_data.clustersToGeojson(0.5))
         update_reachability(map, 0)
     }).catch((e) => {
         console.log(e);

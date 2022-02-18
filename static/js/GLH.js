@@ -1,7 +1,7 @@
 // GLH.js
 
 import * as Structure from "./Structure.js"
-import {get_reachability, update_reachability} from "./d3plot.js"
+import {get_reachability, update_reachability} from "./OPTICSdata.js"
 import {map, get_window_size} from "./Map.js"
 
 class ClusteringParam {
