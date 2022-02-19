@@ -1,23 +1,5 @@
 // Stricture.js
 
-function addSingleMarker(map, lnglat, color) {
-    let timestamp = "Neko: " + neko++;
-    var popup = new mapboxgl.Popup({ offset: 20, closeButton: false }).setText(timestamp);
-    let marker = new mapboxgl.Marker({ color: color })
-        .setLngLat(lnglat)
-        .setPopup(popup)
-        .addTo(map);
-    return marker;
-}
-function addManyMarkers(map, lnglatlist, color = "blue") {
-    var markerlist = [];
-    for (const lnglat of lnglatlist) {
-        var marker = addSingleMarker(map, lnglat, color);
-        markerlist.push(marker);
-    }
-    return markerlist;
-}
-
 class GeoJsonStructure {
     constructor(map, id, color, opacity, visibility) {
         this.map = map;
@@ -55,7 +37,7 @@ class GeoJsonStructure {
 }
 
 class GeojsonPointStructure extends GeoJsonStructure {
-    constructor(map, id, color, opacity, visibility, radius) {
+    constructor(map, id, color = "black", opacity = 1.0, visibility = "visible", radius = 4) {
         super(map, id, color, opacity, visibility);
         this.radius = radius;
     }
@@ -90,7 +72,7 @@ class GeojsonPointStructure extends GeoJsonStructure {
 }
 
 class GeoJsonLineStructure extends GeoJsonStructure {
-    constructor(map, id, color, opacity, visibility, width) {
+    constructor(map, id, color = "black", opacity = 0.5, visibility = "visible", width = 1) {
         super(map, id, color, opacity, visibility);
         this.width = width;
         console.log("width:", this.width);
@@ -115,7 +97,7 @@ class GeoJsonLineStructure extends GeoJsonStructure {
 }
 
 class GeoJsonPolygonStructure extends GeoJsonStructure {
-    constructor(map, id, color, opacity, visibility, width, linecolor) {
+    constructor(map, id, color = "white", opacity = 0.5, visibility = "visible", width = 3, linecolor = "black") {
         super(map, id, color, opacity, visibility);
         this.width = width;
         this.linecolor = linecolor;
@@ -154,7 +136,7 @@ class GeoJsonPolygonStructure extends GeoJsonStructure {
 
 
 class DrawPoints extends GeojsonPointStructure {
-    constructor(map, url, id, color = 'black', radius = 4, opacity = 1.0, visibility = 'visible') {
+    constructor(map, url, id, color = 'black', radius = 4, opacity = 1.0, visibility) {
         super(map, id, color, opacity, visibility, radius);
         this.url = url;
     }
@@ -274,4 +256,4 @@ function viewport_polygon(map, fillcolor = "None", linecolor = "gray") {
     viewport_polygon.add_structure();
 }
 
-export {asSrpPoint, asWpPoint, pvSrpPoint, pvLocationPoint, dbscan_point, add_routepath, dbscan_polygon, optics_polygon, viewport_polygon};
+export {GeojsonPointStructure, GeoJsonLineStructure, GeoJsonPolygonStructure, asSrpPoint, asWpPoint, pvSrpPoint, pvLocationPoint, dbscan_point, add_routepath, dbscan_polygon, optics_polygon, viewport_polygon};

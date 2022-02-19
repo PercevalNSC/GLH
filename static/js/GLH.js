@@ -1,20 +1,15 @@
 // GLH.js
 
-import * as Structure from "./Structure.js"
-import {get_reachability, update_reachability} from "./OPTICSdata.js"
+import {get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
 import {map, get_window_size} from "./Map.js"
 
 class ClusteringParam {
     constructor() {
-        this.assrp = true
-        this.aswp = false
-        this.pvsrp = true
+        this.points = true
         this.pvloc = false
-        this.route = false
         this.optics = true
         this.plot = true
-        this.legend = false
-        this.eps = 0.1
+        this.eps = 50
         this.printall = true
     }
 }
@@ -35,13 +30,14 @@ function visible_control(bool, id) {
     map.setLayoutProperty(id, 'visibility', convert_visibility(bool))
 }
 function set_eps(eps) {
+    update_optics_layer(eps);
     update_reachability(map, eps);
-    map.removeLayer("optics_polygonoutline")
-    map.removeSource("optics_polygon")
-    Structure.optics_polygon(map, eps)
 }
-
-
+function update_optics_layer(eps) {
+    map.removeLayer("clustersoutline");
+    map.removeSource("clusters");
+    drawClusters(map, eps);
+}
 
 function init_message(){
     console.log("map load")
@@ -50,46 +46,29 @@ function init_message(){
     console.log("window size:", get_window_size());
 };
 function add_structure(){
-    Structure.add_routepath(map, "white", convert_visibility(clustering_param.route));
-    Structure.asWpPoint(map, "white", convert_visibility(clustering_param.aswp));
-    Structure.asSrpPoint(map, "pink", convert_visibility(clustering_param.assrp));
-    Structure.pvSrpPoint(map, "pink", convert_visibility(clustering_param.pvsrp));
-    Structure.pvLocationPoint(map, "white", convert_visibility(clustering_param.pvloc));
-    Structure.optics_polygon(map, 0.1);
+    ;
 };
 
 function add_gui(gui, clustering_param){
     // add parameter object to dat.GUI instance
-    gui.add(clustering_param, 'assrp').onChange(function (bool) {
+    gui.add(clustering_param, 'points').onChange(function (bool) {
         clustering_param.assrp = bool;
-        visible_control(bool, "AsSrp");
+        visible_control(bool, "GLHpoints");
     });
-    gui.add(clustering_param, 'aswp').onChange(function (bool) {
-        clustering_param.aswp = bool;
-        visible_control(bool, "AsWp");
-    });
-    gui.add(clustering_param, 'pvsrp').onChange(function (bool) {
-        clustering_param.pvsrp = bool;
-        visible_control(bool, "PvSrp");
-    });
+
     gui.add(clustering_param, 'pvloc').onChange(function (bool) {
         clustering_param.pvloc = bool;
         visible_control(bool, "PvLoc");
     });
-    gui.add(clustering_param, 'route').onChange(function (bool) {
-        clustering_param.route = bool;
-        visible_control(bool, "routepath")
-    })
+
     gui.add(clustering_param, 'optics').onChange(function (bool) {
         clustering_param.optics = bool;
-        visible_control(bool, "optics_polygonoutline");
+        visible_control(bool, "clusterssoutline");
     });
     gui.add(clustering_param, 'plot').onChange(function (bool) {
         display_control(bool, "d3plot");
     });
-    gui.add(clustering_param, 'legend').onChange(function (bool) {
-        display_control(bool, "state-legend");
-    })
+
     gui.add(clustering_param, 'eps').name("eps[km]").onChange(function (eps) {
         clustering_param.eps = eps
         set_eps(eps);
