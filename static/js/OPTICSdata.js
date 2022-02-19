@@ -111,7 +111,7 @@ class OPTICSData {
                 ;
             };
         })
-        return polygons;
+        return polygons.filter(data => data != null);
     }
     _clusterToPolygon(cluster_points){
         let convexhull = d3.polygonHull(cluster_points);
@@ -123,6 +123,7 @@ class OPTICSData {
     }
     clustersToGeojson(eps){
         let geojsonobj = new PolygonGeoJson("Clusters", this.outputClusters(eps));
+        console.log(geojsonobj.geojson)
         return geojsonobj.geojson;
     }
 
