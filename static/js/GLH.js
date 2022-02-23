@@ -1,7 +1,8 @@
 // GLH.js
 
-import {get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
-import {map, get_window_size} from "./Map.js"
+import { get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
+import { map, get_window_size} from "./Map.js"
+import { pvLocationPoint } from "./Structure.js"
 
 class ClusteringParam {
     constructor() {
@@ -46,7 +47,7 @@ function init_message(){
     console.log("window size:", get_window_size());
 };
 function add_structure(){
-    ;
+    pvLocationPoint(map, "white", convert_visibility(clustering_param.pvloc))
 };
 
 function add_gui(gui, clustering_param){
