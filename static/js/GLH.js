@@ -10,7 +10,7 @@ class ClusteringParam {
         this.pvloc = false
         this.optics = true
         this.plot = true
-        this.eps = 50
+        this.eps = 10
         this.printall = true
     }
 }
