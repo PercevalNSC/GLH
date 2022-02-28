@@ -1,7 +1,10 @@
 // GLH.js
 
 import {get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
-import {map, get_window_size} from "./Map.js"
+import { MapboxMap } from "./Map.js"
+
+const map_instance = new MapboxMap();
+const map = map_instance.map;
 
 class ClusteringParam {
     constructor() {
@@ -31,20 +34,13 @@ function visible_control(bool, id) {
 }
 function set_eps(eps) {
     update_optics_layer(eps);
-    update_reachability(map, eps);
+    update_reachability(eps);
 }
 function update_optics_layer(eps) {
-    map.removeLayer("clustersoutline");
-    map.removeSource("clusters");
-    drawClusters(map, eps);
+    map_instance.la
+    drawClusters(eps);
 }
 
-function init_message(){
-    console.log("map load")
-    console.log("map center:", map.getCenter());
-    console.log("init zoom level:", map.getZoom());
-    console.log("window size:", get_window_size());
-};
 function add_structure(){
     ;
 };
@@ -82,14 +78,26 @@ function add_gui(gui, clustering_param){
     display_control(clustering_param.legend, 'state-legend');
 };
 
+function init_message(){
+    console.log("map load")
+    console.log("map center:", map.getCenter());
+    console.log("init zoom level:", map.getZoom());
+    console.log("window size:", map_instance.map_unproject());
+};
+
+// main routin
+
+
+
 map.on('load', function () {
     init_message();
     add_structure();
-    get_reachability(map);
+    get_reachability();
 });
+
 map.on('moveend', e => {
     console.log('moveend', map.getBounds().toArray());
-    update_reachability(map, clustering_param.eps);
+    update_reachability(clustering_param.eps);
 });
 
 window.onload = function () {
