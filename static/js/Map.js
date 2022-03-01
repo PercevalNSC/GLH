@@ -4,7 +4,6 @@ import { GeojsonPointStructure, GeoJsonLineStructure, GeoJsonPolygonStructure } 
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3dhdGFuYWJlMTk5OCIsImEiOiJja29tNnQyNnIwZXZxMnVxdHQ1aXllMGRiIn0.ebm4ShyOk1Mp-W1xs0G_Ag';
 let centers = { "chofu": [139.545, 35.655], "shibuya": [139.65, 35.65], "maebashi": [139.075, 36.376] };
-let init_zoom = [14, 8, 7, 5];
 
 class MapboxMap {
     constructor() {
