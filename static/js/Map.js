@@ -53,7 +53,7 @@ class MapboxMap {
             style: 'mapbox://styles/kwatanabe1998/ckwvzytdk7ixc14o53kanjxs8',
             center: centers["maebashi"], // 初期に表示する地図の緯度経度 [経度、緯度]（緯度、経度とは順番が異なりますのでご注意下さい）
             zoom: 6, // 初期に表示する地図のズームレベル
-            scrollZoom: false
+            scrollZoom: true
         });
     }
     #addControl() {

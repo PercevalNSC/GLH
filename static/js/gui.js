@@ -22,6 +22,9 @@ class GUIObject {
         this.add_gui(this.gui, this.parameter)
     }
 
+    getPvloc(){
+        return this.convert_visibility(this.parameter.pvloc);
+    }
     convert_visibility(bool) {
         return (bool ? "visible" : "none");
     }
