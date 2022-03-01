@@ -1,14 +1,16 @@
 // d3plot.js
 
-import { get_left_bottom, get_right_top } from "./Map.js"
+import { mapboxmap } from "./Map.js"
 import { PointGeoJson, PolygonGeoJson } from "./GeoJSON.js"
 import { GeojsonPointStructure, GeoJsonPolygonStructure } from "./Structure.js"
 
+const map = mapboxmap.map;
+
 let MARGIN = 8
 let ID = "d3plot"
-let WIDTH = document.getElementById(ID).clientWidth - MARGIN;
-let HEIGHT = document.getElementById(ID).clientHeight - MARGIN;
-let PADDING = 40;
+let WIDTH;
+let HEIGHT;
+let PADDING = 30;
 
 class OPTICSData {
     constructor(coordinates, reachability, ordering) {
@@ -138,9 +140,9 @@ class ScopedOPTICSData extends OPTICSData {
         super(coordinates, reachability, ordering)
         this.out_ordering = out_ordering;
     };
-    reachability_plot(element_id, eps = 0, map) {
+    reachability_plot(element_id, eps = 0) {
         let data = this.resize_out_reachability(this.reachability, this.ordering, this.out_ordering);
-        let plot_obj = new ReachabilityPlotWithEPS(data, WIDTH, HEIGHT, PADDING, map);
+        let plot_obj = new ReachabilityPlotWithEPS(data, WIDTH, HEIGHT, PADDING);
         plot_obj.plot(element_id, eps);
     }
     resize_out_reachability(reachability, ordering, out_ordering) {
@@ -212,7 +214,7 @@ class BarChartD3 {
             .domain(this.dataset.map(function (d) { return d[0]; }))
             .range([padding, width - padding])
 
-        var yScale = d3.scaleLinear()
+        var yScale = d3.scaleSymlog()
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
             .range([height - padding, padding]);
 
@@ -254,9 +256,8 @@ class ReachabilityPlotD3 extends BarChartD3 {
     }
 }
 class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
-    constructor(reachability, width, height, padding, map) {
+    constructor(reachability, width, height, padding) {
         super(reachability, width, height, padding);
-        this.map = map;
     }
     plot(element_id, eps_height = 0) {
         this.svg = super.plot(element_id);
@@ -270,7 +271,7 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
             .domain(this.dataset.map(function (d) { return d[0]; }))
             .range([this.padding, this.width - this.padding])
 
-        var yScale = d3.scaleLinear()
+        var yScale = d3.scaleSymlog()
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
             .range([this.height - this.padding, this.padding]);
 
@@ -278,20 +279,17 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
         var drag_yScale = d3.scaleLinear()
             .clamp(true)    //範囲外を丸める
             .domain([this.padding, this.height - this.padding])
-            .range([d3.max(this.dataset, function (d) { return d[1]; }), 0])
+            .range([this.padding, this.height - this.padding]);
 
-        var map = this.map;
         // epslineのdrag関数
         var drag = d3.drag()
             .on("drag", function () {
-                d3.select(this).attr("y", yScale(drag_yScale(d3.event.y)));
+                d3.select(this).attr("y", drag_yScale(d3.event.y));
+                update_eps();
             })
             .on("end", function () {
-                map.removeLayer("clustersoutline")
-                map.removeSource("clusters")
-                let eps = drag_yScale(d3.event.y)
-                console.log("drag end:", eps);
-                drawClusters(map, eps)
+                console.log("drag end at:", drag_yScale(d3.event.y))
+                update_eps();
             });
 
         this.svg.append("g")
@@ -302,12 +300,18 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
             .attr("height", eps_line_width)
             .attr("fill", "black")
             .call(drag)
+        
+        function update_eps(){
+            let eps = yScale.invert(d3.event.y);
+            mapboxmap.removeOPTICSLayer();
+            drawClusters(eps)
+        }
     }
 }
 
-var optics_data
+var optics_data;
 
-function get_reachability(map) {
+function get_reachability() {
     let url = "http://localhost:8000/api/get_reachability"
     fetch(url, {
         mode: 'cors'
@@ -316,28 +320,29 @@ function get_reachability(map) {
     }).then((reach_json) => {
         let init_eps = 10;
         optics_data = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
-        drawPoints(map);
+        drawPoints();
         //optics_data.status()
-        //console.log("pick boundary:", optics_data.pick_boundary(optics_data.reachability))
-        drawClusters(map, init_eps);
-        update_reachability(map, init_eps);
+        drawClusters(init_eps);
+        update_reachability(init_eps);
     }).catch((e) => {
         console.log(e);
     });
 };
-function update_reachability(map, eps) {
-    let p0 = get_left_bottom(map);
-    let p1 = get_right_top(map);
+function update_reachability(eps) {
+    WIDTH = document.getElementById(ID).clientWidth - MARGIN;
+    HEIGHT = document.getElementById(ID).clientHeight - MARGIN;
+    let p0 = mapboxmap.get_left_bottom();
+    let p1 = mapboxmap.get_right_top();
     let scope_data = optics_data.map_scope(p0, p1);
     //scope_data.status();
-    scope_data.reachability_plot("#d3plot", eps, map);
+    scope_data.reachability_plot("#d3plot", eps);
 }
 
-function drawPoints(map){
+function drawPoints(){
     let obj = new GeojsonPointStructure(map, "GLHpoints", "pink");
     obj.add_structure(optics_data.coodinatesToGeojson());
 }
-function drawClusters(map, eps) {
+function drawClusters(eps) {
     let obj = new GeoJsonPolygonStructure(map, "clusters", "None")
     obj.add_structure(optics_data.clustersToGeojson(eps));
 }
