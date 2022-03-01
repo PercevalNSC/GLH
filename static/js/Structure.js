@@ -122,7 +122,7 @@ class GeoJsonPolygonStructure extends GeoJsonStructure {
     }
     _add_surround_layer() {
         this.map.addLayer({
-            'id': this.id + "outline",
+            'id': this.id + "_outline",
             'type': 'line',
             'source': this.id,
             'layout': {},
