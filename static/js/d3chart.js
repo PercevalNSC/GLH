@@ -9,6 +9,15 @@ class BarChartD3 {
         this.padding = padding;
         console.log("plot size:", width, height);
     }
+
+    plot(element_id) {
+        // element_id is html id to draw bar chart.
+        this.svg = this.initPlotArea(element_id);
+        this.setScale();
+        this.addAxis(5);
+        this.addPlot();
+    };
+
     initPlotArea(element_id) {
         d3.select(element_id).selectAll("svg").remove();
         return d3.select(element_id).append("svg").attr("width", this.width).attr("height", this.height);
@@ -22,24 +31,23 @@ class BarChartD3 {
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
             .range([this.height - this.padding, this.padding]);
     }
-    addAxis(svg, ticks = 5){
+    addAxis(ticks = 5) {
         let offset = Math.floor(this.dataset.length / ticks)
-        let xScale = this.xScale;
-        let yScale = this.yScale;
-        svg.append("g")
+        this.svg.append("g")
             .attr("transform", "translate(" + 0 + "," + (this.height - this.padding) + ")")
-            .call(d3.axisBottom(xScale).tickValues(
-                xScale.domain().filter(function (d, i) { return !(i % offset); })
+            .call(d3.axisBottom(this.xScale).tickValues(
+                this.xScale.domain().filter(function (d, i) { return !(i % offset); })
             ));
 
-        svg.append("g")
-            .attr("transform", "translate(" + padding + "," + 0 + ")")
-            .call(d3.axisLeft(yScale));
+       this.svg.append("g")
+            .attr("transform", "translate(" + this.padding + "," + 0 + ")")
+            .call(d3.axisLeft(this.yScale));
     }
-    addPlot(svg){
+    addPlot() {
         let xScale = this.xScale;
         let yScale = this.yScale;
-        svg.append("g")
+        let plot_height = this.height - this.padding;
+        this.svg.append("g")
             .selectAll("rect")
             .data(this.dataset)
             .enter()
@@ -47,19 +55,10 @@ class BarChartD3 {
             .attr("x", function (d) { return xScale(d[0]); })
             .attr("y", function (d) { return yScale(d[1]); })
             .attr("width", xScale.bandwidth())
-            .attr("height", function (d) { return this.height - this.padding - yScale(d[1]); })
+            .attr("height", function (d) { return plot_height - yScale(d[1]); })
             .attr("fill", "steelblue");
     }
-    plot(element_id) {
-        // element_id is html id to draw bar chart.
-
-        var svg = this.initPlotArea(element_id);
-        this.setScale();
-        this.addAxis(svg, 5);
-        this.addPlot(svg);
-
-        return svg;
-    };
+    
     status() {
         console.log(this.dataset);
         console.log(this.width, this.height, this.padding);
@@ -77,54 +76,40 @@ class ReachabilityPlotD3 extends BarChartD3 {
 class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
     constructor(reachability, width, height, padding) {
         super(reachability, width, height, padding);
+        this.eps_line_width = 5;
     }
     plot(element_id, eps_height = 0) {
-        this.svg = super.plot(element_id);
+        super.plot(element_id);
         this.add_eps_line(eps_height);
     }
     add_eps_line(eps_height = 0) {
-        let eps_line_width = 5
-
-        var xScale = d3.scaleBand()
-            .padding(0)
-            .domain(this.dataset.map(function (d) { return d[0]; }))
-            .range([this.padding, this.width - this.padding])
-
-        var yScale = d3.scaleSymlog()
-            .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
-            .range([this.height - this.padding, this.padding]);
-
-        // d3.eventの座標をデータセットの範囲でマッピング
+        var drag = this.drag_function();
+        this.add_line(drag, eps_height);
+    }
+    drag_function() {
+        let yScale = this.yScale;
         var drag_yScale = d3.scaleLinear()
             .clamp(true)    //範囲外を丸める
             .domain([this.padding, this.height - this.padding])
             .range([this.padding, this.height - this.padding]);
 
-        // epslineのdrag関数
-        var drag = d3.drag()
+        return d3.drag()
             .on("drag", function () {
                 d3.select(this).attr("y", drag_yScale(d3.event.y));
-                update_eps();
             })
             .on("end", function () {
-                console.log("drag end at:", drag_yScale(d3.event.y))
-                update_eps();
+                console.log("drag end at:",  yScale.invert(d3.event.y))
             });
-
+    }
+    add_line(drag, eps_height) {
         this.svg.append("g")
             .append("rect")
-            .attr("x", xScale(0))
-            .attr("y", yScale(eps_height) - eps_line_width / 2)
+            .attr("x", this.xScale(0))
+            .attr("y", this.yScale(eps_height) - this.eps_line_width / 2)
             .attr("width", this.width - this.padding)
-            .attr("height", eps_line_width)
+            .attr("height", this.eps_line_width)
             .attr("fill", "black")
             .call(drag)
-
-        function update_eps() {
-            let eps = yScale.invert(d3.event.y);
-            mapboxmap.removeOPTICSLayer();
-            drawClusters(eps)
-        }
     }
 }
 

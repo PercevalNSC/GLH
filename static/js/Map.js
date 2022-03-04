@@ -7,7 +7,7 @@ let centers = { "chofu": [139.545, 35.655], "shibuya": [139.65, 35.65], "maebash
 
 class MapboxMap {
     constructor() {
-        console.log("map load")
+        console.log("map class")
         this.map = this.#addMap();
         this.#addControl();
     }

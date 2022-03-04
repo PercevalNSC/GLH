@@ -11,7 +11,6 @@ function add_structure(){
 };
 
 function init_message(){
-    console.log("map load")
     console.log("map center:", map.getCenter());
     console.log("init zoom level:", map.getZoom());
     console.log("window size:", mapboxmap.map_unproject());
@@ -20,8 +19,6 @@ function init_message(){
 var gui_object;
 
 window.onload = function () {
-    console.log("window load")
-
     let gui = new dat.GUI();
     gui_object = new GUIObject(gui);
 }
