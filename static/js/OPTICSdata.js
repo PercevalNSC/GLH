@@ -7,11 +7,13 @@ import { ReachabilityPlotWithEPS } from "./d3chart.js";
 
 const map = mapboxmap.map;
 
-let MARGIN = 8
+
 let ID = "d3plot"
+let MARGIN = 8
 let WIDTH;
 let HEIGHT;
 let PADDING = 30;
+var optics_data;
 
 class ReachabilityPlotWithMap extends ReachabilityPlotWithEPS {
     constructor(reachability, width, height, padding) {
@@ -104,13 +106,13 @@ class OPTICSData {
         };
     };
 
-    // 降順の凸の高さのリスト
+    // 降順の極大値のリスト
     maximaList(reachability) {
         let boundary_list = []
         let down_index_list = []
         let last = reachability.length - 1
         for (let i = 1; i < last; i++) {
-            if (reachability[i] > reachability[i + 1]) {
+            if (reachability[i] > reachability[i+1]) {
                 down_index_list.push(i);
             };
         };
@@ -219,20 +221,15 @@ class ScopedOPTICSData extends OPTICSData {
 }
 
 
-
-var optics_data;
-
-function get_reachability() {
+function get_reachability(init_eps = 10) {
     let url = "http://localhost:8000/api/get_reachability"
     fetch(url, {
         mode: 'cors'
     }).then((response) => {
         return response.json();
     }).then((reach_json) => {
-        let init_eps = 10;
         optics_data = new OPTICSData(reach_json["coordinates"], reach_json["reachability"], reach_json["ordering"]);
         drawPoints();
-        //optics_data.status()
         drawClusters(init_eps);
         update_reachability(init_eps);
     }).catch((e) => {

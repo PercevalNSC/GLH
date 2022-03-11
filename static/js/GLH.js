@@ -1,6 +1,6 @@
 // GLH.js
 
-import {get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
+import { get_reachability, update_reachability } from "./OPTICSdata.js"
 import { mapboxmap } from "./Map.js"
 import { GUIObject } from "./gui.js";
 
