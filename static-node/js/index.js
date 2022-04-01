@@ -27,5 +27,3 @@ function clock_function(){
 window.onload = () => {
     clock_function();
 }
-
-

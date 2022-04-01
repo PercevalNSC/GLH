@@ -17,6 +17,9 @@ app.get('/visualizer', (req, res) => {
 app.get('/map', (req, res) => {
     res.sendFile(path.join(__dirname, "/static-node/templates/map.html"))
 })
+app.get('/aggregation', (req, res) => {
+    res.sendFile(path.join(__dirname, "/static-node/templates/aggregationOPTICS.html"))
+})
 
 app.listen(app.get('port'),  () => {
     console.log("App listening on port " + app.get('port'))

@@ -33,6 +33,9 @@ class MapboxMap {
         this.map.removeLayer("clusters_outline");
         this.map.removeSource("clusters");
     }
+    layerVisibility(id, bool){
+        this.map.setLayoutProperty(id, 'visibility', this._convertVisibility(bool));
+    }
     addGeojsonPoints(geojson, id) {
         let geojson_points = new GeojsonPointStructure(this.map, id);
         geojson_points.addStructure(geojson);
@@ -63,6 +66,9 @@ class MapboxMap {
             maxWidth: 200,
             unit: 'metric'
         }));
+    }
+    _convertVisibility(bool){
+        return (bool ? 'visible': 'none');
     }
 }
 
