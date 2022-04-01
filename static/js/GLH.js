@@ -1,14 +1,13 @@
 // GLH.js
 
-import {get_reachability, update_reachability, drawClusters} from "./OPTICSdata.js"
+import {get_reachability, update_reachability} from "./OPTICSdata.js"
 import { mapboxmap } from "./Map.js"
 import { GUIObject } from "./gui.js";
+import { pvLocationPoint } from "./Structure.js";
 
 const map = mapboxmap.map;
 
-function add_structure(){
-    ;
-};
+
 
 function init_message(){
     console.log("map load")
@@ -19,16 +18,21 @@ function init_message(){
 
 var gui_object;
 
+function add_structure(){
+    pvLocationPoint(map, "white", gui_object.getPvloc());
+};
+
 window.onload = function () {
     console.log("window load")
 
     let gui = new dat.GUI();
     gui_object = new GUIObject(gui);
+
+    add_structure();
 }
 
 map.on('load', function () {
     init_message();
-    add_structure();
     get_reachability();
 });
 
