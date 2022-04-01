@@ -12,17 +12,17 @@ class BarChartD3 {
 
     plot(element_id) {
         // element_id is html id to draw bar chart.
-        this.svg = this.initPlotArea(element_id);
-        this.setScale();
-        this.addAxis(5);
-        this.addPlot();
+        this.svg = this._initPlotArea(element_id);
+        this._setScale();
+        this._addAxis(5);
+        this._addPlot();
     };
 
-    initPlotArea(element_id) {
+    _initPlotArea(element_id) {
         d3.select(element_id).selectAll("svg").remove();
         return d3.select(element_id).append("svg").attr("width", this.width).attr("height", this.height);
     }
-    setScale() {
+    _setScale() {
         this.xScale = d3.scaleBand()
             .padding(0)
             .domain(this.dataset.map(function (d) { return d[0]; }))
@@ -31,7 +31,7 @@ class BarChartD3 {
             .domain([0, d3.max(this.dataset, function (d) { return d[1]; })])
             .range([this.height - this.padding, this.padding]);
     }
-    addAxis(ticks = 5) {
+    _addAxis(ticks = 5) {
         let offset = Math.floor(this.dataset.length / ticks)
         this.svg.append("g")
             .attr("transform", "translate(" + 0 + "," + (this.height - this.padding) + ")")
@@ -43,7 +43,7 @@ class BarChartD3 {
             .attr("transform", "translate(" + this.padding + "," + 0 + ")")
             .call(d3.axisLeft(this.yScale));
     }
-    addPlot() {
+    _addPlot() {
         let xScale = this.xScale;
         let yScale = this.yScale;
         let plot_height = this.height - this.padding;
@@ -60,15 +60,17 @@ class BarChartD3 {
     }
     
     status() {
-        console.log(this.dataset);
-        console.log(this.width, this.height, this.padding);
+        console.log("Dataset:", this.dataset);
+        console.log("Width:", this.width, "Height:", this.height, "Padding:", this.padding);
     }
 }
 
 class ReachabilityPlotD3 extends BarChartD3 {
     // reachability is 1 dimmention list.
     constructor(reachability, width, height, padding) {
+        //remove inf in reachability
         let dataset = reachability.map(function (v, i) { return (v == "inf" ? [i, 0] : [i, v]); });
+
         super(dataset, width, height, padding);
     }
 }
@@ -80,13 +82,13 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
     }
     plot(element_id, eps_height = 0) {
         super.plot(element_id);
-        this.add_eps_line(eps_height);
+        this._addEpsLine(eps_height);
     }
-    add_eps_line(eps_height = 0) {
-        var drag = this.drag_function();
-        this.add_line(drag, eps_height);
+    _addEpsLine(eps_height = 0) {
+        var drag = this._dragFunction();
+        this._addLine(drag, eps_height);
     }
-    drag_function() {
+    _dragFunction() {
         let yScale = this.yScale;
         var drag_yScale = d3.scaleLinear()
             .clamp(true)    //範囲外を丸める
@@ -101,7 +103,7 @@ class ReachabilityPlotWithEPS extends ReachabilityPlotD3 {
                 console.log("drag end at:",  yScale.invert(d3.event.y))
             });
     }
-    add_line(drag, eps_height) {
+    _addLine(drag, eps_height) {
         this.svg.append("g")
             .append("rect")
             .attr("x", this.xScale(0))

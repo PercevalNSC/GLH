@@ -8,21 +8,21 @@ class GeoJsonStructure {
         this.opacity = opacity;
         this.visibility = visibility;
     }
-    add_structure(geojson) {
+    addStructure(geojson) {
         this.geojson = geojson;
-        this._add_geojson()
+        this._addGeojson()
     }
-    _add_geojson() {
-        this._add_source();
-        this._add_layer();
+    _addGeojson() {
+        this._addSource();
+        this._addLayer();
     }
-    _add_source() {
+    _addSource() {
         this.map.addSource(this.id, {
             'type': 'geojson',
             'data': this.geojson
         });
     }
-    _add_layer() {
+    _addLayer() {
         // specified structure
         this.map.addLayer({
             'id': this.id,
@@ -41,7 +41,7 @@ class GeojsonPointStructure extends GeoJsonStructure {
         super(map, id, color, opacity, visibility);
         this.radius = radius;
     }
-    _add_layer() {
+    _addLayer() {
         this.map.addLayer({
             'id': this.id,
             'source': this.id,
@@ -56,9 +56,9 @@ class GeojsonPointStructure extends GeoJsonStructure {
                 'circle-stroke-width': 1
             }
         });
-        this._click_popup();
+        this._clickPopup();
     }
-    _click_popup() {
+    _clickPopup() {
         this.map.on('click', this.id, function (e) {
             var coordinates = e.features[0].geometry.coordinates.slice();
             var date = new Date(e.features[0].properties.timestamp)
@@ -77,7 +77,7 @@ class GeoJsonLineStructure extends GeoJsonStructure {
         this.width = width;
         console.log("width:", this.width);
     }
-    _add_layer() {
+    _addLayer() {
         this.map.addLayer({
             'id': this.id,
             'type': 'line',
@@ -102,13 +102,13 @@ class GeoJsonPolygonStructure extends GeoJsonStructure {
         this.width = width;
         this.linecolor = linecolor;
     }
-    _add_layer() {
+    _addLayer() {
         if (this.color != "None") {
-            this._add_fill_layer();
+            this._addFillLayer();
         };
-        this._add_surround_layer();
+        this._addSurroundLayer();
     }
-    _add_fill_layer() {
+    _addFillLayer() {
         this.map.addLayer({
             'id': this.id + "fill",
             'type': 'fill',
@@ -120,7 +120,7 @@ class GeoJsonPolygonStructure extends GeoJsonStructure {
             }
         });
     }
-    _add_surround_layer() {
+    _addSurroundLayer() {
         this.map.addLayer({
             'id': this.id + "_outline",
             'type': 'line',
@@ -140,14 +140,14 @@ class DrawPoints extends GeojsonPointStructure {
         super(map, id, color, opacity, visibility, radius);
         this.url = url;
     }
-    add_structure() {
+    addStructure() {
         fetch(this.url, {
             mode: 'cors'
         }).then((response) => {
             return response.json();
         }).then((geojson) => {
             this.geojson = geojson;
-            this._add_geojson();
+            this._addGeojson();
             console.log("Write: " + this.url);
         }).catch((e) => {
             console.log(e);
@@ -160,14 +160,14 @@ class DrawLine extends GeoJsonLineStructure {
         super(map, id, color, opacity, visibility, width);
         this.url = url;
     }
-    add_structure() {
+    addStructure() {
         fetch(this.url, {
             mode: 'cors'
         }).then((response) => {
             return response.json();
         }).then((geojson) => {
             this.geojson = geojson;
-            this._add_geojson();
+            this._addGeojson();
             console.log("Write: " + this.url);
         }).catch((e) => {
             console.log(e);
@@ -179,14 +179,14 @@ class DrawPolygon extends GeoJsonPolygonStructure {
         super(map, id, fillcolor, opacity, visibility, width, linecolor);
         this.url = url;
     }
-    add_structure() {
+    addStructure() {
         fetch(this.url, {
             mode: 'cors'
         }).then((response) => {
             return response.json();
         }).then((geojson) => {
             this.geojson = geojson;
-            this._add_geojson();
+            this._addGeojson();
             console.log("Write: " + this.url);
         }).catch((e) => {
             console.log(e);
@@ -199,40 +199,40 @@ function asSrpPoint(map, color = "blue", visibility = "visible") {
     let as_srp_point = new DrawPoints(map, url, "AsSrp");
     as_srp_point.color = color
     as_srp_point.visibility = visibility
-    as_srp_point.add_structure();
+    as_srp_point.addStructure();
 }
 function asWpPoint(map, color = "pink", visibility = "visible") {
     let url = "http://localhost:8000/api/geojson/point/activitySegment.waypointPath"
     let as_wp_point = new DrawPoints(map, url, "AsWp");
     as_wp_point.color = color;
     as_wp_point.visibility = visibility;
-    as_wp_point.add_structure();
+    as_wp_point.addStructure();
 }
 function pvSrpPoint(map, color = "yellow", visibility = "visible") {
     let url = "http://localhost:8000/api/geojson/point/placeVisit.simplifiedRawPath"
     let pv_srp_point = new DrawPoints(map, url, "PvSrp");
     pv_srp_point.color = color;
     pv_srp_point.visibility = visibility;
-    pv_srp_point.add_structure();
+    pv_srp_point.addStructure();
 }
 function pvLocationPoint(map, color = "white", visibility = "visible") {
     let url = "http://localhost:8000/api/geojson/point/placeVisit.location"
     let pv_location = new DrawPoints(map, url, "PvLoc", color, 6, 1, visibility);
-    pv_location.add_structure();
+    pv_location.addStructure();
 }
 function dbscan_point(map, color = "red", visibility = "visible") {
     let url = "http://localhost:8000/api/geojson/point/dbscan"
     let dbscan_point = new DrawPoints(map, url, "dbscan_point");
     dbscan_point.color = color;
     dbscan_point.visibility = visibility;
-    dbscan_point.add_structure();
+    dbscan_point.addStructure();
 }
 
 function add_routepath(map, color = 'gray', visibility = "visible", opacity = 0.5, width = 1) {
     let url = "http://localhost:8000/api/geojson/line/route"
     let id = "routepath"
     let routepath = new DrawLine(map, url, id, color, width, opacity, visibility);
-    routepath.add_structure();
+    routepath.addStructure();
 }
 
 
@@ -241,19 +241,19 @@ function dbscan_polygon(map, fillcolor = "None", linecolor = "black") {
     let url = "http://localhost:8000/api/geojson/polygon/dbscan"
     let id = "dbscan_polygon"
     let dbscan_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 3, 0.5)
-    dbscan_polygon.add_structure();
+    dbscan_polygon.addStructure();
 }
 function optics_polygon(map, eps = 1.0, fillcolor = "None", linecolor = "black") {
     let url = "http://localhost:8000/api/geojson/polygon/optics/" + eps.toFixed(10)
     let id = "optics_polygon"
     let optics_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 3, 0.6);
-    optics_polygon.add_structure();
+    optics_polygon.addStructure();
 }
 function viewport_polygon(map, fillcolor = "None", linecolor = "gray") {
     let url = "http://localhost:8000/api/geojson/viewport";
     let id = "viewport";
     let viewport_polygon = new DrawPolygon(map, url, id, fillcolor, linecolor, 2, 0.3);
-    viewport_polygon.add_structure();
+    viewport_polygon.addStructure();
 }
 
 export {GeojsonPointStructure, GeoJsonLineStructure, GeoJsonPolygonStructure, asSrpPoint, asWpPoint, pvSrpPoint, pvLocationPoint, dbscan_point, add_routepath, dbscan_polygon, optics_polygon, viewport_polygon};
