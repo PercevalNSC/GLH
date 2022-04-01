@@ -7,23 +7,23 @@ let centers = { "chofu": [139.545, 35.655], "shibuya": [139.65, 35.65], "maebash
 
 class MapboxMap {
     constructor() {
-        console.log("map load")
+        console.log("map class")
         this.map = this.#addMap();
         this.#addControl();
     }
 
-    map_unproject() {
+    unproject() {
         // 左下と右上の座標のリスト
-        return [this.get_left_bottom(), this.get_right_top()]
+        return [this.getLeftBottom(), this.getRightTop()]
     }
 
-    get_left_bottom() {
+    getLeftBottom() {
         let height = this.map.getContainer().offsetHeight;
         let p = this.map.unproject([0, height]);
 
         return [p["lng"], p["lat"]]
     }
-    get_right_top() {
+    getRightTop() {
         let width = this.map.getContainer().offsetWidth;
         let p = this.map.unproject([width, 0]);
 
@@ -35,15 +35,15 @@ class MapboxMap {
     }
     addGeojsonPoints(geojson, id) {
         let geojson_points = new GeojsonPointStructure(this.map, id);
-        geojson_points.add_structure(geojson);
+        geojson_points.addStructure(geojson);
     }
     addGeojsonLine(geojson, id) {
         let geojson_line = new GeoJsonLineStructure(this.map, id);
-        geojson_line.add_structure(geojson);
+        geojson_line.addStructure(geojson);
     }
     addGeojonPolygons(geojson, id) {
         let geojson_polygons = new GeoJsonPolygonStructure(this.map, id, "None");
-        geojson_polygons.add_structure(geojson);
+        geojson_polygons.addStructure(geojson);
     }
 
     #addMap() {

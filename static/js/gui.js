@@ -1,5 +1,5 @@
 import { mapboxmap } from "./Map.js"
-import { drawClusters, update_reachability } from "./OPTICSdata.js";
+import { drawClusters, updateReachability } from "./OPTICSdata.js";
 
 const map = mapboxmap.map;
 
@@ -19,57 +19,54 @@ class GUIObject {
         this.gui = gui;
 
         this.parameter = new GUIParameter();
-        this.add_gui(this.gui, this.parameter)
+        this.addGui(this.gui, this.parameter)
     }
 
-    getPvloc(){
-        return this.convert_visibility(this.parameter.pvloc);
-    }
-    convert_visibility(bool) {
+    convertVisibility(bool) {
         return (bool ? "visible" : "none");
     }
 
-    add_gui(gui, parameters) {
+    addGui(gui, parameters) {
         // add parameter object to dat.GUI instance
         gui.add(parameters, 'points').onChange(function (bool) {
             parameters.assrp = bool;
-            visible_control(bool, "GLHpoints")
+            visibleControl(bool, "GLHpoints")
         });
 
         gui.add(parameters, 'pvloc').onChange(function (bool) {
             parameters.pvloc = bool;
-            visible_control(bool, "PvLoc");
+            visibleControl(bool, "PvLoc");
         });
 
         gui.add(parameters, 'optics').onChange(function (bool) {
             parameters.optics = bool;
-            visible_control(bool, "clusters_outline");
+            visibleControl(bool, "clusters_outline");
         });
         gui.add(parameters, 'plot').onChange(function (bool) {
-            display_control(bool, "d3plot");
+            displayControl(bool, "d3plot");
         });
 
         gui.add(parameters, 'eps').name("eps[km]").onChange(function (eps) {
             parameters.eps = eps;
-            set_eps(eps);
+            setEps(eps);
         });
         gui.add(parameters, 'printall').onChange(function (bool) {
             if (bool) {
                 console.log(parameters);
             };
         });
-        display_control(parameters.plot, 'd3plot');
-        display_control(parameters.legend, 'state-legend');
+        displayControl(parameters.plot, 'd3plot');
+        displayControl(parameters.legend, 'state-legend');
 
-        function convert_visibility(bool) {
+        function convertVisibility(bool) {
             return (bool ? "visible" : "none");
         }
 
-        function visible_control(bool, id) {
-            map.setLayoutProperty(id, 'visibility', convert_visibility(bool))
+        function visibleControl(bool, id) {
+            map.setLayoutProperty(id, 'visibility', convertVisibility(bool))
         }
 
-        function display_control(bool, id) {
+        function displayControl(bool, id) {
             if (bool) {
                 document.getElementById(id).style.display = "block"
             } else {
@@ -77,7 +74,7 @@ class GUIObject {
             }
         }
 
-        function set_eps(eps) {
+        function setEps(eps) {
             mapboxmap.removeOPTICSLayer();
             drawClusters(eps);
             update_reachability(eps);
@@ -85,10 +82,10 @@ class GUIObject {
     };
 
 
-    set_eps(eps) {
+    setEps(eps) {
         mapboxmap.removeOPTICSLayer();
         drawClusters(eps);
-        update_reachability(eps);
+        updateReachability(eps);
     }
 }
 

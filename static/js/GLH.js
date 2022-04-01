@@ -1,19 +1,20 @@
 // GLH.js
 
-import {get_reachability, update_reachability} from "./OPTICSdata.js"
+import { getReachability, updateReachability } from "./OPTICSdata.js"
 import { mapboxmap } from "./Map.js"
 import { GUIObject } from "./gui.js";
 import { pvLocationPoint } from "./Structure.js";
 
 const map = mapboxmap.map;
 
+function addStructure(){
+    ;
+};
 
-
-function init_message(){
-    console.log("map load")
+function initMessage(){
     console.log("map center:", map.getCenter());
     console.log("init zoom level:", map.getZoom());
-    console.log("window size:", mapboxmap.map_unproject());
+    console.log("window size:", mapboxmap.unproject());
 };
 
 var gui_object;
@@ -23,8 +24,6 @@ function add_structure(){
 };
 
 window.onload = function () {
-    console.log("window load")
-
     let gui = new dat.GUI();
     gui_object = new GUIObject(gui);
 
@@ -32,11 +31,12 @@ window.onload = function () {
 }
 
 map.on('load', function () {
-    init_message();
-    get_reachability();
+    initMessage();
+    addStructure();
+    getReachability();
 });
 
 map.on('moveend', e => {
     console.log('moveend', map.getBounds().toArray());
-    update_reachability(gui_object.parameter.eps);
+    updateReachability(gui_object.parameter.eps);
 });
