@@ -2,15 +2,17 @@ body {
     background-color: white;
 }
 
-div {
-    font-size: 20px;
+.content-box {
+    margin: 5px;
     padding: 5px;
 }
-div h1 {
+.content-title {
+    font-size: 30px;
     padding: 5px;
     border-style: solid;
     border-color: aqua;
 }
-div span {
+.content {
+    font-size: 20px;
     padding: 10px;
 }

@@ -11,7 +11,9 @@ app.use(express.static('static-node'))
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/static-node/templates/index.html"))
 })
-
+app.get('/visualizer', (req, res) => {
+    res.sendFile(path.join(__dirname, "/static-node/templates/glh_visualize.html"))
+})
 app.get('/map', (req, res) => {
     res.sendFile(path.join(__dirname, "/static-node/templates/map.html"))
 })

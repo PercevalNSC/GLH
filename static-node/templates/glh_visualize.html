@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="/css/visualizer.css">
+    <title>GLH Visualizer</title>
+
+</head>
+
+<body>
+    <div id='map'></div>
+    <div id="state-corner" class="corner">
+        <div id="state-legend" class="legend">
+            <h4>Point Type</h4>
+            <div><span style="background-color: blue"></span>ActivitySegment.SimplifiedRawPath</div>
+            <div><span style="background-color: pink"></span>ActivitySegment.WaypointPath</div>
+            <div><span style="background-color: yellow"></span>PlaceVisit.SimplifiedRawPath</div>
+            <div><span style="background-color: white"></span>PlaceVisit.Location</div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/glh_visualize.js"></script>
+
+</body>
+
+</html>

@@ -13,19 +13,21 @@
     <header>
         <h1 id="header-text">Routing Page</h1>
     </header>
-    <div>
-        <h1> Date </h1>
-
-        <span id="date">hoge date</span>
+    <div class="content-box">
+        <h1 class="content-title"> Date </h1>
+        <div class="content">
+            <span id="date">hoge date</span>
+        </div>
     </div>
-    <div id="route-table">
-        <h1> Routing Table </h1>
-
-        <ul>
-            <li> GLH visualizer </li>
-            <li> Aggregation OPTICS </li>
-            <li> <a href="/map">Mapbox Map </a> </li>
-        </ul>
+    <div id="route-table" class="content-box">
+        <h1 class="content-title"> Routing Table </h1>
+        <div class="content">
+            <ul>
+                <li> <a href="/visualizer">GLH visualizer</a> </li>
+                <li> Aggregation OPTICS </li>
+                <li> <a href="/map">Mapbox Map</a> </li>
+            </ul>
+        </div>
     </div>
 
     <script type="module" src="/js/index.js"></script>

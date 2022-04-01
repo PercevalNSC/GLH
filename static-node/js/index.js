@@ -1,20 +1,31 @@
 
 const date_element = document.getElementById('date');
 const time_interval = 1000;
+const diff_iteration_max = 100;
 
-window.onload = () => {
+function clock_function(){
     let time = new Date();
-    let date_text = date.toLocaleString('ja');
-    date_element.textContent = date_text;
+    let count = 0;
 
-    function update_time() {
-        time.setTime(time.getTime() + time_interval);
-        let date_text = time.toLocaleString('ja');
-        date_element.textContent = date_text;
-        //console.log(date_text);
-    }
+    let update_time = () => {
+        if (count >= diff_iteration_max) {
+            // time difference is about 1 secound
+            time = new Date();
+            count = 0;
+        } else {
+            date_element.textContent = time.toLocaleString('ja');
+            time.setTime(time.getTime() + time_interval);
+            count += 1;
+        }
+    };
+
+    update_time();
 
     setInterval(update_time, time_interval);
+};
+
+window.onload = () => {
+    clock_function();
 }
 
 

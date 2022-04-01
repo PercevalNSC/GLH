@@ -1,7 +1,10 @@
 from flask import Flask, render_template, jsonify
+from flask_cors import CORS
 from GLHMongoDB import *
+
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
+CORS(app)
 
 # For HTML
 @app.route('/')
