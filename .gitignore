@@ -3,6 +3,7 @@ __pycache__/
 *$py.class
 
 jsondata/
+node_modules/
 
 dbload.json
 

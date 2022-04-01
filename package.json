@@ -1,0 +1,26 @@
+{
+  "name": "glh",
+  "version": "1.0.0",
+  "description": "visualize GLH data, and demonstrate aggregate OPTICS ",
+  "main": "server.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PercevalNSC/GLH.git"
+  },
+  "author": "Keita Watanabe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PercevalNSC/GLH/issues"
+  },
+  "homepage": "https://github.com/PercevalNSC/GLH#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "mapbox-gl": "^2.7.1",
+    "serve-favicon": "^2.5.0"
+  },
+  "type": "commonjs"
+}
