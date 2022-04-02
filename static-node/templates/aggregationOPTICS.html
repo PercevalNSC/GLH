@@ -8,7 +8,7 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <link rel="stylesheet" href="/css/visualizer.css">
+    <link rel="stylesheet" href="/css/aggregation.css">
     <title>Google Location History</title>
     
 </head>
@@ -16,15 +16,6 @@
 <body>
     <div id='map'></div>
     <div id='d3plot'></div>
-    <div id="state-corner" class="corner">
-        <div id="state-legend" class="legend">
-            <h4>Point Type</h4>
-            <div><span style="background-color: blue"></span>ActivitySegment.SimplifiedRawPath</div>
-            <div><span style="background-color: pink"></span>ActivitySegment.WaypointPath</div>
-            <div><span style="background-color: yellow"></span>PlaceVisit.SimplifiedRawPath</div>
-            <div><span style="background-color: white"></span>PlaceVisit.Location</div>
-        </div>
-    </div>
     
     <script src="/js/aggregationOPTICS.js" type="module"></script>
     
