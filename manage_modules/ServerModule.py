@@ -109,4 +109,9 @@ def hello(name = None):
     print(name)
     return name
 
-app.run(port=8000, debug=True)
+def server_run() :
+    app.run(port=8000, debug=True)
+
+if __name__ == "__main__" :
+    server_run()
+
