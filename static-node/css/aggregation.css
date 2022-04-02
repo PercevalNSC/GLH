@@ -20,23 +20,10 @@ body {
     z-index: 1;
 }
 
-.plot {
+#back_button {
     position: absolute;
-    bottom: 50px;
+    top: 10px;
     left: 10px;
-    padding: 10px;
-    width: 500px
-}
-
-.legend h4 {
-    margin: 0 0 5px;
-}
-
-.legend div span {
-    border-radius: 50%;
-    display: inline-block;
-    height: 10px;
-    margin-right: 5px;
-    width: 10px;
-    border: thin solid;
-}
+    z-index: 2;
+    font-size: 16px;
+  }

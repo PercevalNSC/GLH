@@ -12,7 +12,7 @@ body {
 
 .corner {
     position: absolute;
-    top: 10px;
+    top: 40px;
     left: 10px;
     padding: 10px;
 }
@@ -39,3 +39,11 @@ body {
     width: 10px;
     border: thin solid;
 }
+
+#back_button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    font-size: 16px;
+  }
