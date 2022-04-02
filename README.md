@@ -10,53 +10,69 @@
     - D3.js
     - mapbox GL JS
     - Dat GUI
-    - Node.js(フロントサーバーの代替予定)
+    - Node.js
+    - express.js
 
 ## 使い方
-- MongoDBが起動している前提．
+- 事前にMongoDBを起動しておく．
 ### GLHデータの格納
-1. storeGLH/jsondata/ 下にそれぞれの年のディレクトリを作り，月ごとのGLHデータを入れる．
+1. jsondata/ 下にそれぞれの年のディレクトリを作り，月ごとのGLHデータを入れる．
 
-1. storeGLH/ 下でstoreGLH.pyを実行する
+    - jsondata/
+        - 2017/
+        - 2018/
+        - ...
 
-        python storeGLH.py
 
-### 初期結果の格納
-1. clustering.pyの実行
+1. コマンドの実行
 
-        python clustering.py
+    storeコマンドはデータの格納のみ．loadは初期クラスタリングまで行う．
+
+        python manage.py store
+        or
+        python manage.py load
+    
+
+
+
+
+### 初期クラスタリング
+1. コマンドの実行
+
+    init_clusteringコマンドはデータの格納のみ．loadは初期クラスタリングまで行う．
+
+        python manage.py init_clsutering
+        or
+        python manage.py load
 
 ### サーバーの起動
-1. serverGLH.pyの実行
+1. コマンドの実行
 
-        python serverGLH.py
+        python manage.py server
 
 ### オフラインプロット
-1. clustering_figure.pyの実行
+1. コマンドの実行
 
-        python clustering_figure.py
+        python manage.py plot
 
 ## ルーティング
 ### フロント用
 - /
 
-    集約化OPTICSのデモ
+    ルーティングページ
 
-- /geocoder
+- /visualizer
 
-    Mapboxのgeocoderサンプル
+    GLHデータの可視化ページ
 
-- /get-center
+- /aggreagation
 
-    地図の中心座標を取得するページ
-
-- /reachability
-
-    集約化到達性プロットのみ
+    集約化OPTICSのページ
 
 - /map
 
-    mapboxマップのみ
+    Mapboxのgeocoderサンプル
+
 
 ### バック用
 あとで記述
@@ -67,15 +83,11 @@
 
 ## Issue
 - フロントエンド
-    - フロントサーバーをFlaskから切り離し，Node.jsにして，フロントエンドをJSで完結させる．
     - localStorageを使って，集約前データの保持をメモリから移す．
     - generatorによる集約化時のメモリ削減
-    - GLHデータの表示ページを作る．
 - バックエンド
     - データベースへのデータ格納時に，ストリーミング処理を行う
         - generatorを使うか，ストリーミング処理のライブラリを使う
-    - データ格納と初期クラスタリングを連続で行う．
     - ルーティングの見直し
-    - 起動スクリプトを見直し，単体のスクリプトに引数を渡すことで，複数機能実行できるようにする．
 
 
