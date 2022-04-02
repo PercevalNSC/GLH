@@ -4,6 +4,7 @@ __pycache__/
 
 jsondata/*
 node_modules/
+images/*
 
 dbload.json
 
