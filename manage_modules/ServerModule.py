@@ -2,26 +2,14 @@ from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 from GLHMongoDB import *
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="static-node/templates")
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
 
 # For HTML
 @app.route('/')
 def home():
-    return render_template('GLH.html')
-@app.route('/geocoder')
-def geocoderMap():
-    return render_template('geocoder.html', title="Flask app", framework="Flask framework")
-@app.route('/get_center')
-def getcentermap():
-    return render_template('get_center.html')
-@app.route('/reachability')
-def reach():
-    return render_template("reachabilityplot.html")
-@app.route('/map')
-def map():
-    return render_template("map.html")
+    return "Flask server run."
 
 # For API
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')
@@ -102,12 +90,6 @@ def view_port():
 def api_get_reachability():
     return jsonify(get_reachability())
 
-
-# test
-@app.route('/hello/<name>')
-def hello(name = None):
-    print(name)
-    return name
 
 def server_run() :
     app.run(port=8000, debug=True)
