@@ -13,8 +13,6 @@
 
 
         function dataSend(data, url) {
-            let json_text = JSON.stringify(data);
-
             let xhr = new XMLHttpRequest;
             xhr.onload = function () {
                 var res = xhr.responseText;
@@ -23,9 +21,10 @@
             xhr.onerror = function () {
                 console.log("post error:", url)
             };
+            
             xhr.open('post', url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(json_text);
+            xhr.send(JSON.stringify(data));
         };
 
         dataSend(data, url);
