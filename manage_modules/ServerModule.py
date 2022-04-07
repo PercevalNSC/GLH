@@ -1,6 +1,8 @@
-from flask import Flask, render_template, jsonify
+from crypt import methods
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from GLHMongoDB import *
+import json
 
 app = Flask(__name__, template_folder="static-node/templates")
 app.config["JSON_AS_ASCII"] = False
@@ -10,6 +12,16 @@ CORS(app)
 @app.route('/')
 def home():
     return "Flask server run."
+
+# For GET
+@app.route('/post_data', methods = ['POST'])
+def check():
+    print("data listen")
+    if request.method == 'POST':
+        data = request.json
+        print(data)
+    return "receive neko"
+
 
 # For API
 @app.route('/api/json/point/activitySegment.simplifiedRawPath')

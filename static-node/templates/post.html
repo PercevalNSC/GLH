@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<head>
+    <title>neko</title>
+</head>
+
+<body>
+    <h1> neko </h1>
+    <script>
+        // 送信するJSON 
+        let data = { "name": "Tanaka" };
+        let url = "http://localhost:8000/post_data";
+
+
+        function dataSend(data, url) {
+            let json_text = JSON.stringify(data);
+
+            let xhr = new XMLHttpRequest;
+            xhr.onload = function () {
+                var res = xhr.responseText;
+                console.log(res);
+            };
+            xhr.onerror = function () {
+                console.log("post error:", url)
+            };
+            xhr.open('post', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(json_text);
+        };
+
+        dataSend(data, url);
+    </script>
+</body>
