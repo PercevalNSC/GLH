@@ -3,10 +3,10 @@
 Assemble GLHLibrary and MongoDBquery, and Management clustring.
 """
 
-from GLH import *
-from GLH.GLHmodule.geo2 import getBoundsAt
-from Setting.MongoDBSetting import GLHDB, ReachabilityDB
-from GLH.GLHmodule.GeoJSON import PolygonGeojson
+from lib.GLH.GLH import *
+from lib.GLH.GLHmodule.geo2 import getBoundsAt
+from lib.GLH.GLHmodule.GeoJSON import PolygonGeojson
+from lib.MongoDBSetting import GLHDB, ReachabilityDB
 
 def get_reachability():
     return ReachabilityDB().reachability_json()
@@ -28,8 +28,8 @@ def get_optics_polygon(eps, min_samples):
     return std.polygon()
 def route_path():
     routepath = RoutePath(GLHDB().query({}))
-    routepath.createRoutePath()
-    return routepath.exportGeoJson()
+    routepath._create_route_path()
+    return routepath.geojson()
 
 def get_viewport(center, zoom, width, height):
     corner = getBoundsAt(center, zoom, [width, height])
@@ -93,10 +93,10 @@ class GetGLHCollection():
     def _get_collection(self):
         pass
     def json(self):
-        self.collection.trajectoryList()
+        self.collection.trajectory_data()
         return self.collection.exportJson()
     def geojson(self):
-        self.collection.trajectoryList()
+        self.collection.trajectory_data()
         return self.collection.exportGeoJson()
 
 class GetGLHAssrp(GetGLHCollection):

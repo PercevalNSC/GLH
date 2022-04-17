@@ -1,5 +1,5 @@
 import GLH.GLHmodule.Plotfigure as pf
-from Setting.MongoDBSetting import GLHDB
+from library.MongoDBSetting import GLHDB
 from GLH import GLH
     
 def elementList(segment, element, limit = 0):

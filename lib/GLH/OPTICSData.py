@@ -1,12 +1,12 @@
 import numpy as np
 from math import isinf
 
-from GLH.GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot, compare_resolution_plot
-from GLH.GLHmodule.geo3 import euclid_to_geography
+from .GLHmodule.Plotfigure import reachability_figure, out_reachability_figure, ordered_coordinate_figure, resolution_plot, compare_resolution_plot
+from .GLHmodule.geo3 import euclid_to_geography
 
 class OPTICSArrays :
     """
-    Data: 要素内の3番目以降の情報を使わず，座標データだけ使用する
+    Data: 要素内の3番目以降の情報を使わず,座標データだけ使用する
     """
     plot_count = 0
     def __init__(self, data: list, reachability: list, ordering: list) -> None:

@@ -1,7 +1,7 @@
-from GLHMongoDB import OPTICSConstruct
-from GLH.Clustering import  OPTICSTrajectoryData, geography_to_euclid
-from GLH.GLHmodule.geo2 import getBoundsAt
-from GLH.OPTICSData import ComparePixel, OPTICSArrays
+from lib.GLHMongoDB import OPTICSConstruct
+from lib.GLH.Clustering import  OPTICSTrajectoryData, geography_to_euclid
+from lib.GLH.GLHmodule.geo2 import getBoundsAt
+from lib.GLH.OPTICSData import ComparePixel, OPTICSArrays
 
 geo_distance = 0.1
 min_samples = 4

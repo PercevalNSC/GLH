@@ -8,8 +8,8 @@ import numpy as np
 
 from .GLHmodule.Plotfigure import coordinatesFigure, out_reachability_figure, reachability_figure
 from .GLHmodule.geo2 import distance as g2distance
-from GLH.GLHmodule.geo3 import geography_to_euclid
-from GLH.OPTICSData import OPTICSArrays
+from .GLHmodule.geo3 import geography_to_euclid
+from .OPTICSData import OPTICSArrays
 
 class TrajectoryData():
     def __init__(self, trajectorydata: list) -> None:

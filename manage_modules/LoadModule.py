@@ -4,9 +4,9 @@ import glob
 from pymongo import MongoClient
 
 import manage_modules.GLHload as GLHload
-from GLHMongoDB import OPTICSConstruct
-from GLH.Clustering import OPTICSTrajectoryData
-from Setting.MongoDBSetting import GLHDB
+from lib.GLHMongoDB import OPTICSConstruct
+from lib.GLH.Clustering import OPTICSTrajectoryData
+from lib.MongoDBSetting import GLHDB
 
 
 # fileを開いて初期化したオブジェクトを返す

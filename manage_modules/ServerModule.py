@@ -1,7 +1,6 @@
-from crypt import methods
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
-from GLHMongoDB import *
+from lib.GLHMongoDB import *
 import json
 
 app = Flask(__name__, template_folder="static-node/templates")
