@@ -1,75 +1,69 @@
 import json
 import os
 import glob
-from pymongo import MongoClient
 
-import manage_modules.GLHload as GLHload
+from manage_modules.GLHLoad import GLHInitialize
 from lib.GLHMongoDB import OPTICSConstruct
 from lib.GLH.Clustering import OPTICSTrajectoryData
-from lib.MongoDBSetting import GLHDB
+from lib.MongoDBSetting import GLHDB, ReachabilityDB
+
+class GLHStore :
+    def __init__(self, rootpath) -> None:
+        self.rootpath = rootpath
+    
+    def insert_GLH(self):
+        file_list = self.get_file_list(self.rootpath)
+        glh_db = GLHDB()
+
+        for file_name in file_list :
+            glh_data = self.decode_jsonfile(file_name)
+            glh_db.insertmany(glh_data.dict["timelineObjects"])
+            print("Loaded:", file_name)
+
+    def decode_jsonfile(self, filename):
+        """
+        Open a GLH json file, and return decoded and initialized GLH data(:dictionary). "filename" is a GLH json file.
+        """
+        with open(filename, 'r') as f : 
+            dict = json.load(f)
+
+        glhdata = GLHInitialize(dict)
+        glhdata.initialize()
+        return glhdata
+    
+    def get_file_list(self):
+        years = [2017, 2018, 2019, 2020, 2021]
+        filelist = []
+
+        for y in years:
+            path = self.rootpath + str(y) + "/*.json"
+            filelist.extend(glob.glob(path))
+        
+        assert len(filelist) > 0, "filelist is None. Check carrent directory: " + os.getcwd()
+
+        return filelist
 
 
-# fileを開いて初期化したオブジェクトを返す
-def jsonOpen(filename):
-    with open(filename, 'r') as f : 
-        dict = json.load(f)
-
-    glhdata = GLHload.GLHinit(dict, 0)
-    glhdata.glhinit()
-    return glhdata
-
-# ファイル名のリストからファイルを開いてMongoDBへ格納
-def insertGLH(filelist):
-
-    with MongoClient("mongodb://127.0.0.1:27017") as client:
-        glh_db = client.glh_db
-
-        glh_clct = glh_db.glh_clct_full
-        glh_clct.delete_many({})
-
-        for filename in filelist :
-            print(filename)
-            glhdata = jsonOpen(filename)
-            glh_clct.insert_many(glhdata.dict["timelineObjects"])
-            print("loaded: " + filename)
-
-# rootpath以下の月別GLHjsonファイル名のリストを返す
-def getjsondata(rootpath):
-    years = [2017, 2018, 2019, 2020, 2021]
-    filelist = []
-
-    for y in years:
-        path = rootpath + str(y) + "/*.json"
-        filelist.extend(glob.glob(path))
-
-    return filelist
-
-# streamingで集計していけるようにするのが理想
-
-def store() :
+def store_GLH() :
     rootpath = "./jsondata/"
 
-    filelist = getjsondata(rootpath)
-    assert len(filelist) > 0, "filelist is None. Check carrent directory: " + os.getcwd()
+    glh_store = GLHStore(rootpath)
+    glh_store.insert_GLH()
 
-    insertGLH(filelist)
-
-def init_clustering() :
-    min_samples = 4
-
+def init_clustering(min_samples = 4) :
     construct = OPTICSConstruct(min_samples)
     optics_trajectory_data : OPTICSTrajectoryData = construct.clustering_obj.clustering
-    mongodb = GLHDB("glh_reach", "data2")
+    reach_db = ReachabilityDB()
 
     optics_array = optics_trajectory_data.create_optics_arrays()
     optics_array.status()
     dicted_data = optics_array.to_dict_list()
     #print(dicted_data)
-    mongodb.insertmany(dicted_data)
+    reach_db.insertmany(dicted_data)
 
 if __name__ == '__main__' :
     
-    store()
+    store_GLH()
     # mongodb command
         # sudo service mongodb start/stop/status
 

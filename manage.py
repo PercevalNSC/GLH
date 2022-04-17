@@ -2,7 +2,8 @@ import sys
 
 from manage_modules.ServerModule import server_run
 from manage_modules.FigureModule import figure
-from manage_modules.LoadModule import store, init_clustering
+from manage_modules.LoadModule import store_GLH
+from manage_modules.ClusteringModule import clustering_and_store_reachability
 
 def parse_option(option):
     if option == "server" :
@@ -10,12 +11,12 @@ def parse_option(option):
     elif option == "plot" :
         figure()
     elif option == "store" :
-        store()
+        store_GLH()
     elif option == "init_clustering":
-        init_clustering()
+        clustering_and_store_reachability()
     elif option == "load":
-        store()
-        init_clustering()
+        store_GLH()
+        clustering_and_store_reachability()
     elif option == "analyze" :
         pass
     elif option == "help" or option == "h" or option == "all":

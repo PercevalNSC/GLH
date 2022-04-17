@@ -3,10 +3,10 @@
 Assemble GLHLibrary and MongoDBquery, and Management clustring.
 """
 
-from lib.GLH.GLH import *
-from lib.GLH.GLHmodule.geo2 import getBoundsAt
-from lib.GLH.GLHmodule.GeoJSON import PolygonGeojson
-from lib.MongoDBSetting import GLHDB, ReachabilityDB
+from .GLH import *
+from .GLH.GLHmodule.geo2 import getBoundsAt
+from .GLH.GLHmodule.GeoJSON import PolygonGeojson
+from .MongoDBSetting import GLHDB, ReachabilityDB
 
 def get_reachability():
     return ReachabilityDB().reachability_json()
@@ -122,7 +122,3 @@ class GetGLHPvloc(GetGLHCollection):
         super().__init__()
     def _get_collection(self):
         return GLHCollectionPvLoc(GLHDB().pvlocation_query())
-
-if __name__=="__main__":
-    print("neko")
-    print(get_reachability())
