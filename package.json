@@ -4,7 +4,6 @@
   "description": "visualize GLH data, and demonstrate aggregate OPTICS ",
   "main": "server.js",
   "scripts": {
-    "test": "node test.js",
     "start": "nodemon server.js"
   },
   "repository": {
