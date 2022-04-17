@@ -18,6 +18,7 @@ def parse_option(option):
         store_GLH()
         clustering_and_store_reachability()
     elif option == "analyze" :
+        print("no defined function.")
         pass
     elif option == "help" or option == "h" or option == "all":
         print("python manage.py server: run flask server")

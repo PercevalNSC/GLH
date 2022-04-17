@@ -3,9 +3,7 @@ import os
 import glob
 
 from manage_modules.GLHLoad import GLHInitialize
-from lib.GLHMongoDB import OPTICSConstruct
-from lib.GLH.Clustering import OPTICSTrajectoryData
-from lib.MongoDBSetting import GLHDB, ReachabilityDB
+from lib.MongoDBSetting import GLHDB
 
 class GLHStore :
     def __init__(self, rootpath) -> None:
@@ -49,17 +47,6 @@ def store_GLH() :
 
     glh_store = GLHStore(rootpath)
     glh_store.insert_GLH()
-
-def init_clustering(min_samples = 4) :
-    construct = OPTICSConstruct(min_samples)
-    optics_trajectory_data : OPTICSTrajectoryData = construct.clustering_obj.clustering
-    reach_db = ReachabilityDB()
-
-    optics_array = optics_trajectory_data.create_optics_arrays()
-    optics_array.status()
-    dicted_data = optics_array.to_dict_list()
-    #print(dicted_data)
-    reach_db.insertmany(dicted_data)
 
 if __name__ == '__main__' :
     

@@ -1,7 +1,6 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from lib.GLHMongoDB import *
-import json
 
 app = Flask(__name__, template_folder="static-node/templates")
 app.config["JSON_AS_ASCII"] = False
